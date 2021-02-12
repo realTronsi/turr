@@ -10,8 +10,6 @@ const server = app.listen(3000);
 npm install svg-url-loader --save-dev
 */
 
-
-
 //Setting Up Server
 app.use(express.static("dist"));
 
@@ -140,6 +138,11 @@ wss.on('connection', ws => {
     if (affectedArena != undefined && deletedClient != undefined){
     delete affectedArena.players[deletedClient.id];
     affectedArena.playerCount --;
+    let deleteQtPlayer = affectedArena.playerqt.find(function(element){
+      return element.gameId === deletedClient.gameId
+    })
+    affectedArena.playerqt.remove(deleteQtPlayer[0]);
+
     for(let i of Object.keys(affectedArena.players)){
       const player = affectedArena.players[i];
       const payLoad = {
@@ -156,4 +159,4 @@ wss.on('connection', ws => {
 
 
 //Update Game
-setInterval(() => { update(arenas) }, 1000 / 30)
+setInterval(() => { update(arenas) }, 1000 / 30) 
