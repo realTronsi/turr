@@ -1,4 +1,5 @@
 const msgpack = require("msgpack-lite");
+const Quadtree = require("quadtree-lib");
 
 class Client {
   constructor(ws, id){
@@ -7,6 +8,8 @@ class Client {
     this.gameId;
     this.name;
 		this.state = "menu"; // state of client (joining server, ingame, dead, etc.)
+
+		this.arenaId; // arena playr is in
 
 		// game properties
 		this.keys = []; // keys pressed
@@ -70,7 +73,12 @@ class Arena {
     this.gameIdCount = 0;
     this.width = width || 2000;
     this.height = height || 2000;
-    this.friction = 0.8;
+
+		this.playerqt = new Quadtree({
+      width: this.width,
+    	height: this.height,
+      maxElements: 5
+    });
 	}
 	getSelectionData(){
 		return {
@@ -107,6 +115,7 @@ class Arena {
     client.energy = 0;
     client.lastEnergy = 0;
     client.hp = 0;
+    client.arena = this.id;
 
 		const payLoad = {
 			t: "npj", // new player joined
@@ -145,6 +154,13 @@ class Arena {
 
     //Add new player
     this.players[client.id] = client;
+		this.playerqt.push({
+      x: client.x-client.size,
+      y: client.y-client.size,
+			width: client.size * 2,
+      height: client.size * 2,
+      gameId: client.gameId
+    });
 
 		this.playerCount++;
 	}

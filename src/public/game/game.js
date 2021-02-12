@@ -1,5 +1,6 @@
 import { Player } from "./player.js";
 import { Render } from "./render.js";
+import { Update } from "./update.js";
 import { sendPacket } from "../socket.js"
 
 
@@ -11,6 +12,7 @@ export function initGame(data, client) {
 	const gameDiv = document.getElementById("game");
 	const canvas = document.getElementById("gameCanvas");
 	const ctx = canvas.getContext("2d");
+  let lastTime = window.performance.now();
 
 	serverSelection.style.display = "none";
 	gameDiv.style.display = "";
@@ -91,9 +93,12 @@ export function initGame(data, client) {
 	}
 
 	function mainLoop(gameData) {
+    let delta = window.performance.now() - lastTime;
+    lastTime = window.performance.now();
 		//Update Game
 		//try {
 		Render(gameData, ctx, canvas);
+    Update(gameData, delta)
 		requestAnimationFrame(() => {
 			mainLoop(gameData);
 		});

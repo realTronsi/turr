@@ -8,12 +8,20 @@ export class Player{
       this.element = gameData.e;
       this.x = gameData.x;
       this.y = gameData.y;
+      this.serverX = gameData.x;
+      this.serverY = gameData.y;
+      this.middleX = gameData.x;
+      this.middleY = gameData.y;
     }
     else{
       //Create player (is you)
       this.name = gameData.name;
       this.x = gameData.x;
       this.y = gameData.y;
+      this.serverX = gameData.x;
+      this.serverY = gameData.y;
+      this.middleX = gameData.x;
+      this.middleY = gameData.y;
       this.gameId = gameData.gameId;
       this.fov = gameData.fov;
       this.element = gameData.element;
@@ -27,10 +35,10 @@ export class Player{
   }
   updatePack(updatePack){
     if (updatePack.x){
-      this.x = updatePack.x;
+      this.serverX = updatePack.x;
     }
     if (updatePack.y){
-      this.y = updatePack.y;
+      this.serverY = updatePack.y;
     }
   }
 }

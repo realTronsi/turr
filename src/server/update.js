@@ -10,6 +10,19 @@ function update(arenas){ // main game loop
     let updatePacks = [];
     for(let p of Object.keys(arena.players)){
       const player = arena.players[p];
+      let foundQtPlayer = arena.playerqt.find(function(element){
+        return element.gameId === player.gameId
+      })
+      let qtPlayer;
+      if (foundQtPlayer.length > 0){
+        qtPlayer = foundQtPlayer[0];
+      }
+      if (qtPlayer != undefined){
+        qtPlayer.x = player.x;
+        qtPlayer.y = player.y;
+      }
+
+      
 			player.changed = []; // reset changed properties
 
 			let normalizedxv = 0;

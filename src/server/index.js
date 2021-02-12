@@ -5,6 +5,7 @@ const path = require("path");
 const uuid = require("uuid");
 const app = express();
 const wss = new WebSocket.Server({ noServer: true });
+
 const server = app.listen(3000);
 /*
 npm install svg-url-loader --save-dev
@@ -122,35 +123,32 @@ wss.on('connection', ws => {
 	});
 
 	ws.on('close', () => {
-    let affectedArena;
-    let deletedClient;
-    for(let i of Object.keys(arenas)){
-      const arena = arenas[i];
-      for(let i of Object.keys(arena.players)){
-        const player = arena.players[i];
-        if (player.id === clientId){
-          deletedClient = player;
-          affectedArena = arena;
-          break;
+    if (clients[clientId].arena){
+      let affectedArena = arenas[clients[clientId].arena];
+      let deletedClient = arenas[clients[clientId].arena].players[clients[clientId].gameId];
+      if (affectedArena != undefined && deletedClient != undefined){
+        delete affectedArena.players[clients[clientId].gameId];
+
+        //Delete player in Quadtree
+        let deleteQtPlayer = affectedArena.playerqt.find(function(element){
+          return element.gameId === deletedClient.gameId
+        })
+        if (deleteQtPlayer.length > 0){
+          affectedArena.playerqt.remove(deleteQtPlayer[0]);
+        }
+        affectedArena.playerCount = Object.keys(affectedArena.players).length;
+
+  
+
+        for(let i of Object.keys(affectedArena.players)){
+          const player = affectedArena.players[i];
+          const payLoad = {
+            t: "pl",
+            g: deletedClient.gameId
+          }
+          player.ws.send(msgpack.encode(payLoad))
         }
       }
-    }
-    if (affectedArena != undefined && deletedClient != undefined){
-    delete affectedArena.players[deletedClient.id];
-    affectedArena.playerCount --;
-    let deleteQtPlayer = affectedArena.playerqt.find(function(element){
-      return element.gameId === deletedClient.gameId
-    })
-    affectedArena.playerqt.remove(deleteQtPlayer[0]);
-
-    for(let i of Object.keys(affectedArena.players)){
-      const player = affectedArena.players[i];
-      const payLoad = {
-        t: "pl",
-        g: deletedClient.gameId
-      }
-      player.ws.send(msgpack.encode(payLoad))
-    }
     }
 		delete clients[clientId];
 	});
@@ -159,4 +157,4 @@ wss.on('connection', ws => {
 
 
 //Update Game
-setInterval(() => { update(arenas) }, 1000 / 30) 
+setInterval(() => { update(arenas) }, 1000 / 45) 

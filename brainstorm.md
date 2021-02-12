@@ -51,3 +51,6 @@ https://www.npmjs.com/package/spatial-hashmap
 
 
 https://github.com/asaarinen/qtree/
+
+https://www.npmjs.com/package/js-quadtree
+
