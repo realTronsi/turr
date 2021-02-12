@@ -39,3 +39,15 @@ Super energy DOES NOT naturally generate
 Basic
 Fire Water Earth
 Magma Sand Ice 
+
+
+# Quadtree
+
+
+http://www.mikechambers.com/blog/2011/03/21/javascript-quadtree-implementation/
+
+https://www.npmjs.com/package/spatial-hashmap
+
+
+
+https://github.com/asaarinen/qtree/

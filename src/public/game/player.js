@@ -20,7 +20,7 @@ export class Player{
       this.size = gameData.size;
       this.energy = 0;
       this.maxEnergy = 100;
-      this.slots = ["farm", "basic", "farm", "basic", "farm", "basic", "farm", "basic", "farm", "basic", "farm", "basic", "farm", "basic", "farm", "basic", "farm", "basic"]
+      this.slots = ["farm", "basic"]
       this.hp = 0;
       this.maxHP = 100;
     }
