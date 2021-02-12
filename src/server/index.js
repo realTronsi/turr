@@ -7,6 +7,8 @@ const app = express();
 const wss = new WebSocket.Server({ noServer: true });
 
 const server = app.listen(3000);
+
+let lastTime = Date.now();
 /*
 npm install svg-url-loader --save-dev
 */
@@ -28,7 +30,7 @@ server.on('upgrade', (request, socket, head) => {
 const arenas = {};
 const clients = {};
 const { Client, Arena } = require("./objects");
-const { update } = require("./update");
+const { update, sendToPlayers } = require("./update");
 const { whiteSpace } = require("./utils/whiteSpace");
 
 (() => {
@@ -157,4 +159,15 @@ wss.on('connection', ws => {
 
 
 //Update Game
-setInterval(() => { update(arenas) }, 1000 / 45) 
+setInterval(() => {
+  let delta = Date.now() - lastTime;
+  lastTime = Date.now();
+  //Check if delta is greater than the amount for 40 fps
+  while(delta > 25){
+    update(arenas, 25)
+    delta -= 25;
+  }
+  //Update anyways
+  update(arenas, delta)
+  sendToPlayers(arenas, delta);
+}, 1000 / 45) 

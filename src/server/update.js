@@ -1,13 +1,12 @@
 const msgpack = require("msgpack-lite");
 
-function update(arenas){ // main game loop
+function update(arenas, delta){ // main game loop
 	for(let a of Object.keys(arenas)){
     const arena = arenas[a];
 
 
 		if(arena.playerCount == 0) continue;
     
-    let updatePacks = [];
     for(let p of Object.keys(arena.players)){
       const player = arena.players[p];
       let foundQtPlayer = arena.playerqt.find(function(element){
@@ -49,8 +48,8 @@ function update(arenas){ // main game loop
 			player.yv += normalizedyv * player.stats.speed;
 
 
-			player.xv *= player.stats.friction;
-			player.yv *= player.stats.friction;
+			player.xv *= Math.pow(player.stats.friction, delta/25);
+			player.yv *= Math.pow(player.stats.friction, delta/25);
 
       
       if (Math.abs(player.xv) < 0.06){
@@ -67,8 +66,8 @@ function update(arenas){ // main game loop
         player.changed.push("y");
       }
       
-      player.x += player.xv;
-      player.y += player.yv;
+      player.x += player.xv * delta;
+      player.y += player.yv * delta;
 
 			// WALL COLLISION
       let lastX = player.x;
@@ -81,8 +80,14 @@ function update(arenas){ // main game loop
       if (lastY != player.y){
         player.changed.push("y");
       }
-      
     }
+  }
+}
+
+function sendToPlayers(arenas, delta){
+	for(let a of Object.keys(arenas)){
+    const arena = arenas[a];
+    let updatePacks = [];
     for(let p of Object.keys(arena.players)){
       //Add Update Pack
 			const player = arena.players[p];
@@ -97,7 +102,7 @@ function update(arenas){ // main game loop
 			if(player.energy >= player.stats.maxEnergy){
 				sendEnergy = false;
 			}
-			player.energy += 1/2;
+			player.energy += 0.01 * delta;
       if (player.energy > player.stats.maxEnergy){
         player.energy = player.stats.maxEnergy;
       }
@@ -105,7 +110,7 @@ function update(arenas){ // main game loop
 			if(player.hp >= player.stats.defense){
 				sendHealth = false;
 			}
-			player.hp += 1/6;
+			player.hp += 0.001 * delta;
       if (player.hp > player.stats.defense){
         player.hp = player.stats.defense;
       }
@@ -122,9 +127,7 @@ function update(arenas){ // main game loop
       }
       player.ws.send(msgpack.encode(payLoad));
     }
-
-
   }
 }
 
-module.exports = { update }
+module.exports = { update, sendToPlayers }
