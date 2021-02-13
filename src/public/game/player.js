@@ -1,6 +1,6 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-import { fitText } from "./utils.js";
+import { fitText } from "./utils/utils.js";
 
 export class Player{
   constructor(gameData){
@@ -9,6 +9,7 @@ export class Player{
       this.gameId = gameData.g;
       this.name = gameData.n;
       this.size = gameData.s;
+      this.id = gameData.g;
       this.element = gameData.e;
       this.x = Infinity;
       this.y = Infinity;
@@ -37,6 +38,7 @@ export class Player{
       this.slots = ["farm", "basic"]
       this.hp = 100;
       this.maxHP = 100;
+      this.id = gameData.gameId;
     }
   }
   updatePack(updatePack){

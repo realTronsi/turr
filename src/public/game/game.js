@@ -1,7 +1,18 @@
 import { Player } from "./player.js";
-import { Render, packetSent } from "./render.js";
+import { Tower } from "./tower.js";
+import { Render} from "./render.js";
 import { Update } from "./update.js";
+import { checkTowerPlace } from "./checkTowerPlace.js";
 import { sendPacket } from "../socket.js";
+
+const ConvertTowerToId = {
+  "farm": 0,
+  "basic": 1,
+  "healer": 2
+}
+
+
+
 
 
 
@@ -26,10 +37,12 @@ export function initGame(data, client) {
 		arenaWidth: data.aW,
 		arenaHeight: data.aH,
 		players: {},
+    towers: {},
 		you: new Player(data.s) // yourself
 	};
   let held = false;
-  let toBePlaced = false;
+  let mouseLock = false;
+  let canPlace = true;
 
 	//Create New Players from Data Sent
 	for (let playerData of data.pd) {
@@ -49,17 +62,41 @@ export function initGame(data, client) {
 	  mouse.y = Math.round((e.clientY - rect.top) / scale);
   })
   canvas.addEventListener("mousedown", function (e) {
-    toBePlaced = true;
+    if (mouseLock === false){
+      //Place Tower  
+      if (held != false && canPlace == true){
+        const payLoad = {
+          t: "pt",
+          mx: mouse.x,
+          my: mouse.y,
+          tt: ConvertTowerToId[held]
+        }
+        sendPacket(client.ws, payLoad)
+        held = false;
+      }
+    }
+    mouseLock = true;
   })
   canvas.addEventListener("mouseup", function (e) {
-    toBePlaced = false;
+    mouseLock = false;
   })
   
 
 
 	document.onkeydown = e => {
+    if (!e.repeat){
     if (e.key === " "){
-      toBePlaced = true;
+      //Place Tower
+      if (held != false && canPlace == true){
+        const payLoad = {
+          t: "pt",
+          mx: mouse.x,
+          my: mouse.y,
+          tt: ConvertTowerToId[held]
+        }
+        sendPacket(client.ws, payLoad)
+        held = false;
+      }
     }
     for(let i = gameData.you.slots.length; i>0; i--){
       if (String(e.key) === String(i)){
@@ -71,7 +108,6 @@ export function initGame(data, client) {
         }
       }
     }
-		if (!e.repeat) {
 			sendPacket(client.ws, {
 				t: "keyd", //keydown
 				c: e.key
@@ -79,9 +115,6 @@ export function initGame(data, client) {
 		}
 	}
 	document.onkeyup = (e) => {
-    if (e.key === " "){
-      toBePlaced = false;
-    }
 		sendPacket(client.ws, {
 			t: "keyu", //keyup
 			c: e.key
@@ -117,6 +150,14 @@ export function initGame(data, client) {
 							gameData.you.updatePack(playerData)
 						}
 					}
+          for(let towerData of data.tp) {
+            if (towerData.pi != undefined){
+              gameData.towers[towerData.id] = new Tower(towerData);
+            }
+            else{
+              gameData.towers[towerData.id].updatePack(towerData);
+            }
+          }
           if (data.e != undefined){
             gameData.you.energy = data.e;
           }
@@ -130,6 +171,11 @@ export function initGame(data, client) {
 					delete gameData.players[data.g];
           break;
 				}
+        case "ntp": {
+          //New tower placed
+          gameData.towers[data.d.id] = new Tower(data.d);
+          break;
+        }
 			}
 		//} catch (err) { 
 		//	alert(err);
@@ -141,11 +187,13 @@ export function initGame(data, client) {
     lastTime = window.performance.now();
 		//Update Game
 		//try {
-		Render(gameData, ctx, canvas, held, mouse, toBePlaced, client.ws);
-    Update(gameData, delta)
-    if (packetSent){
-      held = false;
+      //gameData, ctx, canvas, held, mouse, canPlace
+    if (held != false){
+      canPlace = checkTowerPlace(gameData, mouse, held);
     }
+		Render(gameData, ctx, canvas, held, mouse, canPlace);
+    Update(gameData, delta)
+
 		requestAnimationFrame(() => {
 			mainLoop(gameData);
 		});

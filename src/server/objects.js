@@ -1,32 +1,52 @@
 const msgpack = require("msgpack-lite");
 const Quadtree = require("quadtree-lib");
-const { TowerStats, ElementStats } = require("./stats")
+const { TowerStats, ElementStats } = require("./stats");
+const { ttToStr, strToTt } = require("./utils/ttcast");
 
 class Tower {
   constructor(id, parentId, x, y, type){
     this.x = x;
     this.y = y;
     this.type = type;
+		this.size = TowerStats[this.type].size || 80;
+		this.dir = 0;
     this.id = id;
     this.parentId = parentId; // gameId of parent
     this.hp = TowerStats[this.type].hp || 200;
     this.maxHP = this.hp;
-    this.decay = (TowerStats[this.type].hp || 10)/1000;
+    this.decay = (TowerStats[this.type].decay)/1000;
 
+		this.seenBy = []; // clients who've seen the tower
+
+		this.changed = {};
   }
   update(delta){
     this.hp -= this.decay * delta;
   }
   getInitPack(){
     return {
-      x: this.x,
-      y: this.y,
-      type: this.type,
+      tt: strToTt[this.type],
+			x: this.x,
+			y: this.y,
+			s: this.size,
       id: this.id,
-      parentId: this.parentId,
-      hp: this.hp
+      pi: this.parentId,
+			d: this.dir,
+      hp: this.hp,
+      mh: this.maxHP
     }
   }
+	getUpdatePack(){
+		let pack = {};
+    for(let i of Object.keys(this.changed)){
+      if (i === "d"){
+        pack.d = Math.round(this.dir*10)/10;
+      }
+    }
+    pack.hp = Math.round(this.hp);
+    pack.id = this.id;
+    return pack;
+	}
 }
 
 class Client {
@@ -54,13 +74,7 @@ class Client {
     this.energy;
     this.lastEnergy;
 
-		this.stats = {
-			speed: 11,
-			attack: 1,
-			defense: 100, // health
-      friction: 0.5,
-      maxEnergy: 100
-		}
+		this.stats = ElementStats["basic"];
     this.fov = 1;
 
     this.hp;
@@ -136,18 +150,17 @@ class Arena {
 		return gameId;
 	}
 	createTowerId(){
-		let towerId;
+		let towerId = 0;
     let idArray = [];
 		for(let i of Object.keys(this.towers)){
       const tower = this.towers[i];
       idArray.push(tower.id);
     }
-    while(towerId == undefined){
-			if(!idArray.includes(i)){
-				towerId = i;
+    while(true){
+			if(!idArray.includes(towerId)){
 				break;
 			}
-      towerId ++;
+      towerId++;
 		}
 		return towerId;
 	}
@@ -206,8 +219,8 @@ class Arena {
 		this.playerqt.push({
       x: client.x-client.size,
       y: client.y-client.size,
-			width: client.size * 2,
-      height: client.size * 2,
+			width: client.size,
+      height: client.size,
       gameId: client.gameId
     });
 
@@ -223,4 +236,4 @@ class Arena {
   }
 }
 
-module.exports = { Client, Arena }
+module.exports = { Client, Arena, Tower }

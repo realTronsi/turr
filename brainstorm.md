@@ -32,6 +32,9 @@ Super energy used to buy final tower in final tier, super rare, capped at 50.
 You get super energy from killing other players and draining 20% of their super energy if they had any
 Super energy DOES NOT naturally generate
 
+#Earth III Tower - Teleporter
+Stay in it without moving for 1 second to be teleported to a random spot on the arena
+
 
 
 # Rank Ideas

@@ -6,15 +6,6 @@ function createImage(svg) {
 
 import { sendPacket } from "../socket.js";
 
-export let packetSent = false;
-
-
-const ConvertTowerToId = {
-  "farm": 0,
-  "basic": 1,
-  "healer": 2
-}
-
 const ElementSprites = {
 	basic: createImage("../../assets/elements/element_basic.svg"),
 }
@@ -38,14 +29,11 @@ const IconSprites = {
 
 
 
-export function Render(gameData, ctx, canvas, held, mouse, toBePlaced, ws, sent) {
-  packetSent = false;
+export function Render(gameData, ctx, canvas, held, mouse, canPlace) {
 	ctx.fillStyle = "rgb(180, 180, 180)"
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 
-  //Can you place the tower test
-  let canPlace = true;
 
 
   //Save current state of canvas
@@ -57,6 +45,7 @@ export function Render(gameData, ctx, canvas, held, mouse, toBePlaced, ws, sent)
   //Get player data all in one object
 	let players = JSON.parse(JSON.stringify(gameData.players));
 	players[gameData.you.gameId] = JSON.parse(JSON.stringify(gameData.you));
+
   //Draw Arena Border
 	ctx.fillStyle = "rgb(0, 0, 0)"
 	ctx.fillRect(-10, -10, gameData.arenaWidth + 20, gameData.arenaHeight + 20);
@@ -64,7 +53,7 @@ export function Render(gameData, ctx, canvas, held, mouse, toBePlaced, ws, sent)
 	ctx.fillStyle = "rgb(200, 200, 200)"
 	ctx.fillRect(0, 0, gameData.arenaWidth, gameData.arenaHeight);
 
-	// DRAW GRID
+	//Draw grid
 	let gridWidth = 500;
 	ctx.strokeStyle = "rgb(180, 180, 180)"
 	ctx.lineWidth = 5;
@@ -82,27 +71,58 @@ export function Render(gameData, ctx, canvas, held, mouse, toBePlaced, ws, sent)
 	}
 
 
-  //Draw Player
-
+  //Draw Players
 	ctx.fillStyle = "rgb(0, 0, 0)"
 	ctx.font = "20px Arial";
 	for (let id of Object.keys(players)) {
 		const player = players[id];
 		if (player.x != null && player.y != null) {
-      //Player
+      //Player Body
 			ctx.drawImage(ElementSprites[player.element], player.x - player.size, player.y - player.size, player.size * 2, player.size * 2)
-      //name
+      //Name
 			ctx.fillText(player.name, player.x, player.y + player.size + 15);
 		}
-    //Cannot place check
-    if (Math.sqrt(
-      Math.pow(
-        mouse.x - ((player.x-gameData.you.x)*gameData.you.fov + canvas.width/2), 2) + 
-      Math.pow(
-        mouse.y - ((player.y-gameData.you.y)*gameData.you.fov + canvas.height/2), 2) 
-    ) < 40 + player.size){
-      canPlace = false;
-    }
+	}
+
+  //Draw Towers
+  ctx.lineCap = "round";
+	for (let id of Object.keys(gameData.towers)) {
+		const tower = gameData.towers[id];
+		if (tower.x != null && tower.y != null) {
+      if (tower.x > gameData.you.x - canvas.width/2*1/gameData.you.fov && tower.x - 50 < gameData.you.x + canvas.width/2*1/gameData.you.fov && tower.y > gameData.you.y - canvas.height/2*1/gameData.you.fov && tower.y < gameData.you.y + canvas.height/2*1/gameData.you.fov){
+        //Check if tower is owned by you or not
+        if (tower.parentId != gameData.you.id){
+			    ctx.drawImage(TowerSprites[tower.type].red, tower.x - tower.size, tower.y - tower.size, tower.size * 2, tower.size * 2);
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = "#000000";
+          ctx.beginPath();
+          ctx.moveTo(tower.x - tower.size/2, tower.y + tower.size/2 + 10);
+          ctx.lineTo(tower.x + tower.size/2, tower.y + tower.size/2 + 10);
+          ctx.stroke();
+          ctx.lineWidth = 8;        
+          ctx.strokeStyle = "#a65033";
+          ctx.beginPath();
+          ctx.moveTo(tower.x - tower.size/2, tower.y + tower.size/2 + 10);
+          ctx.lineTo(tower.x - tower.size/2 + (tower.size * tower.hp/tower.maxHP), tower.y + tower.size/2 + 10);
+          ctx.stroke();
+        }
+        else{
+          ctx.drawImage(TowerSprites[tower.type].yellow, tower.x - tower.size, tower.y - tower.size, tower.size * 2, tower.size * 2);
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = "#000000";
+          ctx.beginPath();
+          ctx.moveTo(tower.x - tower.size/2, tower.y + tower.size/2 + 10);
+          ctx.lineTo(tower.x + tower.size/2, tower.y + tower.size/2 + 10);
+          ctx.stroke();
+          ctx.lineWidth = 8;        
+          ctx.strokeStyle = "#45a633";
+          ctx.beginPath();
+          ctx.moveTo(tower.x - tower.size/2, tower.y + tower.size/2 + 10);
+          ctx.lineTo(tower.x - tower.size/2 + (tower.size * tower.hp/tower.maxHP), tower.y + tower.size/2 + 10);
+          ctx.stroke();
+        }
+      }
+		}		
 	}
 
 	//Draw Energy Bar
@@ -163,28 +183,13 @@ export function Render(gameData, ctx, canvas, held, mouse, toBePlaced, ws, sent)
 
 	}
 
-  if (mouse.x - ((0 - gameData.you.x)*gameData.you.fov + canvas.width/2) < 40){
-    canPlace = false;
-  }
-  if (mouse.y - ((0 - gameData.you.y)*gameData.you.fov + canvas.height/2) < 40){
-    canPlace = false;
-  }
-  if (mouse.x - ((gameData.arenaWidth - gameData.you.x)*gameData.you.fov + canvas.width/2) > -40){
-    canPlace = false;
-  }
-  if (mouse.y - ((gameData.arenaHeight - gameData.you.y)*gameData.you.fov + canvas.height/2) > -40){
-    canPlace = false;
-  }
 
-
-  //Draw thing that you are holding (when placing towers
+  //Draw thing that you are holding (when placing towers)
   if (held != false){
     ctx.globalAlpha = 0.4;
     ctx.drawImage(TowerSprites[held].yellow, mouse.x-80, mouse.y-80, 160, 160);
 
-    if (Math.sqrt(Math.pow(mouse.x-canvas.width/2, 2)+Math.pow(mouse.y-canvas.height/2, 2)) > 400){
-      canPlace = false;
-    }
+
 
     if (canPlace === false){
       ctx.globalAlpha = 0.3;
@@ -200,21 +205,6 @@ export function Render(gameData, ctx, canvas, held, mouse, toBePlaced, ws, sent)
     ctx.fill();
 
     ctx.globalAlpha = 1;
-
-    if (toBePlaced && held != false && canPlace === true){
-      const payLoad = {
-        t: "pt",
-        mx: mouse.x,
-        my: mouse.y,
-        tt: ConvertTowerToId[held]
-      }
-      sendPacket(ws, payLoad)
-      held = false;
-      packetSent = true;
-    }
-
   }
 
 }
-
-

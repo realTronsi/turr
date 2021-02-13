@@ -1,8 +1,9 @@
 const ElementStats = {
   basic: {
-    speed: 1,
+    speed: 9,
     attack: 1,
     defense: 100,
+    friction: 0.5,
     fov: 1,
     maxEnergy: 100
   },
@@ -32,31 +33,50 @@ const ElementStats = {
 const TowerStats = {
   farm: {
     hp: 240,
+    energy: 60,
+		decay: 6
   },
-  turret: {
+  basic: {
     hp: 150,
+    energy: 35,
+		decay: 6
   },
   healer: {
     hp: 320,
+    energy: 40,
+		decay: 6
   },
+  /*
   bomb: {
     hp: 160,
+    energy: 70,
+		decay: 6
   },
   streamer: {
     hp: 210,
+    energy: 50,
+		decay: 6
   },
   splinter: {
     hp: 170,
+    energy: 50,
+		decay: 6
   },
   core: {
     hp: 240,
+    energy: 50,
+		decay: 6
   },
   barrier: {
     hp: 400,
+    energy: 50,
+    decay: 10
   },
   sandpit: {
     hp: 40,
+    energy: 50,
     decay: 4
   }
+  */
 }
 module.exports = {TowerStats, ElementStats}

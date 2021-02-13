@@ -9,6 +9,8 @@ const wss = new WebSocket.Server({ noServer: true });
 const server = app.listen(3000);
 
 let lastTime = Date.now();
+
+
 /*
 npm install svg-url-loader --save-dev
 */
@@ -29,10 +31,12 @@ server.on('upgrade', (request, socket, head) => {
 //Constants Defining
 const arenas = {};
 const clients = {};
-const { Client, Arena } = require("./objects");
+const { Client, Arena, Tower } = require("./objects");
 const { update, sendToPlayers } = require("./update");
 const { whiteSpace } = require("./utils/whiteSpace");
 const { dist } = require("./utils/dist");
+const { ttToStr, strToTt } = require("./utils/ttcast");
+const { TowerStats, ElementStats } = require("./stats");
 
 (() => {
   let arenaId = uuid.v4();
@@ -113,11 +117,6 @@ wss.on('connection', ws => {
 
 					// Convert .tt to string
 
-					const ttToStr = {
-						"0": "farm",
-						"1": "basic",
-						"2": "heal" 
-					}
 					let towerName = ttToStr[data.tt];
 
 					let towerX = client.x + ((data.mx - 800) * client.fov); // tower coords (calculated based off of data)
@@ -125,9 +124,9 @@ wss.on('connection', ws => {
 
 					let buffer = 2; // buffer for collisions
 
-					let towerSize = 20; // get from stats.js later
+					let towerSize = TowerStats[towerName].size || 20;
 
-					if(dist(client.x, client.y, towerX, towerY) < 400){ // check if over range
+					if(dist(client.x, client.y, towerX, towerY) > 400){ // check if over range
 						break;
 					}
 
@@ -159,10 +158,17 @@ wss.on('connection', ws => {
 						// if colliding with another client
 						break;
 					}
+          const energyNeeded = TowerStats[towerName].energy || 100000;
+          if (client.energy < energyNeeded){
+            //Not enough energy
+            break;
+          } else {
+            client.energy -= energyNeeded;
+          }
 
-					const towerid = uuid.v4();
+					const towerid = clientArena.createTowerId();
 
-					let tower = new Tower(towerid, client.id, towerX, towerY, towerName);
+					let tower = new Tower(towerid, client.gameId, towerX, towerY, towerName);
 
 					clientArena.towers[towerid] = tower;
 

@@ -7,6 +7,7 @@ function update(arenas, delta){ // main game loop
 
 		if(arena.playerCount == 0) continue;
     
+		// PLAYERS UPDATE
     for(let p of Object.keys(arena.players)){
       const player = arena.players[p];
       let foundQtPlayer = arena.playerqt.find(function(element){
@@ -87,7 +88,7 @@ function update(arenas, delta){ // main game loop
       player.x += player.xv * delta / 25;
       player.y += player.yv * delta / 25;
 
-			// WALL COLLISION
+			// wall collision
       let lastX = player.x;
       let lastY = player.y;
       player.x = Math.min(Math.max(player.x, player.size), arena.width-player.size)
@@ -98,6 +99,17 @@ function update(arenas, delta){ // main game loop
       if (lastY != player.y){
         player.changed["y"] = true;
       }
+    }
+		
+		// TOWERS UPDATE
+    for(let t of Object.keys(arena.towers)){
+      const tower = arena.towers[t];
+
+			tower.hp -= tower.decay * delta;
+
+			if(tower.hp <= 0){
+				// tower dead
+			}
     }
   }
 }
@@ -141,13 +153,27 @@ function sendToPlayers(arenas, delta){
 					}
 				}
 			}
+			for(let t of Object.keys(arena.towers)){
+				const tower = arena.towers[t];
+				if(Math.abs(tower.x - player.x) <= 1/player.fov * 800 + tower.size && Math.abs(tower.y - player.y) <= 1/player.fov * 450 + tower.size){ // make sure tower is in fov
+					if(!tower.seenBy.includes(player)){
+						// player has never seen tower
+						towerUpdatePacks.push(tower.getInitPack());
+						tower.seenBy.push(player);
+					} else {
+						// player has seen tower
+						towerUpdatePacks.push(tower.getUpdatePack());
+					}
+				}
+			}
 			let sendEnergy = player.changed["energy"];
 			let sendHealth = player.changed["health"];
 
 
       const payLoad = {
         t: "u",
-        p: playerUpdatePacks
+        p: playerUpdatePacks,
+				tp: towerUpdatePacks
       };
       if (sendEnergy){
         payLoad.e = player.energy;
