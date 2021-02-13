@@ -21,8 +21,26 @@ function update(arenas, delta){ // main game loop
         qtPlayer.y = player.y;
       }
 
-      
-			player.changed = []; // reset changed properties
+			// ATTRIBUTES //
+
+			player.changed["energy"] = true;
+			if(player.energy >= player.stats.maxEnergy){
+				player.changed["energy"] = false;
+			}
+			player.energy += 0.01 * delta;
+      if (player.energy > player.stats.maxEnergy){
+        player.energy = player.stats.maxEnergy;
+      }
+			player.changed["health"] = true;
+			if(player.hp >= player.stats.defense){
+				player.changed["health"] = false;
+			}
+			player.hp += 0.001 * delta;
+      if (player.hp > player.stats.defense){
+        player.hp = player.stats.defense;
+      }
+
+			// MOVEMENT //
 
 			let normalizedxv = 0;
 			let normalizedyv = 0;
@@ -60,14 +78,14 @@ function update(arenas, delta){ // main game loop
       }
 
       if (player.xv != 0){
-        player.changed.push("x");
+        player.changed["x"] = true;
       }
       if (player.yv != 0){
-        player.changed.push("y");
+        player.changed["y"] = true;
       }
       
-      player.x += player.xv * delta;
-      player.y += player.yv * delta;
+      player.x += player.xv * delta / 25;
+      player.y += player.yv * delta / 25;
 
 			// WALL COLLISION
       let lastX = player.x;
@@ -75,10 +93,10 @@ function update(arenas, delta){ // main game loop
       player.x = Math.min(Math.max(player.x, player.size), arena.width-player.size)
       player.y = Math.min(Math.max(player.y, player.size), arena.height-player.size)
       if (lastX != player.x){
-        player.changed.push("x");
+        player.changed["x"] = true;
       }
       if (lastY != player.y){
-        player.changed.push("y");
+        player.changed["y"] = true;
       }
     }
   }
@@ -87,37 +105,49 @@ function update(arenas, delta){ // main game loop
 function sendToPlayers(arenas, delta){
 	for(let a of Object.keys(arenas)){
     const arena = arenas[a];
-    let updatePacks = [];
-    for(let p of Object.keys(arena.players)){
-      //Add Update Pack
-			const player = arena.players[p];
-      let playerPack = player.getUpdatePack();
-      if (Object.keys(playerPack).length > 0){
-        updatePacks.push(playerPack);
-      }
-    }
+
     for(let p of Object.keys(arena.players)){
       const player = arena.players[p];
-			let sendEnergy = true; // send energy if energy isn't full
-			if(player.energy >= player.stats.maxEnergy){
-				sendEnergy = false;
+			const playerUpdatePacks = [];
+			const towerUpdatePacks = [];
+
+			for(let k of Object.keys(arena.players)){
+				const candidate = arena.players[k];
+				if(Math.abs(candidate.x - player.x) <= 1/player.fov * 800 + candidate.size && Math.abs(candidate.y - player.y) <= 1/player.fov * 450 + candidate.size){ // make sure player is in fov
+					let playerPack = {};
+					if(!player.inFov.includes(candidate)){
+						// candidate just got into player fov
+						player.inFov.push(candidate);
+						playerPack = {
+							g: candidate.gameId,
+							x: candidate.x,
+							y: candidate.y,
+              ip: 0
+							// size and other attributes later
+						};
+					} else {
+						playerPack = candidate.getUpdatePack();
+					}
+					if (Object.keys(playerPack).length > 0){
+						playerUpdatePacks.push(playerPack);
+					}
+				} else {
+					if(player.inFov.includes(candidate)){
+						player.inFov.splice(player.inFov.indexOf(candidate), 1);
+						playerUpdatePacks.push({
+							g: candidate.gameId,
+							ip: -1
+						});
+					}
+				}
 			}
-			player.energy += 0.01 * delta;
-      if (player.energy > player.stats.maxEnergy){
-        player.energy = player.stats.maxEnergy;
-      }
-      let sendHealth = true; // send health
-			if(player.hp >= player.stats.defense){
-				sendHealth = false;
-			}
-			player.hp += 0.001 * delta;
-      if (player.hp > player.stats.defense){
-        player.hp = player.stats.defense;
-      }
-      
+			let sendEnergy = player.changed["energy"];
+			let sendHealth = player.changed["health"];
+
+
       const payLoad = {
         t: "u",
-        p: updatePacks
+        p: playerUpdatePacks
       };
       if (sendEnergy){
         payLoad.e = player.energy;
@@ -127,6 +157,9 @@ function sendToPlayers(arenas, delta){
       }
       player.ws.send(msgpack.encode(payLoad));
     }
+		for(let p of Object.keys(arena.players)){
+      arena.players[p].changed = {}; // reset changed properties
+		}
   }
 }
 

@@ -1,4 +1,4 @@
-export const Stats = {
+const ElementStats = {
   basic: {
     speed: 1,
     attack: 1,
@@ -29,3 +29,34 @@ export const Stats = {
   }
 
 }
+const TowerStats = {
+  farm: {
+    hp: 240,
+  },
+  turret: {
+    hp: 150,
+  },
+  healer: {
+    hp: 320,
+  },
+  bomb: {
+    hp: 160,
+  },
+  streamer: {
+    hp: 210,
+  },
+  splinter: {
+    hp: 170,
+  },
+  core: {
+    hp: 240,
+  },
+  barrier: {
+    hp: 400,
+  },
+  sandpit: {
+    hp: 40,
+    decay: 4
+  }
+}
+module.exports = {TowerStats, ElementStats}

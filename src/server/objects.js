@@ -1,5 +1,33 @@
 const msgpack = require("msgpack-lite");
 const Quadtree = require("quadtree-lib");
+const { TowerStats, ElementStats } = require("./stats")
+
+class Tower {
+  constructor(id, parentId, x, y, type){
+    this.x = x;
+    this.y = y;
+    this.type = type;
+    this.id = id;
+    this.parentId = parentId; // gameId of parent
+    this.hp = TowerStats[this.type].hp || 200;
+    this.maxHP = this.hp;
+    this.decay = (TowerStats[this.type].hp || 10)/1000;
+
+  }
+  update(delta){
+    this.hp -= this.decay * delta;
+  }
+  getInitPack(){
+    return {
+      x: this.x,
+      y: this.y,
+      type: this.type,
+      id: this.id,
+      parentId: this.parentId,
+      hp: this.hp
+    }
+  }
+}
 
 class Client {
   constructor(ws, id){
@@ -13,7 +41,8 @@ class Client {
 
 		// game properties
 		this.keys = []; // keys pressed
-		this.changed = []; // properties that changed
+		this.changed = {}; // properties that changed
+		this.inFov = []; // players inside fov
 
 		this.x;
 		this.y;
@@ -41,14 +70,12 @@ class Client {
       g: this.gameId,
       n: this.name,
       s: this.size,
-      e: this.element,
-      x: this.x,
-      y: this.y
+      e: this.element
     }
   }
   getUpdatePack(){
     let pack = {};
-    for(let i of this.changed){
+    for(let i of Object.keys(this.changed)){
       if (i === "x"){
         pack.x = Math.round(this.x*10)/10;
       }
@@ -69,6 +96,7 @@ class Arena {
 		this.name = name;
     this.maxPlayers = maxPlayers;
 		this.players = {};
+    this.towers = {};
 		this.playerCount = 0; // # of players
     this.gameIdCount = 0;
     this.width = width || 2000;
@@ -79,6 +107,11 @@ class Arena {
     	height: this.height,
       maxElements: 5
     });
+    this.towerqt = new Quadtree({
+      width: this.width,
+      height: this.height,
+      maxElements: 5
+    })
 	}
 	getSelectionData(){
 		return {
@@ -102,6 +135,22 @@ class Arena {
 		}
 		return gameId;
 	}
+	createTowerId(){
+		let towerId;
+    let idArray = [];
+		for(let i of Object.keys(this.towers)){
+      const tower = this.towers[i];
+      idArray.push(tower.id);
+    }
+    while(towerId == undefined){
+			if(!idArray.includes(i)){
+				towerId = i;
+				break;
+			}
+      towerId ++;
+		}
+		return towerId;
+	}
 	addPlayer(client){
 		// loop thru and send everyone the new player first no put it first since we dont want to include the new player himself
 		client.state = "game";
@@ -112,10 +161,10 @@ class Arena {
     client.x = (Math.random() * this.width - client.size * 2) + client.size;
     client.y = (Math.random() * this.height - client.size * 2) + client.size;
     client.element = "basic";
-    client.energy = 0;
-    client.lastEnergy = 0;
-    client.hp = 0;
-    client.arena = this.id;
+    client.energy = 100;
+    client.lastEnergy = 100;
+    client.hp = 100;
+    client.arenaId = this.id;
 
 		const payLoad = {
 			t: "npj", // new player joined
@@ -153,7 +202,7 @@ class Arena {
     client.ws.send(msgpack.encode(payLoad2));
 
     //Add new player
-    this.players[client.id] = client;
+    this.players[client.gameId] = client;
 		this.playerqt.push({
       x: client.x-client.size,
       y: client.y-client.size,

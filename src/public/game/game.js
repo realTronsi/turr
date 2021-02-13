@@ -1,7 +1,7 @@
 import { Player } from "./player.js";
-import { Render } from "./render.js";
+import { Render, packetSent } from "./render.js";
 import { Update } from "./update.js";
-import { sendPacket } from "../socket.js"
+import { sendPacket } from "../socket.js";
 
 
 
@@ -13,6 +13,10 @@ export function initGame(data, client) {
 	const canvas = document.getElementById("gameCanvas");
 	const ctx = canvas.getContext("2d");
   let lastTime = window.performance.now();
+  let mouse = {
+    x: 0,
+    y: 0
+  };
 
 	serverSelection.style.display = "none";
 	gameDiv.style.display = "";
@@ -24,6 +28,8 @@ export function initGame(data, client) {
 		players: {},
 		you: new Player(data.s) // yourself
 	};
+  let held = false;
+  let toBePlaced = false;
 
 	//Create New Players from Data Sent
 	for (let playerData of data.pd) {
@@ -31,7 +37,40 @@ export function initGame(data, client) {
 	}
 
 
+  canvas.addEventListener("mousemove", function (e) {
+    let windowWidth = window.innerWidth;
+    let windowHeight = window.innerHeight;
+    let scale = window.innerWidth / canvas.width;
+    if (window.innerHeight / canvas.height < window.innerWidth / canvas.width) {
+      scale = window.innerHeight / canvas.height;
+    }
+	  const rect = canvas.getBoundingClientRect();
+	  mouse.x = Math.round((e.clientX - rect.left) / scale);
+	  mouse.y = Math.round((e.clientY - rect.top) / scale);
+  })
+  canvas.addEventListener("mousedown", function (e) {
+    toBePlaced = true;
+  })
+  canvas.addEventListener("mouseup", function (e) {
+    toBePlaced = false;
+  })
+  
+
+
 	document.onkeydown = e => {
+    if (e.key === " "){
+      toBePlaced = true;
+    }
+    for(let i = gameData.you.slots.length; i>0; i--){
+      if (String(e.key) === String(i)){
+        if (held == gameData.you.slots[Number(e.key)-1]){
+          held = false;
+        }
+        else{
+          held = gameData.you.slots[Number(e.key)-1];
+        }
+      }
+    }
 		if (!e.repeat) {
 			sendPacket(client.ws, {
 				t: "keyd", //keydown
@@ -40,11 +79,16 @@ export function initGame(data, client) {
 		}
 	}
 	document.onkeyup = (e) => {
+    if (e.key === " "){
+      toBePlaced = false;
+    }
 		sendPacket(client.ws, {
 			t: "keyu", //keyup
 			c: e.key
 		});
 	}
+  //Send mousex and mousey as mx and my
+
 
 
 
@@ -97,8 +141,11 @@ export function initGame(data, client) {
     lastTime = window.performance.now();
 		//Update Game
 		//try {
-		Render(gameData, ctx, canvas);
+		Render(gameData, ctx, canvas, held, mouse, toBePlaced, client.ws);
     Update(gameData, delta)
+    if (packetSent){
+      held = false;
+    }
 		requestAnimationFrame(() => {
 			mainLoop(gameData);
 		});

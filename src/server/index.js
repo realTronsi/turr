@@ -32,6 +32,7 @@ const clients = {};
 const { Client, Arena } = require("./objects");
 const { update, sendToPlayers } = require("./update");
 const { whiteSpace } = require("./utils/whiteSpace");
+const { dist } = require("./utils/dist");
 
 (() => {
   let arenaId = uuid.v4();
@@ -54,6 +55,7 @@ wss.on('connection', ws => {
 	const clientId = uuid.v4();
 	const client = new Client(ws, clientId);
 	clients[clientId] = client;
+	let clientArena;
 
 	ws.on('message', msg => {
 		try {
@@ -85,12 +87,13 @@ wss.on('connection', ws => {
 							} else {
 								client.name = data.n;
                 client.name = client.name.replace(whiteSpace, "")
-                client.anem = client.name.slice(0, 16);
+                client.name = client.name.slice(0, 16);
                 if (!/\S/.test(client.name)){
                   client.name = "Player";
                 }
 								// successful join
 								arena.addPlayer(client);
+								clientArena = arena;
 								break;
 							}
 						} else {
@@ -104,6 +107,75 @@ wss.on('connection', ws => {
 							break;
 						}
 					}
+					break;
+				}
+				case "pt": { // place tower
+
+					// Convert .tt to string
+
+					const ttToStr = {
+						"0": "farm",
+						"1": "basic",
+						"2": "heal" 
+					}
+					let towerName = ttToStr[data.tt];
+
+					let towerX = client.x + ((data.mx - 800) * client.fov); // tower coords (calculated based off of data)
+					let towerY = client.y + ((data.my - 450) * client.fov);
+
+					let buffer = 2; // buffer for collisions
+
+					let towerSize = 20; // get from stats.js later
+
+					if(dist(client.x, client.y, towerX, towerY) < 400){ // check if over range
+						break;
+					}
+
+					if(towerX + buffer < towerSize || towerX - buffer > clientArena.width + towerSize || towerY + buffer < towerSize || towerY - buffer > clientArena.height + towerSize){ // check if out of bounds
+        		break;
+					}
+					let colliding = clientArena.towerqt.colliding({
+						x: towerX - towerSize,
+						y: towerY - towerSize,
+						width: towerSize * 2,
+						height: towerSize * 2
+					}, function (element1, element2){
+						return (dist(element1.x + element1.width, element1.y + element1.width, element2.x + element2.width, element2.y + element2.width) < element1.width + element2.width)
+					});
+					if(colliding.length > 0){
+						// if colliding with another tower
+						break;
+					}
+
+					colliding = clientArena.playerqt.colliding({
+						x: towerX - towerSize,
+						y: towerY - towerSize,
+						width: towerSize * 2,
+						height: towerSize * 2
+					}, function (element1, element2){
+						return (dist(element1.x + element1.width, element1.y + element1.width, element2.x + element2.width, element2.y + element2.width) < element1.width + element2.width)
+					});
+					if(colliding.length > 0){
+						// if colliding with another client
+						break;
+					}
+
+					const towerid = uuid.v4();
+
+					let tower = new Tower(towerid, client.id, towerX, towerY, towerName);
+
+					clientArena.towers[towerid] = tower;
+
+					// when pushing to quadtree, x and y represents top left corner so we must subtract the radius, keep this in mind for collision algorithms where we have to add back the radius
+					clientArena.towerqt.push({
+						x: towerX,
+						y: towerY,
+						width: towerSize,
+						height: towerSize,
+						id: towerid,
+						parentId: client.id
+					});
+
 					break;
 				}
 				case "keyd": {
@@ -125,11 +197,11 @@ wss.on('connection', ws => {
 	});
 
 	ws.on('close', () => {
-    if (clients[clientId].arena){
-      let affectedArena = arenas[clients[clientId].arena];
-      let deletedClient = arenas[clients[clientId].arena].players[clients[clientId].gameId];
+    if (client.arenaId !== undefined){
+      let affectedArena = arenas[client.arenaId];
+      let deletedClient = arenas[client.arenaId].players[client.gameId];
       if (affectedArena != undefined && deletedClient != undefined){
-        delete affectedArena.players[clients[clientId].gameId];
+        delete affectedArena.players[client.gameId];
 
         //Delete player in Quadtree
         let deleteQtPlayer = affectedArena.playerqt.find(function(element){
@@ -167,7 +239,7 @@ setInterval(() => {
     update(arenas, 25)
     delta -= 25;
   }
-  //Update anyways
+  //Update the rest of the delta
   update(arenas, delta)
   sendToPlayers(arenas, delta);
-}, 1000 / 45) 
+}, 1000 / 45)
