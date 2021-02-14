@@ -1,7 +1,7 @@
 const ConvertIdToTower = {
   "0": "farm",
   "1": "basic",
-  "2": "healer"
+  "2": "heal"
 }
 
 export class Tower{

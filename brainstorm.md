@@ -10,6 +10,45 @@ Heal - same as old turr
 
 Farm - same as old turr
 
+Towers gained in each tier
+Tier 1 - Basic
+Tier 2 - Two Regular Towers
+Tier 3 (Puberty) - One Regular Tower
+Tier 4 - one regular tower + one cheap super energy tower
+Tier 5 - one expensive super energy tower + super energy farm
+
+Fire -
+Bomb Tower
+
+
+Decimator very original idea (all players within radius lose health & towers, except u)
+
+Ice 
+Frostbite - you slowly lose hp and move much slower in a radius around this tower. Projectiles are also slightly slowed.
+
+Water
+Liquifier - very short radius, but within this radius your body will liquify, making you immune to damage until the tower dies (tower has quick decay and low hp) BASICALLY bullets pass through you, so you can't body block either
+
+Drowner - Enemies within a radius of this don't gain energy back
+
+Earth Tower
+
+Heavy - you are slightly immune to things that damage you (you take less damage) within radius of this
+
+Invisible - Towers cannot detect you within a radius
+
+ZeroTixTrash - kills all players named ZeroTix in the arena upon being placed (great idea add it now)
+
+Vision (you gain extra FOV within a radius of this tower)
+
+
+Random Tower Idea
+Glass TOWER - Upon death, it explodes and deals 60 damage to everything in a high radius. Be careful.
+
+
+
+
+
 Drone Tower [Lv ???] [Nature?] - Spawns drones that automatically follow the nearest enemy, upon touch rams them and both the drone and enemy lose
  health. Doesn't move THAT fast.
 

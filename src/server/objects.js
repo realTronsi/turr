@@ -3,16 +3,28 @@ const Quadtree = require("quadtree-lib");
 const { TowerStats, ElementStats } = require("./stats");
 const { ttToStr, strToTt } = require("./utils/ttcast");
 
+class Bullet {
+  constructor(x, y, dir, type){
+    this.x = x;
+    this.y = y;
+    this.dir = dir;
+    this.type = type;
+  }
+}
+
 class Tower {
   constructor(id, parentId, x, y, type){
     this.x = x;
     this.y = y;
     this.type = type;
-		this.size = TowerStats[this.type].size || 80;
+		this.size = (TowerStats[this.type].size || 80);
 		this.dir = 0;
     this.id = id;
     this.parentId = parentId; // gameId of parent
     this.hp = TowerStats[this.type].hp || 200;
+		this.range = TowerStats[this.type].range || 0;
+		this.maxReload = TowerStats[this.type].reload;
+		this.reload = this.maxReload;
     this.maxHP = this.hp;
     this.decay = (TowerStats[this.type].decay)/1000;
 
@@ -20,15 +32,12 @@ class Tower {
 
 		this.changed = {};
   }
-  update(delta){
-    this.hp -= this.decay * delta;
-  }
   getInitPack(){
     return {
       tt: strToTt[this.type],
 			x: this.x,
 			y: this.y,
-			s: this.size,
+			s: this.size * 2,
       id: this.id,
       pi: this.parentId,
 			d: this.dir,
@@ -40,7 +49,7 @@ class Tower {
 		let pack = {};
     for(let i of Object.keys(this.changed)){
       if (i === "d"){
-        pack.d = Math.round(this.dir*10)/10;
+        pack.d = Math.round(this.dir*100)/100;
       }
     }
     pack.hp = Math.round(this.hp);
@@ -69,13 +78,14 @@ class Client {
 		this.xv;
 		this.yv;
 		this.size;
+    this.xp;
 
     this.element;
     this.energy;
     this.lastEnergy;
 
 		this.stats = ElementStats["basic"];
-    this.fov = 1;
+    this.fov = ElementStats["basic"].fov;
 
     this.hp;
   }
@@ -178,6 +188,7 @@ class Arena {
     client.lastEnergy = 100;
     client.hp = 100;
     client.arenaId = this.id;
+    client.xp = 0;
 
 		const payLoad = {
 			t: "npj", // new player joined
@@ -196,7 +207,7 @@ class Arena {
         
 		let self_data = JSON.parse(JSON.stringify(client));
 
-		let whitelist = ["name", "x", "y", "gameId", "fov", "element", "size"];
+		let whitelist = ["name", "x", "y", "gameId", "fov", "element", "size", "xp"];
 
 		for(let p in Object.keys(self_data)){ // whitelist properties to send and remove unnecessary ones
 			if(!whitelist.includes(p)){
@@ -219,8 +230,8 @@ class Arena {
 		this.playerqt.push({
       x: client.x-client.size,
       y: client.y-client.size,
-			width: client.size,
-      height: client.size,
+			width: client.size * 2,
+      height: client.size * 2,
       gameId: client.gameId
     });
 

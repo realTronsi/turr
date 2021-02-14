@@ -5,7 +5,7 @@ export const TowerStats = {
   basic: {
     energy: 35
   },
-  healer: {
+  heal: {
     energy: 40
   }
 }

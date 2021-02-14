@@ -19,9 +19,12 @@ export class Player{
       this.middleY = Infinity;
       ctx.font = "20px Arial";
       this.name = fitText(ctx, this.name, 300);
+      ctx.font = "25px Arial";
+      this.shortName = fitText(ctx, this.name, 160);
     }
     else{
       //Create player (is you)
+      this.xp = gameData.xp;
       this.name = gameData.name;
       this.x = gameData.x;
       this.y = gameData.y;
@@ -35,10 +38,12 @@ export class Player{
       this.size = gameData.size;
       this.energy = 100;
       this.maxEnergy = 100;
-      this.slots = ["farm", "basic"]
+      this.slots = ["farm", "basic", "heal"]
       this.hp = 100;
       this.maxHP = 100;
       this.id = gameData.gameId;
+      ctx.font = "25px Arial";
+      this.shortName = fitText(ctx, this.name, 160);
     }
   }
   updatePack(updatePack){
@@ -47,6 +52,9 @@ export class Player{
     }
     if (updatePack.y != undefined){
       this.serverY = updatePack.y;
+    }
+    if (updatePack.xp != undefined){
+      this.xp = updatePack.xp;
     }
     if (updatePack.ip === 0){
       this.x = this.serverX;

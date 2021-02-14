@@ -1,6 +1,6 @@
 const ElementStats = {
   basic: {
-    speed: 9,
+    speed: 13,
     attack: 1,
     defense: 100,
     friction: 0.5,
@@ -11,7 +11,7 @@ const ElementStats = {
     speed: 1.2,
     attack: 1.2,
     defense: 80,
-    fov: 0.85,
+    fov: 1.2,
     maxEnergy: 100
   },
   water: {
@@ -25,7 +25,7 @@ const ElementStats = {
     speed: 0.75,
     attack: 0.8,
     defense: 180,
-    fov: 1.2,
+    fov: 0.85,
     maxEnergy: 100
   }
 
@@ -34,17 +34,28 @@ const TowerStats = {
   farm: {
     hp: 240,
     energy: 60,
-		decay: 6
+		decay: 6,
+    size: 40
   },
   basic: {
     hp: 150,
     energy: 35,
-		decay: 6
+		decay: 6,
+    size: 40,
+		reload: 10,
+		range: 400,
+    bullet: {
+      type: "basic",
+			damage: 20,
+			size: 4
+    }
   },
-  healer: {
+  heal: {
     hp: 320,
     energy: 40,
-		decay: 6
+		decay: 6,
+    size: 40,
+		aoe: 0.1
   },
   /*
   bomb: {

@@ -1,4 +1,4 @@
-const serverTick = 45;
+const serverTick = 30;
 function lerp(start, end, time) {
 	return start * (1 - time) + end * time;
 }

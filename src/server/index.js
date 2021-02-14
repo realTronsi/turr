@@ -32,10 +32,14 @@ server.on('upgrade', (request, socket, head) => {
 const arenas = {};
 const clients = {};
 const { Client, Arena, Tower } = require("./objects");
-const { update, sendToPlayers } = require("./update");
+const { update, sendToPlayers, updateLeaderboard, updateArenaLeaderboard } = require("./update");
 const { whiteSpace } = require("./utils/whiteSpace");
 const { dist } = require("./utils/dist");
 const { ttToStr, strToTt } = require("./utils/ttcast");
+const { reduce_num } = require("./utils/numred");
+
+
+
 const { TowerStats, ElementStats } = require("./stats");
 
 (() => {
@@ -97,6 +101,7 @@ wss.on('connection', ws => {
                 }
 								// successful join
 								arena.addPlayer(client);
+								updateArenaLeaderboard(arena);
 								clientArena = arena;
 								break;
 							}
@@ -119,12 +124,12 @@ wss.on('connection', ws => {
 
 					let towerName = ttToStr[data.tt];
 
-					let towerX = client.x + ((data.mx - 800) * client.fov); // tower coords (calculated based off of data)
-					let towerY = client.y + ((data.my - 450) * client.fov);
+					let towerX = client.x + ((data.mx - 800) * 1/client.fov); // tower coords (calculated based off of data)
+					let towerY = client.y + ((data.my - 450) * 1/client.fov);
 
 					let buffer = 2; // buffer for collisions
-
-					let towerSize = TowerStats[towerName].size || 20;
+          
+					let towerSize = TowerStats[towerName].size || 40;
 
 					if(dist(client.x, client.y, towerX, towerY) > 400){ // check if over range
 						break;
@@ -139,7 +144,7 @@ wss.on('connection', ws => {
 						width: towerSize * 2,
 						height: towerSize * 2
 					}, function (element1, element2){
-						return (dist(element1.x + element1.width, element1.y + element1.width, element2.x + element2.width, element2.y + element2.width) < element1.width + element2.width)
+						return (dist(element1.x + element1.width/2, element1.y + element1.width/2, element2.x + element2.width/2, element2.y + element2.width/2) < element1.width/2 + element2.width/2)
 					});
 					if(colliding.length > 0){
 						// if colliding with another tower
@@ -152,7 +157,7 @@ wss.on('connection', ws => {
 						width: towerSize * 2,
 						height: towerSize * 2
 					}, function (element1, element2){
-						return (dist(element1.x + element1.width, element1.y + element1.width, element2.x + element2.width, element2.y + element2.width) < element1.width + element2.width)
+						return (dist(element1.x + element1.width/2, element1.y + element1.width/2, element2.x + element2.width/2, element2.y + element2.width/2) < element1.width/2 + element2.width/2)
 					});
 					if(colliding.length > 0){
 						// if colliding with another client
@@ -174,12 +179,12 @@ wss.on('connection', ws => {
 
 					// when pushing to quadtree, x and y represents top left corner so we must subtract the radius, keep this in mind for collision algorithms where we have to add back the radius
 					clientArena.towerqt.push({
-						x: towerX,
-						y: towerY,
-						width: towerSize,
-						height: towerSize,
+						x: towerX-towerSize,
+						y: towerY-towerSize,
+						width: towerSize * 2,
+						height: towerSize * 2,
 						id: towerid,
-						parentId: client.id
+						parentId: client.gameId
 					});
 
 					break;
@@ -241,11 +246,15 @@ setInterval(() => {
   let delta = Date.now() - lastTime;
   lastTime = Date.now();
   //Check if delta is greater than the amount for 40 fps
-  while(delta > 25){
-    update(arenas, 25)
-    delta -= 25;
+  while(delta > 37){
+    update(arenas, 37)
+    delta -= 37;
   }
   //Update the rest of the delta
   update(arenas, delta)
   sendToPlayers(arenas, delta);
-}, 1000 / 45)
+}, 1000 / 30)
+//Update Leaderboard
+setInterval(() => {
+  updateLeaderboard(arenas);
+}, 1000 / 1)

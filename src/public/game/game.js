@@ -1,5 +1,6 @@
 import { Player } from "./player.js";
 import { Tower } from "./tower.js";
+import { Bullet } from "./bullet.js";
 import { Render} from "./render.js";
 import { Update } from "./update.js";
 import { checkTowerPlace } from "./checkTowerPlace.js";
@@ -8,7 +9,7 @@ import { sendPacket } from "../socket.js";
 const ConvertTowerToId = {
   "farm": 0,
   "basic": 1,
-  "healer": 2
+  "heal": 2
 }
 
 
@@ -43,6 +44,7 @@ export function initGame(data, client) {
   let held = false;
   let mouseLock = false;
   let canPlace = true;
+  let leaderboard = [];
 
 	//Create New Players from Data Sent
 	for (let playerData of data.pd) {
@@ -127,7 +129,7 @@ export function initGame(data, client) {
 
 	client.ws.onclose = () => {
 		//Close Game
-    console.log("client ws is pooped")
+    alert("You've been disconnected from the server!")
 	}
 	client.ws.onmessage = msg => {
 		// handle errors/success
@@ -164,6 +166,9 @@ export function initGame(data, client) {
           if (data.h != undefined){
             gameData.you.hp = data.h;
           }
+          if (data.xp != undefined){
+            gameData.you.xp = data.xp;
+          }
           break;
 				}
 				case "pl": {
@@ -176,6 +181,13 @@ export function initGame(data, client) {
           gameData.towers[data.d.id] = new Tower(data.d);
           break;
         }
+        case "rt": {
+          delete gameData.towers[data.id];
+          break;
+        }
+        case "lb": {
+          leaderboard = data.lb;
+        }
 			}
 		//} catch (err) { 
 		//	alert(err);
@@ -186,20 +198,15 @@ export function initGame(data, client) {
     let delta = window.performance.now() - lastTime;
     lastTime = window.performance.now();
 		//Update Game
-		//try {
-      //gameData, ctx, canvas, held, mouse, canPlace
     if (held != false){
       canPlace = checkTowerPlace(gameData, mouse, held);
     }
-		Render(gameData, ctx, canvas, held, mouse, canPlace);
+		Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard);
     Update(gameData, delta)
 
 		requestAnimationFrame(() => {
 			mainLoop(gameData);
 		});
-		//} catch (err) {
-		//	alert(err);
-		//}
 	}
 	requestAnimationFrame(() => { mainLoop(gameData) });
 }

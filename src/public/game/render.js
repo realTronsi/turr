@@ -5,9 +5,21 @@ function createImage(svg) {
 }
 
 import { sendPacket } from "../socket.js";
+import { reduce_num } from "./utils/numred.js";
+import { wrapText } from "./utils/utils.js";
+
+const TowerDescriptions = {
+  farm: `Slowly gives XP`,
+  basic: `Shoots at things`,
+  heal: `Heals in a radius`
+}
 
 const ElementSprites = {
 	basic: createImage("../../assets/elements/element_basic.svg"),
+}
+
+function capFirst(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 const TowerSprites = {
@@ -18,6 +30,10 @@ const TowerSprites = {
 	basic: {
 		yellow: createImage("../../assets/towers/tower_basic_yellow.svg"),
 		red: createImage("../../assets/towers/tower_basic_red.svg")
+	},
+  heal: {
+		yellow: createImage("../../assets/towers/tower_heal_yellow.svg"),
+		red: createImage("../../assets/towers/tower_heal_red.svg")
 	}
 }
 const IconSprites = {
@@ -29,7 +45,7 @@ const IconSprites = {
 
 
 
-export function Render(gameData, ctx, canvas, held, mouse, canPlace) {
+export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard) {
 	ctx.fillStyle = "rgb(180, 180, 180)"
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -37,7 +53,6 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace) {
 
 
   //Save current state of canvas
-	ctx.save();
   //Field of Vision scale
 	ctx.scale(gameData.you.fov, gameData.you.fov);
   //Translate so it centers on you
@@ -89,10 +104,16 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace) {
 	for (let id of Object.keys(gameData.towers)) {
 		const tower = gameData.towers[id];
 		if (tower.x != null && tower.y != null) {
-      if (tower.x > gameData.you.x - canvas.width/2*1/gameData.you.fov && tower.x - 50 < gameData.you.x + canvas.width/2*1/gameData.you.fov && tower.y > gameData.you.y - canvas.height/2*1/gameData.you.fov && tower.y < gameData.you.y + canvas.height/2*1/gameData.you.fov){
+      if (tower.x > gameData.you.x - canvas.width/2*1/gameData.you.fov - 100 && tower.x  < gameData.you.x + canvas.width/2*1/gameData.you.fov + 100 && tower.y > gameData.you.y - canvas.height/2*1/gameData.you.fov - 120 && tower.y < gameData.you.y + canvas.height/2*1/gameData.you.fov + 120){
         //Check if tower is owned by you or not
         if (tower.parentId != gameData.you.id){
-			    ctx.drawImage(TowerSprites[tower.type].red, tower.x - tower.size, tower.y - tower.size, tower.size * 2, tower.size * 2);
+          //Draw Tower (not urs)
+          ctx.translate(tower.x, tower.y)
+          ctx.rotate(tower.dir)
+			    ctx.drawImage(TowerSprites[tower.type].red, - tower.size, - tower.size, tower.size * 2, tower.size * 2);
+          ctx.rotate(-tower.dir);
+          ctx.translate(-tower.x, -tower.y)
+          //Hp Bar
           ctx.lineWidth = 10;
           ctx.strokeStyle = "#000000";
           ctx.beginPath();
@@ -107,7 +128,13 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace) {
           ctx.stroke();
         }
         else{
-          ctx.drawImage(TowerSprites[tower.type].yellow, tower.x - tower.size, tower.y - tower.size, tower.size * 2, tower.size * 2);
+          //Draw Tower (urs)
+          ctx.translate(tower.x, tower.y)
+          ctx.rotate(tower.dir)
+			    ctx.drawImage(TowerSprites[tower.type].yellow, - tower.size, - tower.size, tower.size * 2, tower.size * 2);
+          ctx.rotate(-tower.dir);
+          ctx.translate(-tower.x, -tower.y)
+          //Hp Bar
           ctx.lineWidth = 10;
           ctx.strokeStyle = "#000000";
           ctx.beginPath();
@@ -126,7 +153,8 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace) {
 	}
 
 	//Draw Energy Bar
-	ctx.restore();
+	ctx.translate(-(-gameData.you.x + (canvas.width / 2) * 1 / gameData.you.fov), -(-gameData.you.y + (canvas.height / 2) * 1 / gameData.you.fov));
+  ctx.scale(1/gameData.you.fov, 1/gameData.you.fov)
 	ctx.textAlign = "center"
 	ctx.lineWidth = 25;
 	ctx.lineCap = "round";
@@ -163,6 +191,37 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace) {
 
 	ctx.drawImage(IconSprites.health, 360, 690, 95, 95);
 
+  //Draw leaderboard
+
+	ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+	ctx.fillRect(30, 30, 310, (leaderboard.length + 1) * 40 + 13);
+  ctx.textAlign = "left";
+  ctx.font = "28px Arial";
+  ctx.fillStyle = "rgb(255, 255, 255)"
+  ctx.fillText(
+	  "Leaderboard",
+		45,
+		64
+	);
+  ctx.font = "25px Arial";
+	for (let i of leaderboard) {
+    //Draw LB
+		if (i.id != gameData.you.id) {
+      i.name = gameData.players[i.id].shortName;
+			ctx.fillStyle = "rgb(220, 220, 220)";
+		}
+		else {
+      i.name = gameData.you.shortName;
+			ctx.fillStyle = "#f0ee92";
+		}
+		ctx.fillText(
+			i.place + ". " + i.name + ": " + i.xp,
+			45,
+			104 + (leaderboard.indexOf(i)) * 40
+		);
+	}
+  ctx.textAlign = "center";
+
   //Draw slots on bottom
 
 	ctx.lineCap = "butt";
@@ -181,13 +240,25 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace) {
 		ctx.fillStyle = "rgb(0, 0, 0)"
 		ctx.fillText(i + 1, slotX - 31, 872)
 
+    if (mouse.x > slotX - 40 && mouse.x < slotX + 40 && mouse.y > 800 && mouse.y < 880){
+      ctx.globalAlpha = 0.7;
+      ctx.font = "19px Arial";
+      ctx.fillRect(slotX - 120, 680, 240, 100)
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "rgb(240, 240, 240)"
+      ctx.font = "bold 32px Arial";
+      ctx.fillText(capFirst(towerSlots[i]), slotX, 713)
+      ctx.font = "19px Arial";
+      ctx.fillText(TowerDescriptions[towerSlots[i]], slotX, 755);
+    }
+
 	}
 
 
   //Draw thing that you are holding (when placing towers)
   if (held != false){
     ctx.globalAlpha = 0.4;
-    ctx.drawImage(TowerSprites[held].yellow, mouse.x-80, mouse.y-80, 160, 160);
+    ctx.drawImage(TowerSprites[held].yellow, mouse.x-80*gameData.you.fov, mouse.y-80*gameData.you.fov, 160*gameData.you.fov, 160*gameData.you.fov);
 
 
 
@@ -195,13 +266,13 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace) {
       ctx.globalAlpha = 0.3;
       ctx.beginPath();
       ctx.fillStyle = "rgb(255, 0, 0)"
-      ctx.arc(mouse.x, mouse.y, 41, 0, Math.PI * 2);
+      ctx.arc(mouse.x, mouse.y, 41*gameData.you.fov, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 0.1;
     ctx.beginPath();
     ctx.fillStyle = "rgb(0, 0, 0)"
-    ctx.arc(800, 450, 400, 0, Math.PI * 2);
+    ctx.arc(800, 450, 400*gameData.you.fov, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.globalAlpha = 1;
