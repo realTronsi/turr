@@ -39,6 +39,7 @@ export function initGame(data, client) {
 		arenaHeight: data.aH,
 		players: {},
     towers: {},
+    bullets: {},
 		you: new Player(data.s) // yourself
 	};
   let held = false;
@@ -142,6 +143,8 @@ export function initGame(data, client) {
           break;
 				}
 				case "u": {
+          //get bytelength = console.log(msg.data.byteLength)
+
 					//Update
 					for (let playerData of data.p) {
 						if (gameData.players[playerData.g] != undefined) {
@@ -160,11 +163,22 @@ export function initGame(data, client) {
               gameData.towers[towerData.id].updatePack(towerData);
             }
           }
+          for(let bulletData of data.bp) {
+            if (bulletData.pi != undefined){
+              gameData.bullets[bulletData.i] = new Bullet(bulletData)
+            }
+            else if (bulletData.rem != 1){
+              gameData.bullets[bulletData.i].updatePack(bulletData);
+            }
+            else{
+              delete gameData.bullets[bulletData.i]
+            }
+          }
           if (data.e != undefined){
-            gameData.you.energy = data.e;
+            gameData.you.svrenergy = data.e;
           }
           if (data.h != undefined){
-            gameData.you.hp = data.h;
+            gameData.you.svrhp = data.h;
           }
           if (data.xp != undefined){
             gameData.you.xp = data.xp;
@@ -183,6 +197,15 @@ export function initGame(data, client) {
         }
         case "rt": {
           delete gameData.towers[data.id];
+          break;
+        }
+        case "rb": {
+          gameData.bullets[data.i].opacity = 0.999;
+          gameData.bullets[data.i].dx = gameData.bullets[data.i].serverX - gameData.bullets[data.i].lastX;
+          gameData.bullets[data.i].dy = gameData.bullets[data.i].serverY - gameData.bullets[data.i].lastY;
+          gameData.bullets[data.i].serverX = data.x;
+          gameData.bullets[data.i].serverY = data.y;
+          
           break;
         }
         case "lb": {

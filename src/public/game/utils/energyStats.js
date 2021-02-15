@@ -1,6 +1,6 @@
 export const TowerStats = {
   farm: {
-    energy: 60
+    energy: 30
   },
   basic: {
     energy: 35

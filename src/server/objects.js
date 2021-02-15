@@ -4,12 +4,57 @@ const { TowerStats, ElementStats } = require("./stats");
 const { ttToStr, strToTt } = require("./utils/ttcast");
 
 class Bullet {
-  constructor(x, y, dir, type){
+  constructor(id, parentId, x, y, dir, stats){
+    this.id = id;
     this.x = x;
     this.y = y;
     this.dir = dir;
-    this.type = type;
+    this.parentId = parentId;
+		this.type = stats.type;
+    this.damage = stats.damage;
+    this.speed = stats.speed / 1000;
+    this.hp = stats.hp;
+    this.size = stats.size;
+    this.decay = stats.decay / 1000;
+    this.xv = Math.cos(this.dir) * this.speed;
+    this.yv = Math.sin(this.dir) * this.speed;
+    //Offset location so it spawns at the end of the turret out of the tower
+    this.x += Math.cos(this.dir) * 20;
+    this.y += Math.sin(this.dir) * 20;
+    //Changed attributes
+    this.changed = {};
+    this.seenBy = []; //Clients who are seeing the bullet
+
+
   }
+  getInitPack(){
+    return {
+      i: this.id,
+      x: Math.round(this.x),
+      y: Math.round(this.y),
+      t: this.type,
+      pi: this.parentId,
+      s: this.size
+    }
+  }
+  getUpdatePack(){
+    const pack = {
+      i: this.id,
+      x: Math.round(this.x),
+      y: Math.round(this.y)
+    };
+    if (this.changed["s"]){
+      pack.s = this.size;
+    }
+    return pack;
+  }
+  getRemovePack(){
+    return {
+      rem: 1,
+      i: this.id
+    };
+  }
+  
 }
 
 class Tower {
@@ -24,19 +69,27 @@ class Tower {
     this.hp = TowerStats[this.type].hp || 200;
 		this.range = TowerStats[this.type].range || 0;
 		this.maxReload = TowerStats[this.type].reload;
-		this.reload = this.maxReload;
+		this.reload = this.maxReload * 1/3;
     this.maxHP = this.hp;
     this.decay = (TowerStats[this.type].decay)/1000;
+
+		if(this.type == "heal"){
+			this.radius = TowerStats["heal"].radius;
+			this.effect = TowerStats["heal"].effect;
+		}
+    if(this.type == "farm"){
+      this.effect = TowerStats["farm"].effect;
+    }
 
 		this.seenBy = []; // clients who've seen the tower
 
 		this.changed = {};
   }
   getInitPack(){
-    return {
+		let pack = {
       tt: strToTt[this.type],
-			x: this.x,
-			y: this.y,
+			x: Math.round(this.x),
+			y: Math.round(this.y),
 			s: this.size * 2,
       id: this.id,
       pi: this.parentId,
@@ -44,6 +97,10 @@ class Tower {
       hp: this.hp,
       mh: this.maxHP
     }
+		if(this.type == "heal"){
+			pack.ar = this.radius;
+		}
+    return pack;
   }
 	getUpdatePack(){
 		let pack = {};
@@ -67,6 +124,8 @@ class Client {
 		this.state = "menu"; // state of client (joining server, ingame, dead, etc.)
 
 		this.arenaId; // arena playr is in
+
+    this.isDamaged = false;
 
 		// game properties
 		this.keys = []; // keys pressed
@@ -107,6 +166,9 @@ class Client {
         pack.y = Math.round(this.y*10)/10;
       }
     }
+    if (this.isDamaged){
+      pack.isd = true;
+    }
     if (Object.keys(pack).length > 0){
       pack.g = this.gameId;
     }
@@ -121,6 +183,7 @@ class Arena {
     this.maxPlayers = maxPlayers;
 		this.players = {};
     this.towers = {};
+    this.bullets = {};
 		this.playerCount = 0; // # of players
     this.gameIdCount = 0;
     this.width = width || 2000;
@@ -151,6 +214,14 @@ class Arena {
       const player = this.players[i];
       idArray.push(player.gameId);
     }
+    for(let i of Object.keys(this.towers)){
+      const tower = this.towers[i];
+      idArray.push(tower.parentId);
+    }
+    for(let i of Object.keys(this.bullets)){
+      const bullet = this.bullets[i];
+      idArray.push(bullet.parentId);
+    }
     for(let i=0; i<this.maxPlayers; i++){
 			if(!idArray.includes(i)){
 				gameId = i;
@@ -174,6 +245,21 @@ class Arena {
 		}
 		return towerId;
 	}
+  createBulletId(){
+		let bulletId = 0;
+    let idArray = [];
+		for(let i of Object.keys(this.bullets)){
+      const bullet = this.bullets[i];
+      idArray.push(bullet.id);
+    }
+    while(true){
+			if(!idArray.includes(bulletId)){
+				break;
+			}
+      bulletId++;
+		}
+		return bulletId;
+  }
 	addPlayer(client){
 		// loop thru and send everyone the new player first no put it first since we dont want to include the new player himself
 		client.state = "game";
@@ -247,4 +333,4 @@ class Arena {
   }
 }
 
-module.exports = { Client, Arena, Tower }
+module.exports = { Client, Arena, Tower, Bullet }

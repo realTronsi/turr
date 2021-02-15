@@ -15,6 +15,14 @@ export class Tower{
     this.parentId = gameData.pi;
     this.hp = gameData.hp;
     this.maxHP = gameData.mh;
+    this.size = gameData.s;
+    if (gameData.ar != undefined){
+      this.auraRadius = gameData.ar;
+      this.auraDir = 0;
+    }
+    else{
+      this.auraRadius = 0;
+    }
   }
   updatePack(updatePack){
     if (updatePack.d != undefined){

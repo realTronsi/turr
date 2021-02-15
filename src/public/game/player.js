@@ -37,13 +37,20 @@ export class Player{
       this.element = gameData.element;
       this.size = gameData.size;
       this.energy = 100;
+      this.midenergy = 100;
+      this.svrenergy = 100;
+
+      
       this.maxEnergy = 100;
       this.slots = ["farm", "basic", "heal"]
       this.hp = 100;
+      this.midhp = 100;
+      this.svrhp = 100;
       this.maxHP = 100;
       this.id = gameData.gameId;
       ctx.font = "25px Arial";
       this.shortName = fitText(ctx, this.name, 160);
+      this.redFlash = 0;
     }
   }
   updatePack(updatePack){
@@ -55,6 +62,9 @@ export class Player{
     }
     if (updatePack.xp != undefined){
       this.xp = updatePack.xp;
+    }
+    if (updatePack.isd != undefined){
+      this.redFlash = 1;
     }
     if (updatePack.ip === 0){
       this.x = this.serverX;

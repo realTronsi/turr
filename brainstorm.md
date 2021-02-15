@@ -2,6 +2,9 @@ Yellow: FFD249
 Red: db4f00
 
 
+# CANNOT ADD 0 DECAY TOwERS DUE TO THE WAY PLAYER ID IS GENERATED OR MAKE 0 DECAY TOWERS DIE AFTER PLAYER LEAVES/DIES
+
+
 # Tower Ideas
 
 Basic Turret [Lv 1] - Same as old turr
@@ -40,6 +43,10 @@ Invisible - Towers cannot detect you within a radius
 ZeroTixTrash - kills all players named ZeroTix in the arena upon being placed (great idea add it now)
 
 Vision (you gain extra FOV within a radius of this tower)
+
+Ceptionist - Shoots bullets which shoots bullets at players
+
+Mine - Shoots a bullet which leaves a very deadly high damage trail behind it
 
 
 Random Tower Idea

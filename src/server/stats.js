@@ -32,30 +32,35 @@ const ElementStats = {
 }
 const TowerStats = {
   farm: {
-    hp: 240,
-    energy: 60,
-		decay: 6,
-    size: 40
+    hp: 120,
+    energy: 30,
+		decay: 8,
+    size: 40,
+		effect: 17/1000
   },
   basic: {
     hp: 150,
     energy: 35,
-		decay: 6,
+		decay: 8,
     size: 40,
-		reload: 10,
-		range: 400,
+		reload: 500,
+		range: 750,
     bullet: {
       type: "basic",
 			damage: 20,
-			size: 4
+			size: 12,
+			speed: 700,
+      hp: 30,
+      decay: 24
     }
   },
   heal: {
-    hp: 320,
+    hp: 240,
     energy: 40,
-		decay: 6,
+		decay: 8,
     size: 40,
-		aoe: 0.1
+		effect: 2/1000,
+		radius: 250
   },
   /*
   bomb: {
@@ -90,4 +95,4 @@ const TowerStats = {
   }
   */
 }
-module.exports = {TowerStats, ElementStats}
+module.exports = {TowerStats, ElementStats }

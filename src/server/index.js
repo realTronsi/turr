@@ -44,7 +44,7 @@ const { TowerStats, ElementStats } = require("./stats");
 
 (() => {
   let arenaId = uuid.v4();
-	arenas[arenaId] = new Arena(arenaId, "No", 40, 40, 5);
+	arenas[arenaId] = new Arena(arenaId, "yo mama", 120, 120, 5);
   arenaId = uuid.v4();
 	arenas[arenaId] = new Arena(arenaId, "1v1 Room", 1500, 1500, 2);
 	arenaId = uuid.v4();
@@ -245,7 +245,7 @@ wss.on('connection', ws => {
 setInterval(() => {
   let delta = Date.now() - lastTime;
   lastTime = Date.now();
-  //Check if delta is greater than the amount for 40 fps
+  //Check if delta is greater than the amount for 30 fps
   while(delta > 37){
     update(arenas, 37)
     delta -= 37;
