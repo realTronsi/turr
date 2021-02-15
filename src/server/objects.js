@@ -212,8 +212,10 @@ class Client {
 				n: this.name // player name
 			}
 			killer.ws.send(msgpack.encode(payLoad));
-			killer.xp += ksCalc(killer.xp, this.xp);
-			killer.changed["xp"] = true;
+			if(killed.state == "game"){
+				killer.xp += ksCalc(killer.xp, this.xp);
+				killer.changed["xp"] = true;
+			}
 		}
 
 		// reset stats

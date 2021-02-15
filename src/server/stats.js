@@ -43,7 +43,7 @@ const TowerStats = {
     energy: 35,
 		decay: 8,
     size: 40,
-		reload: 500,
+		reload: 90, //500,
 		range: 750,
     bullet: {
       type: "basic",
@@ -59,7 +59,7 @@ const TowerStats = {
     energy: 40,
 		decay: 8,
     size: 40,
-		effect: 3/1000,
+		effect: 4/1000,
 		radius: 250
   },
   /*
