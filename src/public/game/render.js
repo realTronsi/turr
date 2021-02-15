@@ -51,7 +51,7 @@ const IconSprites = {
 
 
 
-export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard) {
+export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages) {
   ctx.fillStyle = "rgb(180, 180, 180)"
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -241,175 +241,210 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
   for (let id of Object.keys(players)) {
     const player = players[id];
     if (player.x != null && player.y != null) {
-      //Player Body
-      ctx.drawImage(ElementSprites[player.element], player.x - player.size, player.y - player.size, player.size * 2, player.size * 2)
-      //Name
-      ctx.fillStyle = "rgb(0, 0, 0)";
-      ctx.fillText(player.name, player.x, player.y + player.size + 15);
-      //Redness upon Damaged
-      if (player.redFlash > 0){
-        ctx.globalAlpha = player.redFlash/1.5;
-        ctx.fillStyle = "rgb(200, 0, 0)"
-        ctx.beginPath();
-        ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
+      if (gameData.you.dead != true || id != gameData.you.id) {
+        //Player Body
+        ctx.drawImage(ElementSprites[player.element], player.x - player.size, player.y - player.size, player.size * 2, player.size * 2)
+        //Name
+        ctx.fillStyle = "rgb(0, 0, 0)";
+        ctx.fillText(player.name, player.x, player.y + player.size + 15);
+        //Redness upon Damaged
+        if (player.redFlash > 0) {
+          ctx.globalAlpha = player.redFlash / 1.5;
+          ctx.fillStyle = "rgb(200, 0, 0)"
+          ctx.beginPath();
+          ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        }
       }
     }
   }
 
 
-  //Draw Energy Bar
+
   ctx.translate(-(-gameData.you.x + (canvas.width / 2) * 1 / gameData.you.fov), -(-gameData.you.y + (canvas.height / 2) * 1 / gameData.you.fov));
   ctx.scale(1 / gameData.you.fov, 1 / gameData.you.fov)
-  ctx.textAlign = "center"
-  ctx.lineWidth = 25;
-  ctx.lineCap = "round";
-  ctx.beginPath()
-  ctx.strokeStyle = "rgb(0, 0, 0)"
-  ctx.moveTo(450, 780);
-  ctx.lineTo(1600 - 400, 780);
-  ctx.stroke();
-  ctx.beginPath()
-  ctx.lineWidth = 20;
-  ctx.strokeStyle = "#e7cc47"
-  ctx.moveTo(450, 780);
-  ctx.lineTo(1600 - 400 - ((1 - (gameData.you.energy / gameData.you.maxEnergy)) * 750), 780);
-  ctx.stroke();
 
-  ctx.drawImage(IconSprites.energy, 360, 730, 95, 95);
+  if (gameData.you.dead != true) {
+    //Draw Energy Bar
+    ctx.textAlign = "center"
+    ctx.lineWidth = 25;
+    ctx.lineCap = "round";
+    ctx.beginPath()
+    ctx.strokeStyle = "rgb(0, 0, 0)"
+    ctx.moveTo(450, 780);
+    ctx.lineTo(1600 - 400, 780);
+    ctx.stroke();
+    ctx.beginPath()
+    ctx.lineWidth = 20;
+    ctx.strokeStyle = "#e7cc47"
+    ctx.moveTo(450, 780);
+    ctx.lineTo(1600 - 400 - ((1 - (gameData.you.energy / gameData.you.maxEnergy)) * 750), 780);
+    ctx.stroke();
+
+    ctx.drawImage(IconSprites.energy, 360, 730, 95, 95);
 
 
-  //Draw HP Bar
-  ctx.textAlign = "center"
-  ctx.lineWidth = 25;
-  ctx.lineCap = "round";
-  ctx.beginPath()
-  ctx.strokeStyle = "rgb(0, 0, 0)"
-  ctx.moveTo(450, 740);
-  ctx.lineTo(800, 740);
-  ctx.stroke();
-  ctx.beginPath()
-  ctx.lineWidth = 20;
-  ctx.strokeStyle = "#ca3e2c"
-  ctx.moveTo(450, 740);
-  ctx.lineTo(800 - ((1 - (gameData.you.hp / gameData.you.maxHP)) * 350), 740);
-  ctx.stroke();
+    //Draw HP Bar
+    ctx.textAlign = "center"
+    ctx.lineWidth = 25;
+    ctx.lineCap = "round";
+    ctx.beginPath()
+    ctx.strokeStyle = "rgb(0, 0, 0)"
+    ctx.moveTo(450, 740);
+    ctx.lineTo(800, 740);
+    ctx.stroke();
+    ctx.beginPath()
+    ctx.lineWidth = 20;
+    ctx.strokeStyle = "#ca3e2c"
+    ctx.moveTo(450, 740);
+    ctx.lineTo(800 - ((1 - (gameData.you.hp / gameData.you.maxHP)) * 350), 740);
+    ctx.stroke();
 
-  ctx.drawImage(IconSprites.health, 360, 690, 95, 95);
+    ctx.drawImage(IconSprites.health, 360, 690, 95, 95);
 
-  //Draw leaderboard
+    //Draw leaderboard
 
-  ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-  ctx.fillRect(30, 30, 310, (leaderboard.length + 1) * 40 + 13);
-  ctx.textAlign = "left";
-  ctx.font = "28px Arial";
-  ctx.fillStyle = "rgb(255, 255, 255)"
-  ctx.fillText(
-    "Leaderboard",
-    45,
-    64
-  );
-  ctx.font = "25px Arial";
-  for (let i of leaderboard) {
-    //Draw LB
-    if (i.id != gameData.you.id) {
-      try {
-        i.name = gameData.players[i.id].shortName;
-      }
-      catch (err) {
-        
-      }
-      ctx.fillStyle = "rgb(220, 220, 220)";
-    }
-    else {
-      try {
-        i.name = gameData.you.shortName;
-      }
-      catch (err) {
-        
-      }
-      ctx.fillStyle = "#f0ee92";
-    }
+    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+    ctx.fillRect(30, 30, 310, (leaderboard.length + 1) * 40 + 13);
+    ctx.textAlign = "left";
+    ctx.font = "28px Arial";
+    ctx.fillStyle = "rgb(255, 255, 255)"
     ctx.fillText(
-      i.place + ". " + i.name + ": " + i.xp,
+      "Leaderboard",
       45,
-      104 + (leaderboard.indexOf(i)) * 40
+      64
     );
-  }
-  ctx.textAlign = "center";
+    ctx.font = "25px Arial";
+    for (let i of leaderboard) {
+      //Draw LB
+      if (i.id != gameData.you.id) {
+        try {
+          i.name = gameData.players[i.id].shortName;
+        }
+        catch (err) {
 
-  //Draw slots on bottom
+        }
+        ctx.fillStyle = "rgb(220, 220, 220)";
+      }
+      else {
+        try {
+          i.name = gameData.you.shortName;
+        }
+        catch (err) {
 
-  ctx.lineCap = "butt";
-
-  let towerSlots = gameData.you.slots;
-  let towerSlotsAmount = towerSlots.length;
-  let towerSlotsLength = towerSlots.length - 1;
-  for (let i = 0; i < towerSlotsAmount; i++) {
-    let slotX = 800 - (towerSlotsLength / 2) * 100 + i * 100;
-    ctx.globalAlpha = 0.3;
-    ctx.fillStyle = "rgb(0, 0, 0)"
-    ctx.fillRect(slotX - 40, 800, 80, 80)
-    ctx.globalAlpha = 1;
-    ctx.drawImage(TowerSprites[towerSlots[i]].yellow, slotX - 60, 780, 120, 120)
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "rgb(0, 0, 0)"
-    ctx.fillText(i + 1, slotX - 31, 872)
-
-    if (mouse.x > slotX - 40 && mouse.x < slotX + 40 && mouse.y > 800 && mouse.y < 880) {
-      ctx.globalAlpha = 0.7;
-      ctx.font = "19px Arial";
-      ctx.fillRect(slotX - 120, 660, 240, 120)
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = "rgb(240, 240, 240)"
-      ctx.font = "bold 32px Arial";
-      ctx.fillText(capFirst(towerSlots[i]), slotX, 693)
-      ctx.font = "19px Arial";
-      ctx.fillText(TowerDescriptions[towerSlots[i]], slotX, 735);
-      ctx.font = "13px Arial";
-      ctx.fillText("Energy Required", slotX, 760)
-
-      //mini Health bar
-      ctx.lineCap = "round";
-      ctx.lineWidth = 10;
-      ctx.strokeStyle = "rgb(140, 140, 140)"
-      ctx.beginPath();
-      ctx.moveTo(slotX - 112, 772)
-      ctx.lineTo(slotX + 112, 772)
-      ctx.stroke();
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = "#e7cc47"
-      ctx.beginPath();
-      ctx.moveTo(slotX - 112, 772)
-      ctx.lineTo(slotX - 112 + 226 * (TowerStats[towerSlots[i]].energy/gameData.you.maxEnergy) , 772)
-      ctx.stroke();
+        }
+        ctx.fillStyle = "#f0ee92";
+      }
+      ctx.fillText(
+        i.place + ". " + i.name + ": " + i.xp,
+        45,
+        104 + (leaderboard.indexOf(i)) * 40
+      );
     }
+    ctx.textAlign = "center";
 
-  }
+    //Draw slots on bottom
 
+    ctx.lineCap = "butt";
 
-  //Draw thing that you are holding (when placing towers)
-  if (held != false) {
-    ctx.globalAlpha = 0.4;
-    ctx.drawImage(TowerSprites[held].yellow, mouse.x - 80 * gameData.you.fov, mouse.y - 80 * gameData.you.fov, 160 * gameData.you.fov, 160 * gameData.you.fov);
-
-
-
-    if (canPlace === false) {
+    let towerSlots = gameData.you.slots;
+    let towerSlotsAmount = towerSlots.length;
+    let towerSlotsLength = towerSlots.length - 1;
+    for (let i = 0; i < towerSlotsAmount; i++) {
+      let slotX = 800 - (towerSlotsLength / 2) * 100 + i * 100;
       ctx.globalAlpha = 0.3;
-      ctx.beginPath();
-      ctx.fillStyle = "rgb(255, 0, 0)"
-      ctx.arc(mouse.x, mouse.y, 41 * gameData.you.fov, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 0.1;
-    ctx.beginPath();
-    ctx.fillStyle = "rgb(0, 0, 0)"
-    ctx.arc(800, 450, 400 * gameData.you.fov, 0, Math.PI * 2);
-    ctx.fill();
+      ctx.fillStyle = "rgb(0, 0, 0)"
+      ctx.fillRect(slotX - 40, 800, 80, 80)
+      ctx.globalAlpha = 1;
+      ctx.drawImage(TowerSprites[towerSlots[i]].yellow, slotX - 60, 780, 120, 120)
+      ctx.font = "16px Arial";
+      ctx.fillStyle = "rgb(0, 0, 0)"
+      ctx.fillText(i + 1, slotX - 31, 872)
 
+      if (mouse.x > slotX - 40 && mouse.x < slotX + 40 && mouse.y > 800 && mouse.y < 880) {
+        ctx.globalAlpha = 0.7;
+        ctx.font = "19px Arial";
+        ctx.fillRect(slotX - 120, 660, 240, 120)
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "rgb(240, 240, 240)"
+        ctx.font = "bold 32px Arial";
+        ctx.fillText(capFirst(towerSlots[i]), slotX, 693)
+        ctx.font = "19px Arial";
+        ctx.fillText(TowerDescriptions[towerSlots[i]], slotX, 735);
+        ctx.font = "13px Arial";
+        ctx.fillText("Energy Required", slotX, 760)
+
+        //mini Health bar
+        ctx.lineCap = "round";
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = "rgb(140, 140, 140)"
+        ctx.beginPath();
+        ctx.moveTo(slotX - 112, 772)
+        ctx.lineTo(slotX + 112, 772)
+        ctx.stroke();
+        ctx.lineWidth = 8;
+        ctx.strokeStyle = "#e7cc47"
+        ctx.beginPath();
+        ctx.moveTo(slotX - 112, 772)
+        ctx.lineTo(slotX - 112 + 226 * (TowerStats[towerSlots[i]].energy / gameData.you.maxEnergy), 772)
+        ctx.stroke();
+      }
+
+    }
+
+
+    //Draw thing that you are holding (when placing towers)
+    if (held != false) {
+      ctx.globalAlpha = 0.4;
+      ctx.drawImage(TowerSprites[held].yellow, mouse.x - 80 * gameData.you.fov, mouse.y - 80 * gameData.you.fov, 160 * gameData.you.fov, 160 * gameData.you.fov);
+
+
+
+      if (canPlace === false) {
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(255, 0, 0)"
+        ctx.arc(mouse.x, mouse.y, 41 * gameData.you.fov, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 0.1;
+      ctx.beginPath();
+      ctx.fillStyle = "rgb(0, 0, 0)"
+      ctx.arc(800, 450, 400 * gameData.you.fov, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  if (gameData.you.dead) {
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = "rgb(0, 0, 0)"
+    ctx.fillRect(0, 0, 1600, 900);
     ctx.globalAlpha = 1;
+    ctx.font = "100px Arial";
+    ctx.fillStyle = "rgb(250, 250, 250)"
+    ctx.fillText("you died", 800, 350);
+    ctx.font = "50px Arial";
+    ctx.fillText("killed by: " + gameData.you.killer, 800, 430);
+    ctx.fillText("final score: " + gameData.you.finalScore, 800, 480);
+    ctx.font = "30px Arial";
+    ctx.fillText(">>> Space to Respawn <<<", 800, 520)
+  }
+
+
+  for(let i in gameMessages){
+    const gameMessage = gameMessages[i];
+    ctx.globalAlpha = Math.max(Math.min(gameMessage.timer*2, 1), 0);
+    ctx.font = "35px Arial";
+    let msgWidth = ctx.measureText(gameMessage.value).width;
+    ctx.fillStyle = "rgb(50, 50, 50)"
+    ctx.fillRect(800 -msgWidth/2 - 8, 40+i*50, msgWidth + 16, 40);
+    ctx.fillStyle = "rgb(230, 230, 230)"
+    ctx.fillText(gameMessage.value, 800, 70 + i * 50);
+    ctx.globalAlpha = 1;
+    console.log("ok")
   }
 
 }

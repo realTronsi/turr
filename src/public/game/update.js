@@ -2,7 +2,7 @@ const serverTick = 30;
 function lerp(start, end, time) {
 	return start * (1 - time) + end * time;
 }
-export function Update(gameData, delta){
+export function Update(gameData, delta, gameMessages){
   for(let i of Object.keys(gameData.bullets)){
     const bullet = gameData.bullets[i];
     if (bullet.opacity < 1){
@@ -48,5 +48,4 @@ export function Update(gameData, delta){
     bullet.midY = lerp(bullet.y, bullet.serverY, delta/1000*serverTick)
     
   }
-  
 }

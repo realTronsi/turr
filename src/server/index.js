@@ -43,9 +43,9 @@ const { reduce_num } = require("./utils/numred");
 const { TowerStats, ElementStats } = require("./stats");
 
 (() => {
-  let arenaId = uuid.v4();
+	let arenaId = uuid.v4();
 	arenas[arenaId] = new Arena(arenaId, "yo mama", 120, 120, 5);
-  arenaId = uuid.v4();
+	arenaId = uuid.v4();
 	arenas[arenaId] = new Arena(arenaId, "1v1 Room", 1500, 1500, 2);
 	arenaId = uuid.v4();
 	arenas[arenaId] = new Arena(arenaId, "Torture", 500, 500, 12);
@@ -94,11 +94,11 @@ wss.on('connection', ws => {
 								break;
 							} else {
 								client.name = data.n;
-                client.name = client.name.replace(whiteSpace, "")
-                client.name = client.name.slice(0, 16);
-                if (!/\S/.test(client.name)){
-                  client.name = "Player";
-                }
+								client.name = client.name.replace(whiteSpace, "")
+								client.name = client.name.slice(0, 16);
+								if (!/\S/.test(client.name)) {
+									client.name = "Player";
+								}
 								// successful join
 								arena.addPlayer(client);
 								updateArenaLeaderboard(arena);
@@ -121,32 +121,33 @@ wss.on('connection', ws => {
 				case "pt": { // place tower
 
 					// Convert .tt to string
+					if (client.state != "game") break;
 
 					let towerName = ttToStr[data.tt];
 
-					let towerX = client.x + ((data.mx - 800) * 1/client.fov); // tower coords (calculated based off of data)
-					let towerY = client.y + ((data.my - 450) * 1/client.fov);
+					let towerX = client.x + ((data.mx - 800) * 1 / client.fov); // tower coords (calculated based off of data)
+					let towerY = client.y + ((data.my - 450) * 1 / client.fov);
 
 					let buffer = 2; // buffer for collisions
-          
+
 					let towerSize = TowerStats[towerName].size || 40;
 
-					if(dist(client.x, client.y, towerX, towerY) > 400){ // check if over range
+					if (dist(client.x, client.y, towerX, towerY) > 400) { // check if over range
 						break;
 					}
 
-					if(towerX + buffer < towerSize || towerX - buffer > clientArena.width + towerSize || towerY + buffer < towerSize || towerY - buffer > clientArena.height + towerSize){ // check if out of bounds
-        		break;
+					if (towerX + buffer < towerSize || towerX - buffer > clientArena.width + towerSize || towerY + buffer < towerSize || towerY - buffer > clientArena.height + towerSize) { // check if out of bounds
+						break;
 					}
 					let colliding = clientArena.towerqt.colliding({
 						x: towerX - towerSize,
 						y: towerY - towerSize,
 						width: towerSize * 2,
 						height: towerSize * 2
-					}, function (element1, element2){
-						return (dist(element1.x + element1.width/2, element1.y + element1.width/2, element2.x + element2.width/2, element2.y + element2.width/2) < element1.width/2 + element2.width/2)
+					}, function(element1, element2) {
+						return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < element1.width / 2 + element2.width / 2)
 					});
-					if(colliding.length > 0){
+					if (colliding.length > 0) {
 						// if colliding with another tower
 						break;
 					}
@@ -156,20 +157,20 @@ wss.on('connection', ws => {
 						y: towerY - towerSize,
 						width: towerSize * 2,
 						height: towerSize * 2
-					}, function (element1, element2){
-						return (dist(element1.x + element1.width/2, element1.y + element1.width/2, element2.x + element2.width/2, element2.y + element2.width/2) < element1.width/2 + element2.width/2)
+					}, function(element1, element2) {
+						return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < element1.width / 2 + element2.width / 2)
 					});
-					if(colliding.length > 0){
+					if (colliding.length > 0) {
 						// if colliding with another client
 						break;
 					}
-          const energyNeeded = TowerStats[towerName].energy || 100000;
-          if (client.energy < energyNeeded){
-            //Not enough energy
-            break;
-          } else {
-            client.energy -= energyNeeded;
-          }
+					const energyNeeded = TowerStats[towerName].energy || 100000;
+					if (client.energy < energyNeeded) {
+						//Not enough energy
+						break;
+					} else {
+						client.energy -= energyNeeded;
+					}
 
 					const towerid = clientArena.createTowerId();
 
@@ -179,13 +180,53 @@ wss.on('connection', ws => {
 
 					// when pushing to quadtree, x and y represents top left corner so we must subtract the radius, keep this in mind for collision algorithms where we have to add back the radius
 					clientArena.towerqt.push({
-						x: towerX-towerSize,
-						y: towerY-towerSize,
+						x: towerX - towerSize,
+						y: towerY - towerSize,
 						width: towerSize * 2,
 						height: towerSize * 2,
 						id: towerid,
 						parentId: client.gameId
 					});
+
+					break;
+				}
+				case "res": {
+					if(client.state != "dead") break;
+					client.state = "game";
+					client.killedBy = {
+						id: undefined
+					}
+					client.x = (Math.random() * arenas[client.arenaId].width - client.size * 2) + client.size;
+    			client.y = (Math.random() * arenas[client.arenaId].height - client.size * 2) + client.size;
+					client.changed["x"] = true;
+					client.changed["y"] = true;
+          client.inFov = []
+
+					arenas[client.arenaId].playerqt.push({
+						x: client.x-client.size,
+						y: client.y-client.size,
+						width: client.size * 2,
+						height: client.size * 2,
+						gameId: client.gameId
+					});
+
+  
+					const payLoad = {
+						t: "npj",
+						i: client.getInitPack()
+					}
+					
+					for(let i of Object.keys(arenas[client.arenaId].players)){
+						const player = arenas[client.arenaId].players[i];
+            if (player.id != client.id){
+						  player.ws.send(msgpack.encode(payLoad));
+            }
+					}
+          
+          const payLoad2 = {
+            t: "res"
+          }
+          client.ws.send(msgpack.encode(payLoad2))
 
 					break;
 				}
@@ -208,33 +249,33 @@ wss.on('connection', ws => {
 	});
 
 	ws.on('close', () => {
-    if (client.arenaId !== undefined){
-      let affectedArena = arenas[client.arenaId];
-      let deletedClient = arenas[client.arenaId].players[client.gameId];
-      if (affectedArena != undefined && deletedClient != undefined){
-        delete affectedArena.players[client.gameId];
+		if (client.arenaId !== undefined) {
+			let affectedArena = arenas[client.arenaId];
+			let deletedClient = arenas[client.arenaId].players[client.gameId];
+			if (affectedArena != undefined && deletedClient != undefined) {
+				delete affectedArena.players[client.gameId];
 
-        //Delete player in Quadtree
-        let deleteQtPlayer = affectedArena.playerqt.find(function(element){
-          return element.gameId === deletedClient.gameId
-        })
-        if (deleteQtPlayer.length > 0){
-          affectedArena.playerqt.remove(deleteQtPlayer[0]);
-        }
-        affectedArena.playerCount = Object.keys(affectedArena.players).length;
+				//Delete player in Quadtree
+				let deleteQtPlayer = affectedArena.playerqt.find(function(element) {
+					return element.gameId === deletedClient.gameId
+				})
+				if (deleteQtPlayer.length > 0) {
+					affectedArena.playerqt.remove(deleteQtPlayer[0]);
+				}
+				affectedArena.playerCount = Object.keys(affectedArena.players).length;
 
-  
 
-        for(let i of Object.keys(affectedArena.players)){
-          const player = affectedArena.players[i];
-          const payLoad = {
-            t: "pl",
-            g: deletedClient.gameId
-          }
-          player.ws.send(msgpack.encode(payLoad))
-        }
-      }
-    }
+
+				for (let i of Object.keys(affectedArena.players)) {
+					const player = affectedArena.players[i];
+					const payLoad = {
+						t: "pl",
+						g: deletedClient.gameId
+					}
+					player.ws.send(msgpack.encode(payLoad))
+				}
+			}
+		}
 		delete clients[clientId];
 	});
 
@@ -243,18 +284,18 @@ wss.on('connection', ws => {
 
 //Update Game
 setInterval(() => {
-  let delta = Date.now() - lastTime;
-  lastTime = Date.now();
-  //Check if delta is greater than the amount for 30 fps
-  while(delta > 37){
-    update(arenas, 37)
-    delta -= 37;
-  }
-  //Update the rest of the delta
-  update(arenas, delta)
-  sendToPlayers(arenas, delta);
+	let delta = Date.now() - lastTime;
+	lastTime = Date.now();
+	//Check if delta is greater than the amount for 30 fps
+	while (delta > 37) {
+		update(arenas, 37)
+		delta -= 37;
+	}
+	//Update the rest of the delta
+	update(arenas, delta)
+	sendToPlayers(arenas, delta);
 }, 1000 / 30)
 //Update Leaderboard
 setInterval(() => {
-  updateLeaderboard(arenas);
+	updateLeaderboard(arenas);
 }, 1000 / 1)

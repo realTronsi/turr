@@ -121,11 +121,12 @@ class Client {
     this.id = id;
     this.gameId;
     this.name;
-		this.state = "menu"; // state of client (joining server, ingame, dead, etc.)
+		this.state = "menu"; // state of client (joining server, game, dead, etc.)
 
 		this.arenaId; // arena playr is in
 
     this.isDamaged = false;
+		this.killedBy;
 
 		// game properties
 		this.keys = []; // keys pressed
@@ -174,6 +175,56 @@ class Client {
     }
     return pack;
   }
+	die(arena, killer){
+		this.state = "dead";
+		if(killer == undefined){
+			killer = {
+				name: "???",
+				id: null
+			}
+		}
+		let payLoad = {
+			t: "pd", // player died
+			i: this.gameId
+		}
+		for(let p in Object.keys(arena.players)){
+			let player = arena.players[p];
+			if(player.inFov.includes(this)){
+				player.inFov.splice(player.inFov.indexOf(this), 1);
+				player.ws.send(msgpack.encode(payLoad));
+			}
+		}
+		this.killedBy = killer// player who killed you
+		payLoad = {
+			t: "yd", // you died
+			n: killer.name, //The pro who kiled u :)
+			s: this.xp
+		}
+		this.ws.send(msgpack.encode(payLoad));
+		if(killer.id != null){
+			// if killer is in game
+			payLoad = {
+				t: "ykp", // you killed player
+				n: this.name // player name
+			}
+			killer.ws.send(msgpack.encode(payLoad))
+		}
+
+		// reset stats
+
+		this.xp = Math.pow(this.xp, 0.7);
+		this.stats = ElementStats["basic"];
+    this.fov = ElementStats["basic"].fov;
+		this.inFov = [];
+
+		this.yv = 0;
+    this.xv = 0;
+    this.size = 20;
+    this.element = "basic";
+    this.energy = 100;
+    this.lastEnergy = 100;
+    this.hp = 100;
+	}
 }
 
 class Arena {
