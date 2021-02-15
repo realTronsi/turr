@@ -36,7 +36,7 @@ const TowerStats = {
     energy: 30,
 		decay: 8,
     size: 40,
-		effect: 17/1000
+		effect: 23/1000
   },
   basic: {
     hp: 150,
@@ -59,7 +59,7 @@ const TowerStats = {
     energy: 40,
 		decay: 8,
     size: 40,
-		effect: 2/1000,
+		effect: 3/1000,
 		radius: 250
   },
   /*

@@ -2,6 +2,8 @@ const msgpack = require("msgpack-lite");
 const Quadtree = require("quadtree-lib");
 const { TowerStats, ElementStats } = require("./stats");
 const { ttToStr, strToTt } = require("./utils/ttcast");
+const { ksCalc } = require("./utils/ksCalc.js");
+const { spawnPoint } = require("./utils/spawn.js");
 
 class Bullet {
   constructor(id, parentId, x, y, dir, stats){
@@ -189,16 +191,18 @@ class Client {
 		}
 		for(let p in Object.keys(arena.players)){
 			let player = arena.players[p];
-			if(player.inFov.includes(this)){
-				player.inFov.splice(player.inFov.indexOf(this), 1);
-				player.ws.send(msgpack.encode(payLoad));
+			if(player != undefined){
+				if(player.inFov.includes(this)){
+					player.inFov.splice(player.inFov.indexOf(this), 1);
+					player.ws.send(msgpack.encode(payLoad));
+				}
 			}
 		}
 		this.killedBy = killer// player who killed you
 		payLoad = {
 			t: "yd", // you died
 			n: killer.name, //The pro who kiled u :)
-			s: this.xp
+			s: Math.floor(this.xp)
 		}
 		this.ws.send(msgpack.encode(payLoad));
 		if(killer.id != null){
@@ -207,7 +211,9 @@ class Client {
 				t: "ykp", // you killed player
 				n: this.name // player name
 			}
-			killer.ws.send(msgpack.encode(payLoad))
+			killer.ws.send(msgpack.encode(payLoad));
+			killer.xp += ksCalc(killer.xp, this.xp);
+			killer.changed["xp"] = true;
 		}
 
 		// reset stats
@@ -237,8 +243,8 @@ class Arena {
     this.bullets = {};
 		this.playerCount = 0; // # of players
     this.gameIdCount = 0;
-    this.width = width || 2000;
-    this.height = height || 2000;
+    this.width = parseInt(width) || 2000;
+    this.height = parseInt(height) || 2000;
 
 		this.playerqt = new Quadtree({
       width: this.width,
@@ -318,8 +324,9 @@ class Arena {
     client.yv = 0;
     client.xv = 0;
     client.size = 20;
-    client.x = (Math.random() * this.width - client.size * 2) + client.size;
-    client.y = (Math.random() * this.height - client.size * 2) + client.size;
+		let spawn = spawnPoint(this);
+    client.x = spawn.x //(Math.random() * this.width - client.size * 2) + client.size;
+    client.y = spawn.y //(Math.random() * this.height - client.size * 2) + client.size;
     client.element = "basic";
     client.energy = 100;
     client.lastEnergy = 100;

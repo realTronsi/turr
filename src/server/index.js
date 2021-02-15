@@ -10,7 +10,6 @@ const server = app.listen(3000);
 
 let lastTime = Date.now();
 
-
 /*
 npm install svg-url-loader --save-dev
 */
@@ -200,7 +199,8 @@ wss.on('connection', ws => {
     			client.y = (Math.random() * arenas[client.arenaId].height - client.size * 2) + client.size;
 					client.changed["x"] = true;
 					client.changed["y"] = true;
-          client.inFov = []
+          client.inFov = [];
+					client.keys = [];
 
 					arenas[client.arenaId].playerqt.push({
 						x: client.x-client.size,
@@ -232,11 +232,13 @@ wss.on('connection', ws => {
 				}
 				case "keyd": {
 					//key down
+					if(client.state == "dead") break;
 					client.keys[data.c] = true;
 					break;
 				}
 				case "keyu": {
 					//key up
+					if(client.state == "dead") break;
 					client.keys[data.c] = false;
 					break;
 				}

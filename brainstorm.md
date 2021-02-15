@@ -14,11 +14,11 @@ Heal - same as old turr
 Farm - same as old turr
 
 Towers gained in each tier
-Tier 1 - Basic
-Tier 2 - Two Regular Towers
-Tier 3 (Puberty) - One Regular Tower
-Tier 4 - one regular tower + one cheap super energy tower
-Tier 5 - one expensive super energy tower + super energy farm
+Tier 1 - Basic (0k)
+Tier 2 - Two Regular Towers (3k)
+Tier 3 (Puberty) - One Regular Tower (15k)
+Tier 4 - one regular tower + one cheap super energy tower (50k)
+Tier 5 - one expensive super energy tower + super energy farm (150k)
 
 Fire -
 Bomb Tower

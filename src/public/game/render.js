@@ -51,7 +51,7 @@ const IconSprites = {
 
 
 
-export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages) {
+export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages, deathScreenOpacity) {
   ctx.fillStyle = "rgb(180, 180, 180)"
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -419,18 +419,21 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
   }
 
   if (gameData.you.dead) {
-    ctx.globalAlpha = 0.5;
+    ctx.globalAlpha = deathScreenOpacity;
     ctx.fillStyle = "rgb(0, 0, 0)"
     ctx.fillRect(0, 0, 1600, 900);
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = deathScreenOpacity*2;
     ctx.font = "100px Arial";
-    ctx.fillStyle = "rgb(250, 250, 250)"
-    ctx.fillText("you died", 800, 350);
-    ctx.font = "50px Arial";
-    ctx.fillText("killed by: " + gameData.you.killer, 800, 430);
-    ctx.fillText("final score: " + gameData.you.finalScore, 800, 480);
+    ctx.fillStyle = "rgb(240, 240, 240)"
+    ctx.fillText("You Died", 800, 300);
+		ctx.fillStyle = "rgb(230, 230, 230)"
     ctx.font = "30px Arial";
-    ctx.fillText(">>> Space to Respawn <<<", 800, 520)
+    ctx.fillText("killed by: " + gameData.you.killer, 800, 600);
+    ctx.fillText("final score: " + gameData.you.finalScore, 800, 650);
+		ctx.fillStyle = "rgb(240, 240, 240)"
+    ctx.font = "40px Arial";
+    ctx.fillText("[ Space to Respawn ]", 800, 740)
+    ctx.globalAlpha = 1;
   }
 
 
@@ -444,7 +447,6 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     ctx.fillStyle = "rgb(230, 230, 230)"
     ctx.fillText(gameMessage.value, 800, 70 + i * 50);
     ctx.globalAlpha = 1;
-    console.log("ok")
   }
 
 }

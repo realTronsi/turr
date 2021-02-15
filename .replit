@@ -1,1 +1,3 @@
+#run = "node src/server/index.js"
+
 run = "clear && npm run lint && npm run build && npm run server"

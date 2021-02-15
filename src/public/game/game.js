@@ -47,6 +47,7 @@ export function initGame(data, client) {
   let canPlace = true;
   let leaderboard = [];
   let gameMessages = [];
+  let deathScreenOpacity = 0;
 
   //Create New Players from Data Sent
   for (let playerData of data.pd) {
@@ -159,6 +160,7 @@ export function initGame(data, client) {
       }
       case "res": {
         gameData.you.dead = false;
+        deathScreenOpacity = 0;
         break;
       }
       case "u": {
@@ -233,6 +235,7 @@ export function initGame(data, client) {
         gameData.you.killer = data.n;
         gameData.you.finalScore = data.s;
         held = false;
+        deathScreenOpacity = 0;
         break;
       }
       case "pd": {
@@ -263,6 +266,7 @@ export function initGame(data, client) {
   }
 
   function mainLoop(gameData) {
+    //ok stuff
     let delta = window.performance.now() - lastTime;
     lastTime = window.performance.now();
     //Update Game
@@ -273,7 +277,10 @@ export function initGame(data, client) {
     for(let i of gameMessages){
       i.timer -= delta/1000;
     }
-    Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages);
+    if (gameData.you.dead == true){
+      deathScreenOpacity += (0.5 - deathScreenOpacity)/20;
+    }
+    Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages, deathScreenOpacity);
     Update(gameData, delta, gameMessages)
 
     requestAnimationFrame(() => {

@@ -36,7 +36,7 @@ function update(arenas, delta) { // main game loop
         if (player.energy >= player.stats.maxEnergy) {
           player.changed["energy"] = false;
         }
-        player.energy += 0.01 * delta;
+        player.energy += 0.007 * delta;
         player.energy = Math.min(player.energy, player.stats.maxEnergy);
         player.changed["health"] = true;
         if (player.hp >= player.stats.defense) {
