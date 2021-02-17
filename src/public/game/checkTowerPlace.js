@@ -9,6 +9,7 @@ export function checkTowerPlace(gameData, rawmouse, held){
   let mouse = {x: 0, y: 0}
   mouse.x = (rawmouse.x - canvas.width/2)/gameData.you.fov + gameData.you.x;
   mouse.y = (rawmouse.y - canvas.height/2)/gameData.you.fov + gameData.you.y;
+  let size = TowerStats[held].size || 40;
   
   for (let id of Object.keys(players)) {
 		const player = players[id];
@@ -18,7 +19,7 @@ export function checkTowerPlace(gameData, rawmouse, held){
         mouse.x - player.x, 2 
       ) + Math.pow(
         mouse.y - player.y, 2) 
-    ) < 40 + player.size){
+    ) < size + player.size){
       return false;
     }
 	}
@@ -30,24 +31,24 @@ export function checkTowerPlace(gameData, rawmouse, held){
         mouse.x - tower.x, 2) + 
       Math.pow(
         mouse.y - tower.y, 2) 
-    ) < tower.size/2 + 40){
+    ) < tower.size/2 + size){
       return false;
     }
 	}
   //Check borders of Arena
-  if (mouse.x < 40){
+  if (mouse.x < size){
     //Left
     return false;
   }
-  if (mouse.y < 40){
+  if (mouse.y < size){
     //Top
     return false;
   }
-  if (mouse.x > gameData.arenaWidth-40){
+  if (mouse.x > gameData.arenaWidth-size){
     //Right
     return false;
   }
-  if (mouse.y > gameData.arenaHeight-40){
+  if (mouse.y > gameData.arenaHeight-size){
     //Bottom
     return false;
   }

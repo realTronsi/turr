@@ -17,7 +17,9 @@ const TowerDescriptions = {
   bomb: `Shoots bombs at things`,
   propel: `Propels you upon contact`,
   streamer: `Rapidly shoots water`,
-  drown: `Slows down others`
+  drown: `Slows down others`,
+  splinter: `Shoots seeds which bloom`,
+  observatory: `Gives you more vision`
 }
 
 const ElementSprites = {
@@ -41,6 +43,10 @@ const BulletSprites = {
   },
   water: {
     yellow: createImage("../../assets/bullets/water_blue.svg"),
+    red: createImage("../../assets/bullets/basic_red.svg")
+  },
+  splinter: {
+    yellow: createImage("../../assets/bullets/splinter_green.svg"),
     red: createImage("../../assets/bullets/basic_red.svg")
   }
 }
@@ -72,7 +78,16 @@ const TowerSprites = {
   drown: {
     yellow: createImage("../../assets/towers/tower_drown_yellow.svg"),
     red: createImage("../../assets/towers/tower_drown_red.svg")
-  }
+  },
+  splinter: {
+    yellow: createImage("../../assets/towers/tower_splinter_yellow.svg"),
+    red: createImage("../../assets/towers/tower_splinter_red.svg")
+  },
+  observatory: {
+    yellow: createImage("../../assets/towers/tower_observatory_yellow.svg"),
+    red: createImage("../../assets/towers/tower_observatory_red.svg")
+  },
+  
   
 }
 const IconSprites = {
@@ -458,7 +473,9 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     //Draw thing that you are holding (when placing towers)
     if (held != false) {
       ctx.globalAlpha = 0.4;
-      ctx.drawImage(TowerSprites[held].yellow, mouse.x - 80 * gameData.you.fov, mouse.y - 80 * gameData.you.fov, 160 * gameData.you.fov, 160 * gameData.you.fov);
+      let towerSize = TowerStats[held].size || 40;
+
+      ctx.drawImage(TowerSprites[held].yellow, mouse.x - towerSize*2 * gameData.you.fov, mouse.y - towerSize*2 * gameData.you.fov, towerSize*4 * gameData.you.fov, towerSize*4 * gameData.you.fov);
 
 
 
@@ -466,7 +483,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
         ctx.globalAlpha = 0.3;
         ctx.beginPath();
         ctx.fillStyle = "rgb(255, 0, 0)"
-        ctx.arc(mouse.x, mouse.y, 41 * gameData.you.fov, 0, Math.PI * 2);
+        ctx.arc(mouse.x, mouse.y, towerSize * gameData.you.fov, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.globalAlpha = 0.1;

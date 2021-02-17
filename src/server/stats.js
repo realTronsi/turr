@@ -22,8 +22,8 @@ const ElementStats = {
   },
   water: {
     speed: 11,
-    attack: 1.05,
-    defense: 105,
+    attack: 1.1,
+    defense: 110,
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "streamer", "drown"],
@@ -32,10 +32,10 @@ const ElementStats = {
   earth: {
     speed: 10,
     attack: 0.8,
-    defense: 175,
+    defense: 140,
     friction: 0.5,
     fov: 0.9,
-    towers: ["farm", "basic", "heal"],
+    towers: ["farm", "basic", "heal", "splinter", "observatory"],
     maxEnergy: 100,
   }
 
@@ -123,6 +123,38 @@ const TowerStats = {
     size: 40,
 		effect: 60,
 		radius: 200
+  },
+  splinter: {
+    hp: 240,
+    energy: 50,
+    decay: 8,
+    reload: 1100,
+    range: 900,
+    size: 40,
+    bullet: {
+      type: "splinter",
+			damage: 8,
+			size: 20,
+			speed: 420,
+      hp: 2,
+      decay: 2.2,
+			expandAmount: 25/1000,
+			bullet: {
+				type: "basic",
+				hp: 5,
+				decay: 8,
+				damage: 13,
+				size: 12,
+				speed: 700
+			}
+    }
+  },
+  observatory: {
+    hp: 200,
+    energy: 70,
+    decay: 8,
+    size: 60,
+    effect: 0.25
   }
   /*
   splinter: {

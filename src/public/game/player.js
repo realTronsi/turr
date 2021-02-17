@@ -72,6 +72,9 @@ export class Player{
     if (updatePack.isd != undefined){
       this.redFlash = 1;
     }
+    if (updatePack.fov != undefined){
+      this.toFov = updatePack.fov;
+    }
     if (updatePack.el != undefined){
       this.element = etToStr[updatePack.el];
       this.toFov = ElementTiers[this.element].fov;

@@ -1,6 +1,23 @@
 Yellow: FFD249
 Red: db4f00
 
+# Hi tronsi if you are reading this, you are pro
+so
+anyways 
+ye ig, maybe an option for devs to become bosses :P (obvs in a month or so)
+
+also a few new tower ideas ;p
+Boomer - Slowly ejects particles out of it in a small range (basically high damage around a radius but different :P)
+Bruh - Shoots 4 bullets at once towards a player, each at different speeds and different reload times so it's hard to dodge
+
+
+# Hi haha0201 if you are reading this, you are alive
+so
+better to make bosses special elements, otherwise it's only fun to the dev tbh. Also why do you keep thinking of way into the future,even if we did add your idea it would be in months (which again only adds gameplay to the dev bc all players r doing is basically fighting agianst a weak boss and if it's a new tower then it would be fun but it's not even a new tower) 
+ye ok
+
+
+
 
 # CANNOT ADD 0 DECAY TOWERS DUE TO THE WAY PLAYER ID IS GENERATED OR MAKE 0 DECAY TOWERS DIE AFTER PLAYER LEAVES/DIES
 
@@ -22,7 +39,9 @@ Drowner - Players within a radius of this move slower
 #Earth
 Splinter - but at the end, it splits into 3 but have a short range like a "blooming flower"
 
-Core - Gives itself energy within radius
+Tower actually makes more sense, especially since how good earth was with the high fov 
+
+// Core - Gives itself energy within radius
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum: causes all players within a radius to disconnect
 

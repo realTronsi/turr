@@ -13,29 +13,24 @@ class Bullet {
     this.y = y;
     this.dir = dir;
     this.parentId = parentId;
-		this.type = stats.type;
-    if (this.type === "bomb"){
+    if (stats.type === "bomb"){
       this.stage = "normal";
-      this.explodeSpeed = stats.explodeSpeed;
-      this.explodeRadius = stats.explodeRadius;
     }
-    if (this.type === "water"){
-      this.sizeDecay = stats.sizeDecay;
-      this.damageDecay = stats.damageDecay;
-    }
-    this.damage = stats.damage * parentStats.attack;
-    this.speed = stats.speed / 1000;
-    this.hp = stats.hp;
-    this.size = stats.size;
-    this.decay = stats.decay / 1000;
-    this.xv = Math.cos(this.dir) * this.speed;
-    this.yv = Math.sin(this.dir) * this.speed;
+    this.stats = JSON.parse(JSON.stringify(stats));
+    this.stats.speed = this.stats.speed / 1000;
+    this.stats.decay = this.stats.decay / 1000;
+    this.xv = Math.cos(this.dir) * this.stats.speed;
+    this.yv = Math.sin(this.dir) * this.stats.speed;
     //Offset location so it spawns at the end of the turret out of the tower
     this.x += Math.cos(this.dir) * 20;
     this.y += Math.sin(this.dir) * 20;
     //Changed attributes
     this.changed = {};
     this.seenBy = []; //Clients who are seeing the bullet
+    this.parentStats = parentStats;
+
+
+		this.stats.damage = stats.damage * parentStats.attack;
 
 
   }
@@ -43,15 +38,16 @@ class Bullet {
 		let typeToNum = {
 			"basic": 0,
 			"bomb": 1,
-			"water": 2
+			"water": 2,
+      "splinter": 3
 		}
     let pack = {
       i: this.id,
       x: Math.round(this.x),
       y: Math.round(this.y),
-      t: typeToNum[this.type],
+      t: typeToNum[this.stats.type],
       pi: this.parentId,
-      s: this.size,
+      s: this.stats.size,
     };
     return pack;
   }
@@ -62,7 +58,7 @@ class Bullet {
       y: Math.round(this.y)
     };
     if (this.changed["s"]){
-      pack.s = Math.round(this.size);
+      pack.s = Math.round(this.stats.size);
     }
     return pack;
   }
@@ -98,7 +94,7 @@ class Tower {
 			this.effect = TowerStats[this.type].effect;
 		}
 
-    if(["farm", "propel", "drown"].includes(this.type)){
+    if(["farm", "propel", "drown", "observatory"].includes(this.type)){
       this.effect = TowerStats[this.type].effect;
     }
 
@@ -171,7 +167,8 @@ class Client {
     this.lastEnergy;
     
     this.effects = {
-      drowned: 100
+      drowned: 100,
+      observatory: 0
     };
 
 		this.stats = ElementStats["basic"];
@@ -203,6 +200,9 @@ class Client {
 			if(i == "spawnProt"){
 				pack.sp = 0;
 			}
+      if(i == "fov"){
+        pack.fov = this.fov;
+      }
     }
     if (this.isDamaged){
       pack.isd = true;

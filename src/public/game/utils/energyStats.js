@@ -19,5 +19,12 @@ export const TowerStats = {
   },
   drown: {
     energy: 25
+  },
+  splinter: {
+    energy: 50
+  },
+  observatory: {
+    energy: 70,
+    size: 60
   }
 }

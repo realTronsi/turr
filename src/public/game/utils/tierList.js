@@ -24,15 +24,15 @@ export const ElementTiers = {
     upgrades: [],
     towers: ["farm", "basic", "heal", "streamer", "drown"],
     fov: 1,
-    maxHP: 105,
+    maxHP: 110,
     maxEnergy: 100
   },
   earth: {
     tier: 2,
     upgrades: [],
-    towers: ["farm", "basic", "heal"],
+    towers: ["farm", "basic", "heal", "splinter", "observatory"],
     fov: 0.9,
-    maxHP: 175,
+    maxHP: 140,
     maxEnergy: 100
   }
 }

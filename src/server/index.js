@@ -154,7 +154,7 @@ wss.on('connection', ws => {
 
 					let buffer = 2; // buffer for collisions
 
-					let towerSize = TowerStats[towerName].size || 40;
+					let towerSize = TowerStats[towerName].size;
 
 					if (dist(client.x, client.y, towerX, towerY) > 400) { // check if over range
 						break;
@@ -188,7 +188,7 @@ wss.on('connection', ws => {
 						// if colliding with another client
 						break;
 					}
-					const energyNeeded = TowerStats[towerName].energy || 100000;
+					const energyNeeded = TowerStats[towerName].energy;
 					if (client.energy < energyNeeded) {
 						//Not enough energy
 						break;
