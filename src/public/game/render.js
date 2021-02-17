@@ -8,15 +8,21 @@ import { sendPacket } from "../socket.js";
 import { reduce_num } from "./utils/numred.js";
 import { wrapText } from "./utils/utils.js";
 import { TowerStats } from "./utils/energyStats.js";
+import { ElementTiers, TierXP } from "./utils/tierList.js";
 
 const TowerDescriptions = {
   farm: `Slowly gives XP`,
   basic: `Shoots at things`,
-  heal: `Heals in a radius`
+  heal: `Heals in a radius`,
+  bomb: `Shoots bombs at things`,
+  propel: `Propels you upon contact`
 }
 
 const ElementSprites = {
   basic: createImage("../../assets/elements/element_basic.svg"),
+  fire: createImage("../../assets/elements/element_fire.svg"),
+  water: createImage("../../assets/elements/element_water.svg"),
+  earth: createImage("../../assets/elements/element_earth.svg")
 }
 
 function capFirst(string) {
@@ -24,6 +30,10 @@ function capFirst(string) {
 }
 const BulletSprites = {
   basic: {
+    yellow: createImage("../../assets/bullets/basic_yellow.svg"),
+    red: createImage("../../assets/bullets/basic_red.svg")
+  },
+  bomb: {
     yellow: createImage("../../assets/bullets/basic_yellow.svg"),
     red: createImage("../../assets/bullets/basic_red.svg")
   }
@@ -40,6 +50,14 @@ const TowerSprites = {
   heal: {
     yellow: createImage("../../assets/towers/tower_heal_yellow.svg"),
     red: createImage("../../assets/towers/tower_heal_red.svg")
+  },
+  bomb: {
+    yellow: createImage("../../assets/towers/tower_bomb_yellow.svg"),
+    red: createImage("../../assets/towers/tower_bomb_red.svg")
+  },
+  propel: {
+    yellow: createImage("../../assets/towers/tower_propel_yellow.svg"),
+    red: createImage("../../assets/towers/tower_propel_red.svg")
   }
 }
 const IconSprites = {
@@ -163,7 +181,11 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 
   for (let id of Object.keys(gameData.bullets)) {
     const bullet = gameData.bullets[id];
-    ctx.globalAlpha = bullet.opacity;
+    let alpha = bullet.opacity;
+    if (bullet.type === "bomb"){
+      alpha /= (bullet.size/bullet.baseSize);
+    }
+    ctx.globalAlpha = alpha;
     if (bullet.parentId != gameData.you.id) {
       //not your bullet :c
       ctx.drawImage(BulletSprites[bullet.type].red, bullet.x - bullet.size, bullet.y - bullet.size, bullet.size * 2, bullet.size * 2);
@@ -242,11 +264,21 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     const player = players[id];
     if (player.x != null && player.y != null) {
       if (gameData.you.dead != true || id != gameData.you.id) {
+
+        //Spawn Protection Alpha
+        if (player.spawnProt == 1){
+        ctx.globalAlpha = 0.4;
+        }
         //Player Body
         ctx.drawImage(ElementSprites[player.element], player.x - player.size, player.y - player.size, player.size * 2, player.size * 2)
         //Name
         ctx.fillStyle = "rgb(0, 0, 0)";
         ctx.fillText(player.name, player.x, player.y + player.size + 15);
+
+        //Set GlobalAlpha back to 1
+        ctx.globalAlpha = 1;
+
+
         //Redness upon Damaged
         if (player.redFlash > 0) {
           ctx.globalAlpha = player.redFlash / 1.5;
@@ -365,11 +397,11 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
       if (mouse.x > slotX - 40 && mouse.x < slotX + 40 && mouse.y > 800 && mouse.y < 880) {
         ctx.globalAlpha = 0.7;
         ctx.font = "19px Arial";
-        ctx.fillRect(slotX - 120, 660, 240, 120)
+        ctx.fillRect(slotX - 120, 660, 240, 130)
         ctx.globalAlpha = 1;
         ctx.fillStyle = "rgb(240, 240, 240)"
         ctx.font = "bold 32px Arial";
-        ctx.fillText(capFirst(towerSlots[i]), slotX, 693)
+        ctx.fillText(capFirst(towerSlots[i]), slotX, 710)
         ctx.font = "19px Arial";
         ctx.fillText(TowerDescriptions[towerSlots[i]], slotX, 735);
         ctx.font = "13px Arial";
@@ -416,27 +448,92 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 
       ctx.globalAlpha = 1;
     }
+
+    //Draw XP Bar
+
+    //Calculate XP Needed & Progress
+    let xpTier = 0;
+    while(true){
+      if (xpTier >= TierXP.length){
+        break;
+      }
+      if (gameData.you.xp < TierXP[xpTier+1]){
+        break;
+      }
+      xpTier ++;
+    }
+    let lastXP = TierXP[xpTier];
+    let nextXP = TierXP[xpTier + 1];
+    let progress = gameData.you.xp - lastXP;
+    let xpNeeded = nextXP - lastXP;
+    
+    //Draw
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.strokeStyle = "rgb(0, 0, 0)"
+    ctx.lineWidth = 20;
+    ctx.moveTo(1550, 100);
+    ctx.lineTo(1550, 800);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.strokeStyle = "#42c2f5"
+    ctx.lineWidth = 16;
+    ctx.moveTo(1550, 800-(progress/xpNeeded*700));
+    ctx.lineTo(1550, 800);
+    ctx.stroke();
+    if (xpTier >= ElementTiers[gameData.you.element].tier){
+      ctx.font = "bold 40px Arial";
+      ctx.fillStyle = "rgb(0, 0, 0)"
+      ctx.fillText("Choose Your Element", 800, 65)
+      //Draw Element Upgrades
+      let upgrades = ElementTiers[gameData.you.element].upgrades;
+      let upgradesAmount = upgrades.length;
+      let upgradesLength = upgrades.length - 1;
+      for (let i = 0; i < upgradesAmount; i++) {
+        let slotX = 800 - (upgradesLength / 2) * 120 + i * 120;
+        ctx.fillStyle = upgrades[i].color;
+        ctx.globalAlpha = 0.4;
+        ctx.fillRect(slotX - 50, 100, 100, 100)
+        
+        ctx.globalAlpha = 1;
+        ctx.font = "bold 30px Arial";
+        ctx.fillText(capFirst(upgrades[i].name), slotX, 160);
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = "rgb(0, 0, 0)"
+        ctx.fillText(capFirst(upgrades[i].name), slotX, 160);
+
+        if (mouse.x > slotX - 50 && mouse.x < slotX + 50 && mouse.y > 100 && mouse.y < 200){
+        ctx.globalAlpha = 0.1;
+        ctx.fillStyle = "rgb(255, 255, 255)"
+        ctx.fillRect(slotX - 50, 100, 100, 100)
+        }
+
+        ctx.globalAlpha = 1;
+        
+      }
+    }
   }
 
+
+  //You are dead, what a noob
   if (gameData.you.dead) {
     ctx.globalAlpha = deathScreenOpacity;
     ctx.fillStyle = "rgb(0, 0, 0)"
     ctx.fillRect(0, 0, 1600, 900);
     ctx.globalAlpha = deathScreenOpacity*2;
-    ctx.font = "100px Arial";
+    ctx.font = "60px Arial";
     ctx.fillStyle = "rgb(240, 240, 240)"
-    ctx.fillText("You Died", 800, 300);
+    ctx.fillText("You were killed by " + gameData.you.killer, 800, 300);
 		ctx.fillStyle = "rgb(230, 230, 230)"
-    ctx.font = "30px Arial";
-    ctx.fillText("killed by: " + gameData.you.killer, 800, 600);
-    ctx.fillText("final score: " + gameData.you.finalScore, 800, 650);
-		ctx.fillStyle = "rgb(240, 240, 240)"
     ctx.font = "40px Arial";
+    ctx.fillText("Final score: " + gameData.you.finalScore, 800, 620);
+		ctx.fillStyle = "rgb(240, 240, 240)"
+    ctx.font = "50px Arial";
     ctx.fillText("[ Space to Respawn ]", 800, 740)
     ctx.globalAlpha = 1;
   }
 
-
+  //Draw game messages (like you killed player)
   for(let i in gameMessages){
     const gameMessage = gameMessages[i];
     ctx.globalAlpha = Math.max(Math.min(gameMessage.timer*2, 1), 0);

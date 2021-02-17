@@ -6,11 +6,8 @@ import { Update } from "./update.js";
 import { checkTowerPlace } from "./checkTowerPlace.js";
 import { sendPacket } from "../socket.js";
 
-const ConvertTowerToId = {
-  "farm": 0,
-  "basic": 1,
-  "heal": 2
-}
+import { ElementTiers, TierXP } from "./utils/tierList.js";
+import { ConvertTowerToId } from "./utils/towerCast.js";
 
 
 
@@ -29,6 +26,10 @@ export function initGame(data, client) {
     x: 0,
     y: 0
   };
+
+  window.onbeforeunload = (e) => {
+    return "";
+  }
 
   serverSelection.style.display = "none";
   gameDiv.style.display = "";
@@ -78,6 +79,31 @@ export function initGame(data, client) {
         }
         sendPacket(client.ws, payLoad)
         held = false;
+      }
+      let xpTier = 0;
+      while (true) {
+        if (xpTier >= TierXP.length) {
+          break;
+        }
+        if (gameData.you.xp < TierXP[xpTier + 1]) {
+          break;
+        }
+        xpTier++;
+      }
+      if (xpTier >= ElementTiers[gameData.you.element].tier) {
+        let upgrades = ElementTiers[gameData.you.element].upgrades;
+        let upgradesAmount = upgrades.length;
+        let upgradesLength = upgrades.length - 1;
+        for (let i = 0; i < upgradesAmount; i++) {
+          let slotX = 800 - (upgradesLength / 2) * 120 + i * 120;
+          if (mouse.x > slotX - 50 && mouse.x < slotX + 50 && mouse.y > 100 && mouse.y < 200) {
+            const payLoad = {
+              t: "upg",
+              c: i
+            }
+            sendPacket(client.ws, payLoad)
+          }
+        }
       }
     }
     mouseLock = true;
@@ -160,7 +186,15 @@ export function initGame(data, client) {
       }
       case "res": {
         gameData.you.dead = false;
+        gameData.you.xp = data.s;
+        gameData.you.element = "basic";
         deathScreenOpacity = 0;
+        gameData.you.fov = 1;
+        gameData.you.toFov = 1;
+        gameData.you.maxHP = 100;
+        gameData.you.maxEnergy = 100;
+        gameData.you.slots = ElementTiers["basic"].towers;
+
         break;
       }
       case "u": {
@@ -248,7 +282,7 @@ export function initGame(data, client) {
         //n: name
 
         gameMessages.push({
-          value: "You killed "+data.n,
+          value: "You killed " + data.n,
           timer: 4
         })
 
@@ -274,11 +308,12 @@ export function initGame(data, client) {
       canPlace = checkTowerPlace(gameData, mouse, held);
     }
     gameMessages = gameMessages.filter((e) => e.timer > 0);
-    for(let i of gameMessages){
-      i.timer -= delta/1000;
+    for (let i of gameMessages) {
+      i.timer -= delta / 1000;
     }
-    if (gameData.you.dead == true){
-      deathScreenOpacity += (0.5 - deathScreenOpacity)/20;
+    gameData.you.fov += (gameData.you.toFov - gameData.you.fov)/20;
+    if (gameData.you.dead == true) {
+      deathScreenOpacity += (0.5 - deathScreenOpacity) / 20;
     }
     Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages, deathScreenOpacity);
     Update(gameData, delta, gameMessages)

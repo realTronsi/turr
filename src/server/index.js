@@ -4,6 +4,29 @@ const msgpack = require("msgpack-lite");
 const path = require("path");
 const uuid = require("uuid");
 const app = express();
+
+/* FOR TURR.IO
+
+const fs = require('fs');
+const https = require('https')
+const httpsOptions = {
+    cert: fs.readFileSync(path.resolve(__dirname, "../../ssl/turr.cert")),
+    ca: fs.readFileSync(path.resolve(__dirname, "../../ssl/turr.ca-bundle")),
+    key: fs.readFileSync(path.resolve(__dirname, "../../ssl/turr.key"))
+}
+
+const httpsServer = https.createServer(httpsOptions, app)
+
+const WebSocketServer = require("ws").Server,
+  wss = new WebSocketServer({
+    server: httpsServer
+  });
+
+app.use(express.static("src/dist"));
+
+httpsServer.listen(443, "turr.io")
+
+*/
 const wss = new WebSocket.Server({ noServer: true });
 
 const server = app.listen(3000);
@@ -37,6 +60,8 @@ const { dist } = require("./utils/dist");
 const { ttToStr, strToTt } = require("./utils/ttcast");
 const { reduce_num } = require("./utils/numred");
 
+const { spawnPoint } = require("./utils/spawn");
+
 
 
 const { TowerStats, ElementStats } = require("./stats");
@@ -48,7 +73,7 @@ const { TowerStats, ElementStats } = require("./stats");
 	arenas[arenaId] = new Arena(arenaId, "1v1 Room", 1500, 1500, 2);
 	arenaId = uuid.v4();
 	arenas[arenaId] = new Arena(arenaId, "Torture", 500, 500, 12);
-	for (let arenaCreateVariable = 4; arenaCreateVariable > 0; arenaCreateVariable--) {
+	for (let arenaCreateVariable = 2; arenaCreateVariable > 0; arenaCreateVariable--) {
 		let arenaId = uuid.v4();
 		arenas[arenaId] = new Arena(arenaId, "Arena " + arenaCreateVariable, 3000, 3000, 15);
 	}
@@ -173,7 +198,7 @@ wss.on('connection', ws => {
 
 					const towerid = clientArena.createTowerId();
 
-					let tower = new Tower(towerid, client.gameId, towerX, towerY, towerName);
+					let tower = new Tower(towerid, client, towerX, towerY, towerName);
 
 					clientArena.towers[towerid] = tower;
 
@@ -189,18 +214,37 @@ wss.on('connection', ws => {
 
 					break;
 				}
+				case "upg": {
+					// upgrade element
+					if(client.tier == 1 && client.xp >= 3000){
+						if(ElementStats[client.element].upgrades[data.c] != undefined){
+							// upgrade exists
+							let element = ElementStats[client.element].upgrades[data.c];
+							client.element = element;
+							client.tier = 2;
+							client.changed["element"] = true;
+							client.stats = ElementStats[element];
+              client.fov = client.stats.fov;
+						}
+					}
+
+					break;
+				}
 				case "res": {
 					if(client.state != "dead") break;
 					client.state = "game";
 					client.killedBy = {
 						id: undefined
 					}
-					client.x = (Math.random() * arenas[client.arenaId].width - client.size * 2) + client.size;
-    			client.y = (Math.random() * arenas[client.arenaId].height - client.size * 2) + client.size;
+					let spawn = spawnPoint(arenas[client.arenaId]);
+					client.x = spawn.x;
+					client.y = spawn.y;
 					client.changed["x"] = true;
 					client.changed["y"] = true;
           client.inFov = [];
 					client.keys = [];
+          client.element = "basic";
+          client.changed["element"] = true;
 
 					arenas[client.arenaId].playerqt.push({
 						x: client.x-client.size,
@@ -209,6 +253,8 @@ wss.on('connection', ws => {
 						height: client.size * 2,
 						gameId: client.gameId
 					});
+
+					client.spawnProt = 150;
 
   
 					const payLoad = {
@@ -224,7 +270,8 @@ wss.on('connection', ws => {
 					}
           
           const payLoad2 = {
-            t: "res"
+            t: "res",
+						s: Math.round(client.xp)
           }
           client.ws.send(msgpack.encode(payLoad2))
 

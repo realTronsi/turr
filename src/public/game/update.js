@@ -35,6 +35,12 @@ export function Update(gameData, delta, gameMessages){
 
     player.energy = lerp(player.energy, player.midenergy, delta/1000*serverTick);
     player.midenergy = lerp(player.midenergy, player.svrenergy, delta/1000*serverTick);
+    if (player.energy > player.maxEnergy){
+      player.energy = player.maxEnergy;
+    }
+    if (player.hp > player.maxHP){
+      player.hp = player.maxHP;
+    }
 
     player.redFlash += (-0.1 - player.redFlash)/20;
     

@@ -2,7 +2,36 @@ Yellow: FFD249
 Red: db4f00
 
 
-# CANNOT ADD 0 DECAY TOwERS DUE TO THE WAY PLAYER ID IS GENERATED OR MAKE 0 DECAY TOWERS DIE AFTER PLAYER LEAVES/DIES
+# CANNOT ADD 0 DECAY TOWERS DUE TO THE WAY PLAYER ID IS GENERATED OR MAKE 0 DECAY TOWERS DIE AFTER PLAYER LEAVES/DIES
+
+# 2nd Tower For Elements
+
+#Fire
+Bomb Tower;
+
+Propellent - When you walk over it, you are boosted in the same direction as towards the center of the tower
+
+// maybe for a future element: Flames - Radius in which all enemy things lose hp
+
+#Water
+Streamliner;
+
+Drowner - Players within a radius of this move slower
+
+
+#Earth
+Splinter - but at the end, it splits into 3 but have a short range like a "blooming flower"
+
+Core - Gives itself energy within radius
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum: causes all players within a radius to disconnect
+
+// names that actually make sense: Core, Reactor
+
+// for later earth elements tower Pull - Pulls players in and damages them upon contact
+
+ 
+// for later earth elements Tower - When inside, you gain FOV
 
 
 # Tower Ideas
@@ -22,6 +51,8 @@ Tier 5 - one expensive super energy tower + super energy farm (150k)
 
 Fire -
 Bomb Tower
+
+
 
 
 Decimator very original idea (all players within radius lose health & towers, except u)

@@ -1,3 +1,5 @@
+const Tiers = [3000, 15000, 50000, 150000, 1e69];
+
 const ElementStats = {
   basic: {
     speed: 13,
@@ -5,28 +7,36 @@ const ElementStats = {
     defense: 100,
     friction: 0.5,
     fov: 1,
-    maxEnergy: 100
+    maxEnergy: 100,
+    towers: ["farm", "basic", "heal"],
+    upgrades: ["fire", "water", "earth"]
   },
   fire: {
-    speed: 1.2,
+    speed: 12,
     attack: 1.2,
-    defense: 80,
-    fov: 1.2,
-    maxEnergy: 100
+    defense: 85,
+    friction: 0.5,
+    fov: 1,
+    towers: ["farm", "basic", "heal", "bomb", "propel"],
+    maxEnergy: 100,
   },
   water: {
-    speed: 1.1,
-    attack: 0.95,
+    speed: 11,
+    attack: 1.05,
     defense: 105,
+    friction: 0.5,
     fov: 1,
-    maxEnergy: 100
+    towers: ["farm", "basic", "heal"],
+    maxEnergy: 100,
   },
   earth: {
-    speed: 0.75,
+    speed: 10,
     attack: 0.8,
-    defense: 180,
-    fov: 0.85,
-    maxEnergy: 100
+    defense: 175,
+    friction: 0.5,
+    fov: 0.8,
+    towers: ["farm", "basic", "heal"],
+    maxEnergy: 100,
   }
 
 }
@@ -36,14 +46,14 @@ const TowerStats = {
     energy: 30,
 		decay: 8,
     size: 40,
-		effect: 23/1000
+		effect: 1000/1000 //23/1000
   },
   basic: {
     hp: 150,
     energy: 35,
 		decay: 8,
     size: 40,
-		reload: 90, //500,
+		reload: 500,
 		range: 750,
     bullet: {
       type: "basic",
@@ -62,12 +72,33 @@ const TowerStats = {
 		effect: 4/1000,
 		radius: 250
   },
-  /*
   bomb: {
-    hp: 160,
-    energy: 70,
-		decay: 6
+    hp: 190,
+    energy: 60,
+    decay: 8,
+    reload: 1000,
+    range: 700,
+    size: 40,
+    bullet: {
+      type: "bomb",
+			damage: 8.3333,
+			size: 32,
+			speed: 480,
+      hp: 12,
+      decay: 8,
+			explodeRadius: 150,
+			explodeSpeed: 350/1000
+    }
   },
+  propel: {
+    hp: 120,
+    energy: 35,
+		decay: 8,
+    size: 40,
+		effect: 60,
+    collide: false
+  }
+  /*
   streamer: {
     hp: 210,
     energy: 50,

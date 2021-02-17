@@ -13,6 +13,7 @@ export class Bullet{
     this.opacity = 1;
     this.lastX = this.serverX;
     this.lastY = this.serverY;
+    this.baseSize = this.size;
   }
   updatePack(gameData){
     if (gameData.s){
@@ -24,32 +25,3 @@ export class Bullet{
     this.serverY = gameData.y;
   }
 }
-/*
-  getInitPack(){
-    return {
-      id: this.id,
-      x: this.x,
-      y: this.y,
-      t: this.type,
-      pi: this.parentId,
-      s: this.size
-    }
-  }
-  getUpdatePack(){
-    const pack = {
-      id: this.id,
-      x: this.x,
-      y: this.y
-    };
-    if (this.changed["s"]){
-      pack.s = this.size;
-    }
-    return pack;
-  }
-  getRemovePack(){
-    return {
-      rem: 1,
-      id: this.id
-    };
-  }
-  */

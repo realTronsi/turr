@@ -11,7 +11,7 @@ function ksCalc(s, es) {
     reward += Math.pow(diff, 0.88);
   }
   reward = Math.max(reward, 0);
-  reward = Math.min(reward, es*8.5/10)
+  reward = Math.min(reward, es*8.5/10 + 500)
 
   return reward;
 }

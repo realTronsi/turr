@@ -2,18 +2,24 @@ const msgpack = require("msgpack-lite");
 const Quadtree = require("quadtree-lib");
 const { TowerStats, ElementStats } = require("./stats");
 const { ttToStr, strToTt } = require("./utils/ttcast");
+const { etToStr, strToEt } = require("./utils/etcast")
 const { ksCalc } = require("./utils/ksCalc.js");
 const { spawnPoint } = require("./utils/spawn.js");
 
 class Bullet {
-  constructor(id, parentId, x, y, dir, stats){
+  constructor(id, parentId, parentStats, x, y, dir, stats){
     this.id = id;
     this.x = x;
     this.y = y;
     this.dir = dir;
     this.parentId = parentId;
 		this.type = stats.type;
-    this.damage = stats.damage;
+    if (this.type === "bomb"){
+      this.stage = "normal";
+      this.explodeSpeed = stats.explodeSpeed;
+      this.explodeRadius = stats.explodeRadius;
+    }
+    this.damage = stats.damage * parentStats.attack;
     this.speed = stats.speed / 1000;
     this.hp = stats.hp;
     this.size = stats.size;
@@ -30,14 +36,15 @@ class Bullet {
 
   }
   getInitPack(){
-    return {
+    let pack = {
       i: this.id,
       x: Math.round(this.x),
       y: Math.round(this.y),
       t: this.type,
       pi: this.parentId,
-      s: this.size
-    }
+      s: this.size,
+    };
+    return pack;
   }
   getUpdatePack(){
     const pack = {
@@ -46,7 +53,7 @@ class Bullet {
       y: Math.round(this.y)
     };
     if (this.changed["s"]){
-      pack.s = this.size;
+      pack.s = Math.round(this.size);
     }
     return pack;
   }
@@ -60,27 +67,29 @@ class Bullet {
 }
 
 class Tower {
-  constructor(id, parentId, x, y, type){
+  constructor(id, parent, x, y, type){
     this.x = x;
     this.y = y;
     this.type = type;
 		this.size = (TowerStats[this.type].size || 80);
 		this.dir = 0;
     this.id = id;
-    this.parentId = parentId; // gameId of parent
+    this.parentStats = JSON.parse(JSON.stringify(parent.stats));
+    this.parentId = parent.gameId; 
     this.hp = TowerStats[this.type].hp || 200;
 		this.range = TowerStats[this.type].range || 0;
 		this.maxReload = TowerStats[this.type].reload;
 		this.reload = this.maxReload * 1/3;
     this.maxHP = this.hp;
     this.decay = (TowerStats[this.type].decay)/1000;
+    this.collide = TowerStats[this.type].collide;
 
 		if(this.type == "heal"){
 			this.radius = TowerStats["heal"].radius;
 			this.effect = TowerStats["heal"].effect;
 		}
-    if(this.type == "farm"){
-      this.effect = TowerStats["farm"].effect;
+    if(["farm", "propel"].includes(this.type)){
+      this.effect = TowerStats[this.type].effect;
     }
 
 		this.seenBy = []; // clients who've seen the tower
@@ -102,6 +111,9 @@ class Tower {
 		if(this.type == "heal"){
 			pack.ar = this.radius;
 		}
+    if (this.type == "bomb"){
+      delete pack.d;
+    }
     return pack;
   }
 	getUpdatePack(){
@@ -129,6 +141,7 @@ class Client {
 
     this.isDamaged = false;
 		this.killedBy;
+		this.spawnProt = 0;
 
 		// game properties
 		this.keys = []; // keys pressed
@@ -143,6 +156,7 @@ class Client {
     this.xp;
 
     this.element;
+		this.tier = 1;
     this.energy;
     this.lastEnergy;
 
@@ -156,7 +170,8 @@ class Client {
       g: this.gameId,
       n: this.name,
       s: this.size,
-      e: this.element
+      e: this.element,
+      sp: this.spawnProt
     }
   }
   getUpdatePack(){
@@ -168,6 +183,12 @@ class Client {
       if (i === "y"){
         pack.y = Math.round(this.y*10)/10;
       }
+			if(i == "element"){
+				pack.el = strToEt[this.element];
+			}
+			if(i == "spawnProt"){
+				pack.sp = 0;
+			}
     }
     if (this.isDamaged){
       pack.isd = true;
@@ -212,7 +233,7 @@ class Client {
 				n: this.name // player name
 			}
 			killer.ws.send(msgpack.encode(payLoad));
-			if(killed.state == "game"){
+			if(killer.state == "game"){
 				killer.xp += ksCalc(killer.xp, this.xp);
 				killer.changed["xp"] = true;
 			}
@@ -229,6 +250,7 @@ class Client {
     this.xv = 0;
     this.size = 20;
     this.element = "basic";
+		this.tier = 1;
     this.energy = 100;
     this.lastEnergy = 100;
     this.hp = 100;
@@ -335,6 +357,11 @@ class Arena {
     client.hp = 100;
     client.arenaId = this.id;
     client.xp = 0;
+    client.bfric = 0.88;
+    client.bxv = 0;
+    client.byv = 0;
+
+		client.spawnProt = 150;
 
 		const payLoad = {
 			t: "npj", // new player joined
@@ -353,7 +380,7 @@ class Arena {
         
 		let self_data = JSON.parse(JSON.stringify(client));
 
-		let whitelist = ["name", "x", "y", "gameId", "fov", "element", "size", "xp"];
+		let whitelist = ["name", "x", "y", "gameId", "fov", "element", "size", "xp", "spawnProt"];
 
 		for(let p in Object.keys(self_data)){ // whitelist properties to send and remove unnecessary ones
 			if(!whitelist.includes(p)){

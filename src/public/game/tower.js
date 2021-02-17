@@ -1,8 +1,4 @@
-const ConvertIdToTower = {
-  "0": "farm",
-  "1": "basic",
-  "2": "heal"
-}
+import { ConvertIdToTower } from "./utils/towerCast.js";
 
 export class Tower{
   constructor(gameData){

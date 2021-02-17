@@ -1,6 +1,8 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 import { fitText } from "./utils/utils.js";
+import { etToStr } from "./utils/elementCast.js";
+import { ElementTiers } from "./utils/tierList.js";
 
 export class Player{
   constructor(gameData){
@@ -25,6 +27,7 @@ export class Player{
     else{
       //Create player (is you)
       this.xp = gameData.xp;
+      this.toFov = 1;
       this.name = gameData.name;
       this.x = gameData.x;
       this.y = gameData.y;
@@ -54,6 +57,9 @@ export class Player{
     }
   }
   updatePack(updatePack){
+    if (updatePack.sp != undefined){
+      this.spawnProt = updatePack.sp;
+    }
     if (updatePack.x != undefined){
       this.serverX = updatePack.x;
     }
@@ -65,6 +71,13 @@ export class Player{
     }
     if (updatePack.isd != undefined){
       this.redFlash = 1;
+    }
+    if (updatePack.el != undefined){
+      this.element = etToStr[updatePack.el];
+      this.toFov = ElementTiers[this.element].fov;
+      this.maxHP = ElementTiers[this.element].maxHP;
+      this.maxEnergy = ElementTiers[this.element].maxEnergy;
+      this.slots = ElementTiers[this.element].towers;
     }
     if (updatePack.ip === 0){
       this.x = this.serverX;
@@ -79,6 +92,7 @@ export class Player{
       this.serverY = Infinity;
       this.middleX = Infinity;
       this.middleY = Infinity;
+      this.spawnProt = 0;
     }
     
   }
