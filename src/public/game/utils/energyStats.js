@@ -21,7 +21,7 @@ export const TowerStats = {
     energy: 25
   },
   splinter: {
-    energy: 50
+    energy: 40
   },
   observatory: {
     energy: 70,

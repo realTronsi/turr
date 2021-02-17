@@ -125,26 +125,26 @@ const TowerStats = {
 		radius: 200
   },
   splinter: {
-    hp: 240,
-    energy: 50,
+    hp: 290,
+    energy: 40,
     decay: 8,
     reload: 1100,
     range: 900,
     size: 40,
     bullet: {
       type: "splinter",
-			damage: 8,
+			damage: 8.5,
 			size: 20,
-			speed: 420,
+			speed: 520,
       hp: 2,
-      decay: 2.2,
+      decay: 2.5,
 			expandAmount: 25/1000,
 			bullet: {
 				type: "basic",
 				hp: 5,
 				decay: 8,
-				damage: 13,
-				size: 12,
+				damage: 18,
+				size: 13,
 				speed: 700
 			}
     }
