@@ -22,7 +22,7 @@ export const ElementTiers = {
   water: {
     tier: 2,
     upgrades: [],
-    towers: ["farm", "basic", "heal"],
+    towers: ["farm", "basic", "heal", "streamer", "drown"],
     fov: 1,
     maxHP: 105,
     maxEnergy: 100
@@ -31,7 +31,7 @@ export const ElementTiers = {
     tier: 2,
     upgrades: [],
     towers: ["farm", "basic", "heal"],
-    fov: 0.8,
+    fov: 0.9,
     maxHP: 175,
     maxEnergy: 100
   }

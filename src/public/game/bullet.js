@@ -1,9 +1,14 @@
+let numToType = {
+  "0": "basic",
+	"1": "bomb",
+	"2": "water"
+}
 export class Bullet{
   constructor(gameData){
     this.x = gameData.x;
     this.y = gameData.y;
     this.id = gameData.id;
-    this.type = gameData.t;
+    this.type = numToType[gameData.t];
     this.size = gameData.s;
     this.parentId = gameData.pi;
     this.midX = this.x;

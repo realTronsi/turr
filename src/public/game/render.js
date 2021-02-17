@@ -15,7 +15,9 @@ const TowerDescriptions = {
   basic: `Shoots at things`,
   heal: `Heals in a radius`,
   bomb: `Shoots bombs at things`,
-  propel: `Propels you upon contact`
+  propel: `Propels you upon contact`,
+  streamer: `Rapidly shoots water`,
+  drown: `Slows down others`
 }
 
 const ElementSprites = {
@@ -35,6 +37,10 @@ const BulletSprites = {
   },
   bomb: {
     yellow: createImage("../../assets/bullets/basic_yellow.svg"),
+    red: createImage("../../assets/bullets/basic_red.svg")
+  },
+  water: {
+    yellow: createImage("../../assets/bullets/water_blue.svg"),
     red: createImage("../../assets/bullets/basic_red.svg")
   }
 }
@@ -58,7 +64,16 @@ const TowerSprites = {
   propel: {
     yellow: createImage("../../assets/towers/tower_propel_yellow.svg"),
     red: createImage("../../assets/towers/tower_propel_red.svg")
+  },
+  streamer: {
+    yellow: createImage("../../assets/towers/tower_streamer_yellow.svg"),
+    red: createImage("../../assets/towers/tower_streamer_red.svg")
+  },
+  drown: {
+    yellow: createImage("../../assets/towers/tower_drown_yellow.svg"),
+    red: createImage("../../assets/towers/tower_drown_red.svg")
   }
+  
 }
 const IconSprites = {
   energy: createImage("../../assets/icons/logo_energy.svg"),
@@ -126,6 +141,10 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
               ctx.globalAlpha = 0.3;
               ctx.fillStyle = "#e08080";
             }
+            if (tower.type === "drown"){
+              ctx.globalAlpha = 0.4;
+              ctx.fillStyle = "#34568c";
+            }
             ctx.beginPath();
             ctx.arc(0, 0, tower.auraRadius, 0, Math.PI * 2)
             ctx.fill();
@@ -135,6 +154,9 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
             if (tower.type === "heal") {
               ctx.strokeStyle = "#ff0000";
             }
+            if (tower.type === "drown"){
+              ctx.strokeStyle = "#002fba";
+            }
             ctx.beginPath();
             ctx.arc(0, 0, tower.auraRadius, 0, Math.PI * 2)
             ctx.stroke();
@@ -143,7 +165,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
             ctx.rotate(-tower.auraDir)
             ctx.translate(-tower.x, -tower.y)
 
-            tower.auraDir += 1 / 130;
+            tower.auraDir += 1 / 160;
           }
           else {
             ctx.translate(tower.x, tower.y)
@@ -152,6 +174,10 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
             if (tower.type === "heal") {
               ctx.globalAlpha = 0.3;
               ctx.fillStyle = "#c4bd72";
+            }
+            if (tower.type === "drown"){
+              ctx.globalAlpha = 0.2;
+              ctx.fillStyle = "#5c8fe0"
             }
             ctx.beginPath();
             ctx.arc(0, 0, tower.auraRadius, 0, Math.PI * 2)
@@ -162,6 +188,9 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
             if (tower.type === "heal") {
               ctx.strokeStyle = "#a6ad1f";
             }
+            if (tower.type === "drown"){
+              ctx.strokeStyle = "#2e4870";
+            }
             ctx.beginPath();
             ctx.arc(0, 0, tower.auraRadius, 0, Math.PI * 2)
             ctx.stroke();
@@ -170,7 +199,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 
             ctx.rotate(-tower.auraDir)
             ctx.translate(-tower.x, -tower.y)
-            tower.auraDir += 1 / 130;
+            tower.auraDir += 1 / 160;
           }
         }
       }

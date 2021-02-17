@@ -19,6 +19,10 @@ class Bullet {
       this.explodeSpeed = stats.explodeSpeed;
       this.explodeRadius = stats.explodeRadius;
     }
+    if (this.type === "water"){
+      this.sizeDecay = stats.sizeDecay;
+      this.damageDecay = stats.damageDecay;
+    }
     this.damage = stats.damage * parentStats.attack;
     this.speed = stats.speed / 1000;
     this.hp = stats.hp;
@@ -36,11 +40,16 @@ class Bullet {
 
   }
   getInitPack(){
+		let typeToNum = {
+			"basic": 0,
+			"bomb": 1,
+			"water": 2
+		}
     let pack = {
       i: this.id,
       x: Math.round(this.x),
       y: Math.round(this.y),
-      t: this.type,
+      t: typeToNum[this.type],
       pi: this.parentId,
       s: this.size,
     };
@@ -84,11 +93,12 @@ class Tower {
     this.decay = (TowerStats[this.type].decay)/1000;
     this.collide = TowerStats[this.type].collide;
 
-		if(this.type == "heal"){
-			this.radius = TowerStats["heal"].radius;
-			this.effect = TowerStats["heal"].effect;
+		if(["heal", "drown"].includes(this.type)){
+			this.radius = TowerStats[this.type].radius;
+			this.effect = TowerStats[this.type].effect;
 		}
-    if(["farm", "propel"].includes(this.type)){
+
+    if(["farm", "propel", "drown"].includes(this.type)){
       this.effect = TowerStats[this.type].effect;
     }
 
@@ -108,7 +118,7 @@ class Tower {
       hp: this.hp,
       mh: this.maxHP
     }
-		if(this.type == "heal"){
+		if(this.type == "heal" || this.type == "drown"){
 			pack.ar = this.radius;
 		}
     if (this.type == "bomb"){
@@ -159,6 +169,10 @@ class Client {
 		this.tier = 1;
     this.energy;
     this.lastEnergy;
+    
+    this.effects = {
+      drowned: 100
+    };
 
 		this.stats = ElementStats["basic"];
     this.fov = ElementStats["basic"].fov;

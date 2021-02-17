@@ -26,7 +26,7 @@ const ElementStats = {
     defense: 105,
     friction: 0.5,
     fov: 1,
-    towers: ["farm", "basic", "heal"],
+    towers: ["farm", "basic", "heal", "streamer", "drown"],
     maxEnergy: 100,
   },
   earth: {
@@ -34,7 +34,7 @@ const ElementStats = {
     attack: 0.8,
     defense: 175,
     friction: 0.5,
-    fov: 0.8,
+    fov: 0.9,
     towers: ["farm", "basic", "heal"],
     maxEnergy: 100,
   }
@@ -97,13 +97,34 @@ const TowerStats = {
     size: 40,
 		effect: 60,
     collide: false
+  },
+  streamer: {
+    hp: 260,
+    energy: 60,
+    decay: 8,
+    reload: 190,
+    range: 690,
+    size: 40,
+    bullet: {
+      type: "water",
+			damage: 6,
+			size: 15,
+			speed: 650,
+      hp: 1,
+      decay: 0,
+			sizeDecay: 15/1200,
+			damageDecay: 6/1200
+    }
+  },
+  drown: {
+    hp: 240,
+    energy: 25,
+		decay: 24,
+    size: 40,
+		effect: 60,
+		radius: 200
   }
   /*
-  streamer: {
-    hp: 210,
-    energy: 50,
-		decay: 6
-  },
   splinter: {
     hp: 170,
     energy: 50,

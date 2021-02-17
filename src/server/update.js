@@ -113,11 +113,11 @@ function update(arenas, delta) { // main game loop
         }
         
 
-        player.x += player.xv * delta / 25;
-        player.y += player.yv * delta / 25;
+        player.x += player.xv * delta / 25 * player.effects.drowned/100;
+        player.y += player.yv * delta / 25 * player.effects.drowned/100;
 
-        player.x += player.bxv * delta / 25;
-        player.y += player.byv * delta / 25;
+        player.x += player.bxv * delta / 25 * player.effects.drowned/100;
+        player.y += player.byv * delta / 25 * player.effects.drowned/100;
 
         // tower collision
 
@@ -171,6 +171,9 @@ function update(arenas, delta) { // main game loop
           qtPlayer.x = player.x - player.size;
           qtPlayer.y = player.y - player.size;
         }
+        player.effects = {
+          drowned: 100
+        };
       }
     }
 
@@ -267,7 +270,53 @@ function update(arenas, delta) { // main game loop
             arena.bullets[bulletId] = new Bullet(bulletId, tower.parentId, tower.parentStats, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet)
           }
         }
-      }
+      } else if (tower.type == "streamer"){
+				tower.reload -= delta;
+
+        let nearestPlayerId = getNearestPlayer(arena, tower);
+        if (nearestPlayerId != null) {
+          let nearestPlayer = arena.players[nearestPlayerId];
+          let lastDir = tower.dir;
+          tower.dir = Math.atan2(nearestPlayer.y - tower.y, nearestPlayer.x - tower.x);
+          if (lastDir != tower.dir) {
+            tower.changed["d"] = true;
+          }
+          tower.hasTarget = true;
+        } else {
+          // there is no player in range
+          let nearestTowerId = getNearestTower(arena, tower);
+          if (nearestTowerId != null) {
+            let nearestTower = arena.towers[nearestTowerId];
+            let lastDir = tower.dir;
+            tower.dir = Math.atan2(nearestTower.y - tower.y, nearestTower.x - tower.x);
+            if (lastDir != tower.dir) {
+              tower.changed["d"] = true;
+            }
+            tower.hasTarget = true;
+          }
+          else {
+            tower.hasTarget = false;
+          }
+        }
+
+        if (tower.reload < 0) {
+          tower.reload += tower.maxReload;
+          if (tower.hasTarget) {
+            //Shoot Bullet
+            const bulletId = arena.createBulletId();
+            //id, parentId, x, y, dir, stats
+            arena.bullets[bulletId] = new Bullet(bulletId, tower.parentId, tower.parentStats, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet)
+          }
+        }
+			} else if(tower.type == "drown"){
+				let colliders = getAuraPlayerCollider(arena, tower);
+				for(let c of colliders){
+					const player = arena.players[c.gameId];
+          if (player != undefined){
+					  player.effects.drowned = Math.min(tower.effect, player.effects.drowned);
+          }
+				}
+			}
 
 
       if (tower.hp <= 0) {
@@ -351,10 +400,64 @@ function update(arenas, delta) { // main game loop
             }
           }
 
-
-
           break;
         }
+				case "water": {
+					bullet.x += bullet.xv * delta;
+          bullet.y += bullet.yv * delta;
+					bullet.damage -= bullet.damageDecay * delta;
+					bullet.size -= bullet.sizeDecay * delta;
+          if (bullet.size < 0){
+            bullet.size = 0;
+          }
+
+					bullet.changed["s"] = true;
+
+
+					let collides = getBulletCollider(arena, bullet);
+          for (let collider of collides) {
+            bullet.hp -= 20 * delta / 37;
+            if (collider.gameId != undefined) {
+              arena.players[collider.gameId].hp -= bullet.damage * delta / 37;
+              arena.players[collider.gameId].isDamaged = true;
+              if (arena.players[collider.gameId].hp <= 0) {
+                // collider died
+                arena.players[collider.gameId].die(arena, arena.players[bullet.parentId]);
+                let deleteQtPlayer = arena.playerqt.find(function(element) {
+                  return element.gameId === collider.gameId
+                })
+                if (deleteQtPlayer.length > 0) {
+                  arena.playerqt.remove(deleteQtPlayer[0]);
+                }
+              }
+            } else {
+              if (arena.towers[collider.id] != undefined) {
+                arena.towers[collider.id].hp -= bullet.damage * delta / 37;
+              }
+            }
+          }
+
+					if(bullet.x < bullet.size || bullet.x > arena.width - bullet.size || bullet.y < bullet.size || bullet.y > arena.height - bullet.size){
+						// hits wall
+						bullet.size = 0;
+					}
+
+          if (bullet.size <= 1) {
+            //Send Packet to Everyone
+            for (let player of bullet.seenBy) {
+              const payLoad = {
+                t: "rb",
+                i: bullet.id,
+                x: bullet.x,
+                y: bullet.y
+              }
+              player.ws.send(msgpack.encode(payLoad));
+            }
+            delete arena.bullets[b];
+          }
+
+					break;
+				}
         case "basic": {
           bullet.x += bullet.xv * delta;
           bullet.y += bullet.yv * delta;
@@ -411,6 +514,18 @@ function update(arenas, delta) { // main game loop
 }
 
 //
+
+function getAuraPlayerCollider(arena, tower){
+	let collisions = arena.playerqt.colliding({
+		x: tower.x - tower.size,
+		y: tower.y - tower.size,
+		width: tower.size * 2,
+		height: tower.size * 2
+	}, function (element1, element2){
+		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.radius && arena.players[element2.gameId].spawnProt <= 0 && element2.gameId != tower.parentId)
+	})
+	return collisions;
+}
 
 function getBulletCollider(arena, bullet) {
   let collisions = arena.playerqt.colliding({

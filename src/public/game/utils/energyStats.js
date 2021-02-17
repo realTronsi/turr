@@ -13,5 +13,11 @@ export const TowerStats = {
   },
   propel: {
     energy: 35
+  },
+  streamer: {
+    energy: 60
+  },
+  drown: {
+    energy: 25
   }
 }
