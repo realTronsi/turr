@@ -27,7 +27,8 @@ const ElementSprites = {
   basic: createImage("../../assets/elements/element_basic.svg"),
   fire: createImage("../../assets/elements/element_fire.svg"),
   water: createImage("../../assets/elements/element_water.svg"),
-  earth: createImage("../../assets/elements/element_earth.svg")
+  earth: createImage("../../assets/elements/element_earth.svg"),
+  magma: createImage("../../assets/elements/element_magma.svg"),
 }
 
 function capFirst(string) {
@@ -482,6 +483,18 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 
     }
 
+    //Draw Minimap
+    ctx.fillStyle = "rgb(0, 0, 0)"
+    ctx.globalAlpha = 0.2;
+    ctx.fillRect(20, 680, 200, 200)
+
+    ctx.beginPath();
+    ctx.fillStyle = "rgb(255, 0, 0)"
+    ctx.globalAlpha = 0.5;
+    ctx.arc(20 + 200*gameData.you.x/gameData.arenaWidth, 680+200*gameData.you.y/gameData.arenaHeight, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.globalAlpha = 1;
 
     //Draw thing that you are holding (when placing towers)
     if (held != false) {

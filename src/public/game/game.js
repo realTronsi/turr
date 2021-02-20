@@ -180,7 +180,7 @@ export function initGame(data, client) {
       
       if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "w", "a", "s", "d"].includes(e.key) && gameData.you.dead != true && !chatOpened) {
         sendPacket(client.ws, {
-          t: "keyd", //keydown
+          t: "kd", //keydown
           c: e.key
         });
       }
@@ -189,7 +189,7 @@ export function initGame(data, client) {
   document.onkeyup = (e) => {
     if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "w", "a", "s", "d"].includes(e.key) && gameData.you.dead != true) {
       sendPacket(client.ws, {
-        t: "keyu", //keyup
+        t: "ku", //keyup
         c: e.key
       });
     }

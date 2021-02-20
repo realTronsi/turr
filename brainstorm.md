@@ -1,6 +1,12 @@
 Yellow: FFD249
 Red: db4f00
 
+# HUGE BUGS:
+# Collisions bugged, when debugging quadtree collisions are off
+# when lots of players turret soemtimes doesn't shoot or shoot at owner which idek how that can happen, unless the quadtree is experiencing data loss
+
+# this doesn't happen in https://turr.io though - can't you just revert to latest stable as a test?
+
 
 Fire Element -> #c4160a
 Magma Element -> #ad3434

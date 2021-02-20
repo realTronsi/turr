@@ -41,12 +41,12 @@ const ElementStats = {
   },
 	magma: {
 		speed: 12,
-    attack: 1.2,
-    defense: 85,
+    attack: 1.15,
+    defense: 95,
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "bomb", "propel", "volcano"],
-		upgrades: [""],
+		upgrades: [],
     maxEnergy: 100
 	}
 }
@@ -56,7 +56,7 @@ const TowerStats = {
     energy: 30,
 		decay: 8,
     size: 40,
-		effect: 1000/1000 //23/1000
+		effect: 5000/1000 //23/1000
   },
   basic: {
     hp: 150,
@@ -67,11 +67,11 @@ const TowerStats = {
 		range: 750,
     bullet: {
       type: "basic",
-			damage: 20,
+			damage: 22,
 			size: 12,
 			speed: 700,
-      hp: 30,
-      decay: 24
+      hp: 15,
+      decay: 12
     }
   },
   heal: {
@@ -135,7 +135,7 @@ const TowerStats = {
 		radius: 200
   },
   splinter: {
-    hp: 290,
+    hp: 240,
     energy: 40,
     decay: 8,
     reload: 1100,

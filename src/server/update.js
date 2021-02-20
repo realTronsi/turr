@@ -14,10 +14,23 @@ const farmTower = require("./towers/farm");
 const healTower = require("./towers/heal");
 const splinterTower = require("./towers/splinter");
 const streamerTower = require("./towers/streamer");
+/* BULLET REQUIRE */
+
+const basicBullet = require("./bullets/basic");
+const bombBullet = require("./bullets/bomb");
+const splinterBullet = require("./bullets/splinter");
+const waterBullet = require("./bullets/water");
 
 function update(arenas, delta) { // main game loop
 	for (let a of Object.keys(arenas)) {
 		const arena = arenas[a];
+		if(arena.joinQueue.length > 0){
+			for(let client of arena.joinQueue){
+				arena.addPlayer(client);
+				updateArenaLeaderboard(arena);
+			}
+			arena.joinQueue = [];
+		}
 
 		// PLAYERS UPDATE
 		for (let p of Object.keys(arena.players)) {
@@ -277,227 +290,19 @@ function update(arenas, delta) { // main game loop
 
 			switch (bullet.stats.type) {
 				case "bomb": {
-					if (bullet.stage == "normal") {
-						bullet.x += bullet.xv * delta;
-						bullet.y += bullet.yv * delta;
-						bullet.stats.hp -= bullet.stats.decay * delta;
-						let collides = getBulletCollider(arena, bullet);
-						if (collides.length > 0) {
-							// collided with something
-							bullet.stage = "exploding";
-						}
-						if (bullet.x < bullet.stats.size || bullet.x > arena.width - bullet.stats.size || bullet.y < bullet.stats.size || bullet.y > arena.height - bullet.stats.size) {
-							// hits wall
-							bullet.stats.hp = 0;
-						}
-						if (bullet.stats.hp <= 0) {
-							bullet.stage = "exploding";
-						}
-					} else if (bullet.stage == "exploding") {
-						bullet.changed["s"] = true;
-						bullet.stats.size += bullet.stats.explodeSpeed * delta;
-						let collides = getBulletCollider(arena, bullet);
-						for (let collider of collides) {
-							if (collider.gameId != undefined) {
-								arena.players[collider.gameId].hp -= bullet.stats.damage * delta / 37;
-								arena.players[collider.gameId].isDamaged = true;
-								if (arena.players[collider.gameId].hp <= 0) {
-									// collider died
-									arena.players[collider.gameId].die(arena, arena.players[bullet.parentId]);
-									let deleteQtPlayer = arena.playerqt.find(function(element) {
-										return element.gameId === collider.gameId
-									})
-									if (deleteQtPlayer.length > 0) {
-										arena.playerqt.remove(deleteQtPlayer[0]);
-									}
-								}
-							} else {
-								if (arena.towers[collider.id] != undefined) {
-									arena.towers[collider.id].hp -= bullet.stats.damage * delta / 37;
-								}
-							}
-						}
-						if (bullet.stats.size >= bullet.stats.explodeRadius) {
-							// explosion done
-							for (let player of bullet.seenBy) {
-								const payLoad = {
-									t: "rb",
-									i: bullet.id,
-									x: bullet.x,
-									y: bullet.y
-								}
-								player.ws.send(msgpack.encode(payLoad));
-							}
-							delete arena.bullets[b];
-						}
-					}
-
+					bombBullet(arena, bullet, delta, b);
 					break;
 				}
 				case "splinter": {
-					bullet.x += bullet.xv * delta;
-					bullet.y += bullet.yv * delta;
-					bullet.stats.hp -= bullet.stats.decay * delta;
-					bullet.stats.size += bullet.stats.expandAmount * delta;
-					bullet.changed["s"] = true;
-
-					let collides = getBulletCollider(arena, bullet);
-					for (let collider of collides) {
-						if (collider.gameId != undefined) {
-							arena.players[collider.gameId].hp -= bullet.stats.damage * delta / 37;
-							arena.players[collider.gameId].isDamaged = true;
-							if (arena.players[collider.gameId].hp <= 0) {
-								// collider died
-								arena.players[collider.gameId].die(arena, arena.players[bullet.parentId]);
-								let deleteQtPlayer = arena.playerqt.find(function(element) {
-									return element.gameId === collider.gameId
-								})
-								if (deleteQtPlayer.length > 0) {
-									arena.playerqt.remove(deleteQtPlayer[0]);
-								}
-							}
-						} else {
-							bullet.stats.hp = 0; // hit non player
-							if (arena.towers[collider.id] != undefined) {
-								arena.towers[collider.id].hp -= bullet.stats.damage * delta / 37;
-							}
-						}
-					}
-
-					if (bullet.x < bullet.stats.size || bullet.x > arena.width - bullet.stats.size || bullet.y < bullet.stats.size || bullet.y > arena.height - bullet.stats.size) {
-						// hits wall
-						bullet.stats.hp = 0;
-					}
-
-					if (bullet.stats.hp <= 0) {
-						//Send Packet to Everyone
-						for (let player of bullet.seenBy) {
-							const payLoad = {
-								t: "rb",
-								i: bullet.id,
-								x: bullet.x,
-								y: bullet.y
-							}
-							player.ws.send(msgpack.encode(payLoad));
-						}
-						delete arena.bullets[b];
-
-						let id = arena.createBulletId();
-						let dir = Math.atan2(bullet.yv, bullet.xv);
-
-						arena.bullets[id] = new Bullet(id, bullet.parentId, bullet.parentStats, bullet.x, bullet.y, dir, bullet.stats.bullet);
-						id = arena.createBulletId();
-						arena.bullets[id] = new Bullet(id, bullet.parentId, bullet.parentStats, bullet.x, bullet.y, dir + 0.52, bullet.stats.bullet);
-						id = arena.createBulletId();
-						arena.bullets[id] = new Bullet(id, bullet.parentId, bullet.parentStats, bullet.x, bullet.y, dir - 0.52, bullet.stats.bullet);
-            /*
-            new Bullet(bulletId, tower.parentId, tower.parentStats, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet)
-            */
-					}
+					splinterBullet(arena, bullet, delta, b);
 					break;
 				}
 				case "water": {
-					bullet.x += bullet.xv * delta;
-					bullet.y += bullet.yv * delta;
-					bullet.stats.damage -= bullet.stats.damageDecay * delta;
-					bullet.stats.size -= bullet.stats.sizeDecay * delta;
-					if (bullet.stats.size < 0) {
-						bullet.stats.size = 0;
-					}
-
-					bullet.changed["s"] = true;
-
-
-					let collides = getBulletCollider(arena, bullet);
-					for (let collider of collides) {
-						bullet.stats.hp -= 20 * delta / 37;
-						if (collider.gameId != undefined) {
-							arena.players[collider.gameId].hp -= bullet.stats.damage * delta / 37;
-							arena.players[collider.gameId].isDamaged = true;
-							if (arena.players[collider.gameId].hp <= 0) {
-								// collider died
-								arena.players[collider.gameId].die(arena, arena.players[bullet.parentId]);
-								let deleteQtPlayer = arena.playerqt.find(function(element) {
-									return element.gameId === collider.gameId
-								})
-								if (deleteQtPlayer.length > 0) {
-									arena.playerqt.remove(deleteQtPlayer[0]);
-								}
-							}
-						} else {
-							if (arena.towers[collider.id] != undefined) {
-								arena.towers[collider.id].hp -= bullet.stats.damage * delta / 37;
-							}
-						}
-					}
-
-					if (bullet.x < bullet.stats.size || bullet.x > arena.width - bullet.stats.size || bullet.y < bullet.stats.size || bullet.y > arena.height - bullet.stats.size) {
-						// hits wall
-						bullet.stats.size = 0;
-					}
-
-					if (bullet.stats.size <= 1) {
-						//Send Packet to Everyone
-						for (let player of bullet.seenBy) {
-							const payLoad = {
-								t: "rb",
-								i: bullet.id,
-								x: bullet.x,
-								y: bullet.y
-							}
-							player.ws.send(msgpack.encode(payLoad));
-						}
-						delete arena.bullets[b];
-					}
-
+					waterBullet(arena, bullet, delta, b);
 					break;
 				}
 				case "basic": {
-					bullet.x += bullet.xv * delta;
-					bullet.y += bullet.yv * delta;
-					bullet.stats.hp -= bullet.stats.decay * delta;
-
-					let collides = getBulletCollider(arena, bullet);
-					for (let collider of collides) {
-						bullet.stats.hp -= 20 * delta / 37;
-						if (collider.gameId != undefined) {
-							arena.players[collider.gameId].hp -= bullet.stats.damage * delta / 37;
-							arena.players[collider.gameId].isDamaged = true;
-							if (arena.players[collider.gameId].hp <= 0) {
-								// collider died
-								arena.players[collider.gameId].die(arena, arena.players[bullet.parentId]);
-								let deleteQtPlayer = arena.playerqt.find(function(element) {
-									return element.gameId === collider.gameId
-								})
-								if (deleteQtPlayer.length > 0) {
-									arena.playerqt.remove(deleteQtPlayer[0]);
-								}
-							}
-						} else {
-							if (arena.towers[collider.id] != undefined) {
-								arena.towers[collider.id].hp -= bullet.stats.damage * delta / 37;
-							}
-						}
-					}
-
-					if (bullet.x < bullet.stats.size || bullet.x > arena.width - bullet.stats.size || bullet.y < bullet.stats.size || bullet.y > arena.height - bullet.stats.size) {
-						// hits wall
-						bullet.stats.hp = 0;
-					}
-
-					if (bullet.stats.hp <= 0) {
-						//Send Packet to Everyone
-						for (let player of bullet.seenBy) {
-							const payLoad = {
-								t: "rb",
-								i: bullet.id,
-								x: bullet.x,
-								y: bullet.y
-							}
-							player.ws.send(msgpack.encode(payLoad));
-						}
-						delete arena.bullets[b];
-					}
+					basicBullet(arena, bullet, delta, b);
 					break;
 				}
 				default: break;
@@ -508,31 +313,6 @@ function update(arenas, delta) { // main game loop
 }
 
 //
-
-function getBulletCollider(arena, bullet) {
-	let collisions = arena.playerqt.colliding({
-		x: bullet.x - bullet.stats.size,
-		y: bullet.y - bullet.stats.size,
-		width: bullet.stats.size * 2,
-		height: bullet.stats.size * 2
-	}, function(element1, element2) {
-		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < bullet.stats.size + element2.width / 2 && bullet.parentId != element2.gameId && arena.players[element2.gameId].spawnProt <= 0)
-	});
-
-	let towerCollisions = arena.towerqt.colliding({
-		x: bullet.x - bullet.stats.size,
-		y: bullet.y - bullet.stats.size,
-		width: bullet.stats.size * 2,
-		height: bullet.stats.size * 2
-	}, function(element1, element2) {
-		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < bullet.stats.size + element2.width / 2 && bullet.parentId != element2.parentId)
-	});
-
-	collisions = collisions.concat(towerCollisions);
-
-
-	return collisions;
-}
 
 function sendToPlayers(arenas, delta) {
 	for (let a of Object.keys(arenas)) {

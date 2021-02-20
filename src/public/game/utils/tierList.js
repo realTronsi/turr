@@ -13,7 +13,9 @@ export const ElementTiers = {
   },
   fire: {
     tier: 2,
-    upgrades: [],
+    upgrades: [
+      {color: "#a12020", name: "magma"}
+    ],
     towers: ["farm", "basic", "heal", "bomb", "propel"],
     fov: 1,
     maxHP: 85,
@@ -33,6 +35,14 @@ export const ElementTiers = {
     towers: ["farm", "basic", "heal", "splinter", "observatory"],
     fov: 0.9,
     maxHP: 140,
+    maxEnergy: 100
+  },
+  magma: {
+    tier: 3,
+    upgrades: [],
+    towers: ["farm", "basic", "heal", "bomb", "propel"],
+    fov: 1,
+    maxHP: 95,
     maxEnergy: 100
   }
 }

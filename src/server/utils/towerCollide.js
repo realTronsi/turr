@@ -9,13 +9,13 @@ function getNearestPlayer(arena, tower) {
 		width: tower.range * 2,
 		height: tower.range * 2
 	}, function(player) {
-		// remember to use player.width since this is the player object inside the quadtree
 		let distance = dist(tower.x, tower.y, player.x + player.width / 2, player.y + player.width / 2);
 		if (distance < collider_dist) {
 			collider_dist = distance;
 			collider = player.gameId;
 		}
 	}, function(element1, element2) {
+		if(arena.players[element2.gameId] == undefined) return false;
 		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.range && element2.gameId != tower.parentId && arena.players[element2.gameId].spawnProt <= 0)
 	});
 	return collider;

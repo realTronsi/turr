@@ -261,7 +261,10 @@ class Client {
 
 		// reset stats
 
-		this.xp = Math.pow(this.xp, 0.7);
+		this.xp = Math.pow(this.xp, 0.95);
+    if (this.xp > 100000){
+      this.xp = 100000;
+    }
 		this.stats = ElementStats["basic"];
     this.fov = ElementStats["basic"].fov;
 		this.inFov = [];
@@ -282,6 +285,7 @@ class Arena {
     this.id = id;
 		this.name = name;
     this.maxPlayers = maxPlayers;
+		this.joinQueue = [];
 		this.players = {};
     this.towers = {};
     this.bullets = {};
@@ -426,9 +430,10 @@ class Arena {
 			width: client.size * 2,
       height: client.size * 2,
       gameId: client.gameId
-    });
+    }, true);
 
 		this.playerCount++;
+
 	}
   static getAllSelectionData(arenas){
     let data = [];
