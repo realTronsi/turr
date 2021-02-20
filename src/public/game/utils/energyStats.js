@@ -9,7 +9,7 @@ export const TowerStats = {
     energy: 40
   },
   bomb: {
-    energy: 60
+    energy: 65
   },
   propel: {
     energy: 35

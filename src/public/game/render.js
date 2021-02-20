@@ -9,6 +9,7 @@ import { reduce_num } from "./utils/numred.js";
 import { wrapText } from "./utils/utils.js";
 import { TowerStats } from "./utils/energyStats.js";
 import { ElementTiers, TierXP } from "./utils/tierList.js";
+import { roundRect } from "./utils/roundRect.js";
 
 const TowerDescriptions = {
   farm: `Slowly gives XP`,
@@ -308,15 +309,18 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     const player = players[id];
     if (player.x != null && player.y != null) {
       if (gameData.you.dead != true || id != gameData.you.id) {
-
         //Spawn Protection Alpha
         if (player.spawnProt == 1){
         ctx.globalAlpha = 0.4;
+        }
+        else{
+        ctx.globalAlpha = 1;
         }
         //Player Body
         ctx.drawImage(ElementSprites[player.element], player.x - player.size, player.y - player.size, player.size * 2, player.size * 2)
         //Name
         ctx.fillStyle = "rgb(0, 0, 0)";
+        ctx.font = "20px Arial";
         ctx.fillText(player.name, player.x, player.y + player.size + 15);
 
         //Set GlobalAlpha back to 1
@@ -332,6 +336,15 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
           ctx.fill();
           ctx.globalAlpha = 1;
         }
+
+        ctx.globalAlpha = player.chatOpacity;
+        ctx.font = "25px Arial";
+        let chatWidth = ctx.measureText(player.chatMessage).width;
+        roundRect(ctx, player.x - chatWidth/2 - 5, player.y - player.size - 33, player.x + chatWidth/2 + 5, player.y - player.size - 4, 3, "rgba(60, 60, 60)");
+        ctx.fillStyle = "white";
+        ctx.fillText(player.chatMessage, player.x, player.y - player.size - 11);
+
+        ctx.globalAlpha = 1;
       }
     }
   }

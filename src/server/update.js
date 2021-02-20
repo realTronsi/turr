@@ -2,8 +2,18 @@ const msgpack = require("msgpack-lite");
 const { dist } = require("./utils/dist");
 const { reduce_num } = require("./utils/numred");
 const { TowerStats, ElementStats } = require("./stats");
-const { Bullet } = require("./objects.js")
+const { Bullet } = require("./objects.js");
 const { etToStr, strToEt } = require("./utils/etcast");
+
+/* TOWER REQUIRE */
+
+const basicTower = require("./towers/basic");
+const bombTower = require("./towers/bomb");
+const drownTower = require("./towers/drown");
+const farmTower = require("./towers/farm");
+const healTower = require("./towers/heal");
+const splinterTower = require("./towers/splinter");
+const streamerTower = require("./towers/streamer");
 
 function update(arenas, delta) { // main game loop
 	for (let a of Object.keys(arenas)) {
@@ -39,6 +49,20 @@ function update(arenas, delta) { // main game loop
 					if (player.spawnProt <= 0) {
 						player.changed["spawnProt"] = true;
 					}
+				}
+
+				player.chatTimer -= delta/1000;
+				player.chatTimer = Math.max(player.chatTimer, 0);
+
+				if(player.chatMessage != "" && player.chatTimer <= 0){
+					const payLoad = {
+						t: "dch",
+						i: player.gameId
+					}
+					for(let pl of Object.keys(arena.players)){
+						arena.players[pl].ws.send(msgpack.encode(payLoad));
+					}
+					player.chatMessage = "";
 				}
 
 				player.changed["energy"] = true;
@@ -211,176 +235,19 @@ function update(arenas, delta) { // main game loop
 			tower.hp -= tower.decay * delta;
 
 			if (tower.type == "farm") {
-				//Farm Code
-				if (arena.players[tower.parentId] != undefined) {
-					let oldxp = reduce_num(arena.players[tower.parentId].xp);
-					arena.players[tower.parentId].xp += tower.effect * delta;
-					if (oldxp != reduce_num(arena.players[tower.parentId].xp)) {
-						arena.players[tower.parentId].changed["xp"] = true;
-					}
-				}
+				farmTower(arena, tower, delta);
 			} else if (tower.type == "basic") {
-				//Basic Code
-				tower.reload -= delta;
-
-				let nearestPlayerId = getNearestPlayer(arena, tower);
-				if (nearestPlayerId != null) {
-					let nearestPlayer = arena.players[nearestPlayerId];
-					let lastDir = tower.dir;
-					tower.dir = Math.atan2(nearestPlayer.y - tower.y, nearestPlayer.x - tower.x);
-					if (lastDir != tower.dir) {
-						tower.changed["d"] = true;
-					}
-					tower.hasTarget = true;
-				} else {
-					// there is no player in range
-					let nearestTowerId = getNearestTower(arena, tower);
-					if (nearestTowerId != null) {
-						let nearestTower = arena.towers[nearestTowerId];
-						let lastDir = tower.dir;
-						tower.dir = Math.atan2(nearestTower.y - tower.y, nearestTower.x - tower.x);
-						if (lastDir != tower.dir) {
-							tower.changed["d"] = true;
-						}
-						tower.hasTarget = true;
-					}
-					else {
-						tower.hasTarget = false;
-					}
-				}
-
-				if (tower.reload < 0) {
-					tower.reload += tower.maxReload;
-					if (tower.hasTarget) {
-						//Shoot Bullet
-						const bulletId = arena.createBulletId();
-						//id, parentId, x, y, dir, stats
-						arena.bullets[bulletId] = new Bullet(bulletId, tower.parentId, tower.parentStats, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet)
-					}
-				}
+				basicTower(arena, tower, delta);
 			} else if (tower.type == "heal") {
-				const parent = arena.players[tower.parentId];
-				if (parent != undefined) {
-					if (dist(parent.x, parent.y, tower.x, tower.y) < parent.size + tower.radius) {
-						// parent is being healed
-						parent.hp += tower.effect * delta * parent.stats.defense / 100;
-						parent.hp = Math.min(parent.hp, parent.stats.defense);
-					}
-				}
+				healTower(arena, tower, delta);
 			} else if (tower.type == "bomb") {
-				tower.reload -= delta;
-
-				let nearestPlayerId = getNearestPlayer(arena, tower);
-				if (nearestPlayerId != null) {
-					let nearestPlayer = arena.players[nearestPlayerId];
-					tower.dir = Math.atan2(nearestPlayer.y - tower.y, nearestPlayer.x - tower.x);
-					tower.hasTarget = true;
-				} else {
-					// there is no player in range
-					let nearestTowerId = getNearestTower(arena, tower);
-					if (nearestTowerId != null) {
-						let nearestTower = arena.towers[nearestTowerId];
-						tower.dir = Math.atan2(nearestTower.y - tower.y, nearestTower.x - tower.x);
-						tower.hasTarget = true;
-					}
-					else {
-						tower.hasTarget = false;
-					}
-				}
-
-				if (tower.reload < 0) {
-					tower.reload += tower.maxReload;
-					if (tower.hasTarget) {
-						//Shoot Bullet
-						const bulletId = arena.createBulletId();
-						//id, parentId, x, y, dir, stats
-						arena.bullets[bulletId] = new Bullet(bulletId, tower.parentId, tower.parentStats, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet)
-					}
-				}
+				bombTower(arena, tower, delta);
 			} else if (tower.type == "streamer") {
-				tower.reload -= delta;
-
-				let nearestPlayerId = getNearestPlayer(arena, tower);
-				if (nearestPlayerId != null) {
-					let nearestPlayer = arena.players[nearestPlayerId];
-					let lastDir = tower.dir;
-					tower.dir = Math.atan2(nearestPlayer.y - tower.y, nearestPlayer.x - tower.x);
-					if (lastDir != tower.dir) {
-						tower.changed["d"] = true;
-					}
-					tower.hasTarget = true;
-				} else {
-					// there is no player in range
-					let nearestTowerId = getNearestTower(arena, tower);
-					if (nearestTowerId != null) {
-						let nearestTower = arena.towers[nearestTowerId];
-						let lastDir = tower.dir;
-						tower.dir = Math.atan2(nearestTower.y - tower.y, nearestTower.x - tower.x);
-						if (lastDir != tower.dir) {
-							tower.changed["d"] = true;
-						}
-						tower.hasTarget = true;
-					}
-					else {
-						tower.hasTarget = false;
-					}
-				}
-
-				if (tower.reload < 0) {
-					tower.reload += tower.maxReload;
-					if (tower.hasTarget) {
-						//Shoot Bullet
-						const bulletId = arena.createBulletId();
-						//id, parentId, x, y, dir, stats
-						arena.bullets[bulletId] = new Bullet(bulletId, tower.parentId, tower.parentStats, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet)
-					}
-				}
+				streamerTower(arena, tower, delta);
 			} else if (tower.type == "drown") {
-				let colliders = getAuraPlayerCollider(arena, tower);
-				for (let c of colliders) {
-					const player = arena.players[c.gameId];
-					if (player != undefined) {
-						player.effects.drowned = Math.min(tower.effect, player.effects.drowned);
-					}
-				}
+				drownTower(arena, tower, delta);
 			} else if (tower.type == "splinter") {
-				tower.reload -= delta;
-
-				let nearestPlayerId = getNearestPlayer(arena, tower);
-				if (nearestPlayerId != null) {
-					let nearestPlayer = arena.players[nearestPlayerId];
-					let lastDir = tower.dir;
-					tower.dir = Math.atan2(nearestPlayer.y - tower.y, nearestPlayer.x - tower.x);
-					if (lastDir != tower.dir) {
-						tower.changed["d"] = true;
-					}
-					tower.hasTarget = true;
-				} else {
-					// there is no player in range
-					let nearestTowerId = getNearestTower(arena, tower);
-					if (nearestTowerId != null) {
-						let nearestTower = arena.towers[nearestTowerId];
-						let lastDir = tower.dir;
-						tower.dir = Math.atan2(nearestTower.y - tower.y, nearestTower.x - tower.x);
-						if (lastDir != tower.dir) {
-							tower.changed["d"] = true;
-						}
-						tower.hasTarget = true;
-					}
-					else {
-						tower.hasTarget = false;
-					}
-				}
-
-				if (tower.reload < 0) {
-					tower.reload += tower.maxReload;
-					if (tower.hasTarget) {
-						//Shoot Bullet
-						const bulletId = arena.createBulletId();
-						//id, parentId, x, y, dir, stats
-						arena.bullets[bulletId] = new Bullet(bulletId, tower.parentId, tower.parentStats, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet)
-					}
-				}
+				splinterTower(arena, tower, delta);
 			}
 
 
@@ -642,18 +509,6 @@ function update(arenas, delta) { // main game loop
 
 //
 
-function getAuraPlayerCollider(arena, tower) {
-	let collisions = arena.playerqt.colliding({
-		x: tower.x - tower.size,
-		y: tower.y - tower.size,
-		width: tower.size * 2,
-		height: tower.size * 2
-	}, function(element1, element2) {
-		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.radius && arena.players[element2.gameId].spawnProt <= 0 && element2.gameId != tower.parentId)
-	})
-	return collisions;
-}
-
 function getBulletCollider(arena, bullet) {
 	let collisions = arena.playerqt.colliding({
 		x: bullet.x - bullet.stats.size,
@@ -677,49 +532,6 @@ function getBulletCollider(arena, bullet) {
 
 
 	return collisions;
-}
-
-function getNearestPlayer(arena, tower) {
-	let collider = null;
-	let collider_dist = tower.range + 1;
-	arena.playerqt.onCollision({
-		x: tower.x - tower.range,
-		y: tower.y - tower.range,
-		width: tower.range * 2,
-		height: tower.range * 2
-	}, function(player) {
-		// remember to use player.width since this is the player object inside the quadtree
-		let distance = dist(tower.x, tower.y, player.x + player.width / 2, player.y + player.width / 2);
-		if (distance < collider_dist) {
-			collider_dist = distance;
-			collider = player.gameId;
-		}
-	}, function(element1, element2) {
-		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.range && element2.gameId != tower.parentId && arena.players[element2.gameId].spawnProt <= 0)
-	});
-	return collider;
-}
-
-function getNearestTower(arena, tower) {
-	let collider = null;
-	let collider_dist = tower.range + 1;
-	arena.towerqt.onCollision({
-		x: tower.x - tower.range,
-		y: tower.y - tower.range,
-		width: tower.range * 2,
-		height: tower.range * 2,
-		parentId: tower.parentId
-	}, function(enemy) {
-		// remember to use player.width since this is the player object inside the quadtree
-		let distance = dist(tower.x, tower.y, enemy.x + enemy.width / 2, enemy.y + enemy.width / 2);
-		if (distance < collider_dist) {
-			collider_dist = distance;
-			collider = enemy.id;
-		}
-	}, function(element1, element2) {
-		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.range && element1.parentId != element2.parentId)
-	});
-	return collider;
 }
 
 function sendToPlayers(arenas, delta) {

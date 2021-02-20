@@ -23,6 +23,12 @@ export function Update(gameData, delta, gameMessages){
     player.middleY = lerp(player.middleY, player.serverY, delta/1000*serverTick)
 
     player.redFlash += (-0.1 - player.redFlash)/20;
+    if (player.chatDeletion === true){
+      player.chatOpacity -= 0.08;
+      if (player.chatOpacity < 0){
+        player.chatOpacity = 0;
+      }
+    }
   }
   if(true){
     const player = gameData.you;
@@ -43,6 +49,13 @@ export function Update(gameData, delta, gameMessages){
     }
 
     player.redFlash += (-0.1 - player.redFlash)/20;
+
+    if (player.chatDeletion === true){
+      player.chatOpacity -= 0.08;
+      if (player.chatOpacity < 0){
+        player.chatOpacity = 0;
+      }
+    }
     
     
   }

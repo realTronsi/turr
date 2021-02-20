@@ -1,23 +1,32 @@
 Yellow: FFD249
 Red: db4f00
 
-# Hi tronsi if you are reading this, you are pro
-so
-anyways 
-ye ig, maybe an option for devs to become bosses :P (obvs in a month or so)
 
-also a few new tower ideas ;p
-Boomer - Slowly ejects particles out of it in a small range (basically high damage around a radius but different :P)
-Bruh - Shoots 4 bullets at once towards a player, each at different speeds and different reload times so it's hard to dodge
+Fire Element -> #c4160a
+Magma Element -> #ad3434
 
 
-# Hi haha0201 if you are reading this, you are alive
-so
-better to make bosses special elements, otherwise it's only fun to the dev tbh. Also why do you keep thinking of way into the future,even if we did add your idea it would be in months (which again only adds gameplay to the dev bc all players r doing is basically fighting agianst a weak boss and if it's a new tower then it would be fun but it's not even a new tower) 
-ye ok
+# UPGRADES
+Fire -> Fire II, Magma (Volcano Tower), Plasma
+Water -> Water II, Ice, Electricity
+Earth -> Earth II, Rock, Metal
 
 
 
+
+
+Tower Brainstorm
+Magma - Volcano (explodes 2 seconds after being placed with a huge aoe effect and 8 smlal bullets in all directions)
+Plasma/Fire II/III/IV - Burn (If you're within a radius of it, you get burned, meaning you lose hp, you're slower, and your energy doesn't gain back as fast, for a few seconds. The effect wears off after some time)
+
+
+Water II - Water Jet (It shoots bullets that both damage and slow the player down)
+Ice - Barrier (Enemies cannot place any towers in a radius of this tower)
+Electricity - Tesla Coil
+
+Earth II - Tank (in a radius of this tower, you cannot take any damage - obvs doesnt last long and costs a lot)
+Rock - 
+Metael - 
 
 # CANNOT ADD 0 DECAY TOWERS DUE TO THE WAY PLAYER ID IS GENERATED OR MAKE 0 DECAY TOWERS DIE AFTER PLAYER LEAVES/DIES
 

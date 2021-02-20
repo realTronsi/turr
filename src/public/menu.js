@@ -5,12 +5,26 @@ export function initMenu(client) {
 	// called from connection.js ws.open callback
 	client.ws.onopen = () => { }; // empty onopen callback
 	const playButton = document.getElementById("playButton");
+  const menuDiv = document.getElementById("menu");
+  const tutorialDiv = document.getElementById("tutorial");
 	playButton.style.pointerEvents = "auto";
 	playButton.addEventListener("click", () => {
 		playButton.style.pointerEvents = "none"; // disable accidental double click
 		playButton.innerHTML = `<div class="loader2" style="" id="playLoader"></div>`;
 		initServerSelection(client);
 	});
+  const tutorialButton = document.getElementById("tutorialButton");
+  tutorialButton.addEventListener("click", () => {
+    menuDiv.style.display = "none";
+    tutorialDiv.style.display = "";
+    playButton.style.pointerEvents = "none";
+  })
+  const backToMenuButton = document.getElementById("backToMenu");
+  backToMenuButton.addEventListener("click", () => {
+    menuDiv.style.display = "";
+    tutorialDiv.style.display = "none";
+    playButton.style.pointerEvents = "auto";
+  })
 }
 
 export function initServerSelection(client) {

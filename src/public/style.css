@@ -28,6 +28,10 @@ body::-webkit-scrollbar {
   overflow: hidden;
 
 }
+div {
+margin:0;
+padding:0;
+}
 #loading-screen{
   position: absolute;
   display:flex;
@@ -44,7 +48,6 @@ body::-webkit-scrollbar {
   align-items:center;
   height: 100%;
   width: 100%;
-  min-height: 50vh;
   -o-transition: opacity 0.3s ease-in-out;
   transition: opacity 0.3s ease-in-out;
 }
@@ -236,16 +239,63 @@ h2{
   transition: all 0.5s ease;
   border-radius: 0.3rem;
   margin-top: 24px;
-  margin-bottom: 25px;
 	justify-content: center;
 	text-align: center;
   box-shadow: 0px 0px 6px 4px rgba(0, 0, 0, 0.3);
+  margin: none;
 }
 #playButton:hover{
   background-color: rgb(172, 197, 197);
   cursor: pointer;
   color:#000000;
 }
+#tutorialButton{
+  font-size:1.5rem;
+  width:7.2rem;
+  height:3.1rem;
+  border:none;
+  outline:none;
+  color:#0e0e0e;
+  background-color: rgb(196, 235, 186);
+  transition: all 0.5s ease;
+  border-radius: 0.3rem;
+  margin: none;
+	justify-content: center;
+	text-align: center;
+  box-shadow: 0px 0px 6px 4px rgba(0, 0, 0, 0.3);
+  position:relative;
+  top:-20px;
+}
+#tutorialButton:hover{
+  background-color: rgb(164, 211, 166);
+  cursor: pointer;
+  color:#000000;
+}
+#backToMenu{
+  font-size:1.5rem;
+  width:12rem;
+  height:3.1rem;
+  border:none;
+  position: absolute;
+  outline:none;
+  color:#0e0e0e;
+  background-color: rgb(196, 235, 186);
+  transition: all 0.5s ease;
+  border-radius: 0.3rem;
+  margin: none;
+	justify-content: center;
+	text-align: center;
+  box-shadow: 0px 0px 6px 4px rgba(0, 0, 0, 0.3);
+	bottom:10px;
+  left: calc(50% - 6rem);
+}
+#backToMenu:hover{
+  background-color: rgb(164, 211, 166);
+  cursor: pointer;
+  color:#000000;
+}
+
+
 input{
   padding: 5px;
   font-size: 25px;
@@ -300,4 +350,92 @@ input:focus {
   margin-top: 20px;
   margin-bottom: 10px;
   font-size: calc(2.5vw + 15px);
+}
+
+
+.chat1::-webkit-input-placeholder {
+  color: #444;
+}
+.chat1:-moz-placeholder {
+  color: #444;
+  opacity: 1;
+}
+.chat1::-moz-placeholder {
+  color: #444;
+  opacity: 1;
+}
+.chat1:-ms-input-placeholder {
+  color: #444;
+}
+.chat2::-webkit-input-placeholder {
+  color: #222;
+}
+.chat2:-moz-placeholder {
+  color: #222;
+  opacity: 1;
+}
+.chat2::-moz-placeholder {
+  color: #222;
+  opacity: 1;
+}
+.chat2:-ms-input-placeholder {
+  color: #222;
+}
+
+#chatHolder {
+  display: none;
+  position: absolute;
+  bottom: 32%;
+  width: 100%;
+  text-align: center;
+  z-index: 0;
+}
+
+#chatBox {
+  padding: 6px;
+  margin: 20px;
+  width: 20vw;
+  font-size: 20px;
+  color: #222222;
+  background-color: rgba(100, 100, 100, 0.5);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  pointer-events: all;
+  border: 0;
+}
+
+#tutorial {
+  overflow: auto;
+  height: 100vh;
+	display: flex;
+  justify-content: center;
+}
+#tutorialImage {
+  width: 90vh;
+  margin: auto;
+	align-self: flex-start;
+}
+#tutorial::-webkit-scrollbar {
+  display: block;
+  background: black;
+  width: 20px;
+}
+#tutorial::-webkit-scrollbar {
+  width: 20px;
+}
+
+/* Track */
+#tutorial::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+#tutorial::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+#tutorial::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

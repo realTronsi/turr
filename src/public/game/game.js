@@ -9,6 +9,10 @@ import { sendPacket } from "../socket.js";
 import { ElementTiers, TierXP } from "./utils/tierList.js";
 import { ConvertTowerToId } from "./utils/towerCast.js";
 
+const chatHolder = document.getElementById("chatHolder");
+const chatBox = document.getElementById("chatBox");
+
+let chatOpened = false;
 
 
 
@@ -140,6 +144,30 @@ export function initGame(data, client) {
             }
           }
         }
+
+        if (e.key === "Enter"){
+          if (chatOpened === false){
+            chatHolder.style.display = "block";
+            chatBox.focus();
+            chatOpened = true;
+          }
+          else{
+            chatHolder.style.display = "none";
+            chatBox.blur();
+            if (/^\s*$/.test(chatBox.value)){
+              chatBox.value = "";
+            }
+            else{
+              const payLoad = {
+                t: "ch",
+                m: chatBox.value
+              }
+              sendPacket(client.ws, payLoad)
+              chatBox.value = "";
+            }
+            chatOpened = false;
+          }
+        }
       }
       else {
         if (e.key === " ") {
@@ -149,7 +177,8 @@ export function initGame(data, client) {
           })
         }
       }
-      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "w", "a", "s", "d"].includes(e.key) && gameData.you.dead != true) {
+      
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "w", "a", "s", "d"].includes(e.key) && gameData.you.dead != true && !chatOpened) {
         sendPacket(client.ws, {
           t: "keyd", //keydown
           c: e.key
@@ -270,6 +299,9 @@ export function initGame(data, client) {
         gameData.you.finalScore = data.s;
         held = false;
         deathScreenOpacity = 0;
+        chatHolder.style.display = "none";
+        chatBox.blur();
+        chatBox.value = "";
         break;
       }
       case "pd": {
@@ -293,6 +325,38 @@ export function initGame(data, client) {
 
         break;
       }
+      case "dch": {
+        if (gameData.players[data.i] != undefined){
+          gameData.players[data.i].chatDeletion = true;
+        }
+        if (data.i === gameData.you.id){
+          gameData.you.chatDeletion = true;
+        }
+
+        break;
+      }
+      case "ch": {
+        if (gameData.players[data.i] != undefined){
+          gameData.players[data.i].chatMessage = data.m;
+          gameData.players[data.i].chatOpacity = 1;
+          gameData.players[data.i].chatDeletion = false;
+        }
+        if (data.i === gameData.you.id){
+          gameData.you.chatMessage = data.m;
+          gameData.you.chatOpacity = 1;
+          gameData.you.chatDeletion = false;
+        }
+
+        break;
+      }
+      case "chf": {
+        gameMessages.push({
+          value: "You are chatting too fast!",
+          timer: 4
+        })
+        break;
+      }
+
     }
     //} catch (err) { 
     //	alert(err);

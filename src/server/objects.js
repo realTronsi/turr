@@ -47,7 +47,7 @@ class Bullet {
       y: Math.round(this.y),
       t: typeToNum[this.stats.type],
       pi: this.parentId,
-      s: this.stats.size,
+      s: Math.round(this.stats.size),
     };
     return pack;
   }
@@ -143,6 +143,9 @@ class Client {
     this.name;
 		this.state = "menu"; // state of client (joining server, game, dead, etc.)
 
+		this.chatMessage = "";
+		this.chatTimer = 0;
+
 		this.arenaId; // arena playr is in
 
     this.isDamaged = false;
@@ -177,13 +180,15 @@ class Client {
     this.hp;
   }
   getInitPack(){
-    return {
+		let pack = {
       g: this.gameId,
       n: this.name,
       s: this.size,
       e: this.element,
       sp: this.spawnProt
     }
+		if(this.chatTimer > 0 && this.chatMessage != "") pack.m = this.chatMessage;
+    return pack;
   }
   getUpdatePack(){
     let pack = {};
@@ -229,11 +234,12 @@ class Client {
 			if(player != undefined){
 				if(player.inFov.includes(this)){
 					player.inFov.splice(player.inFov.indexOf(this), 1);
-					player.ws.send(msgpack.encode(payLoad));
+					//player.ws.send(msgpack.encode(payLoad));
 				}
+				player.ws.send(msgpack.encode(payLoad));
 			}
 		}
-		this.killedBy = killer// player who killed you
+		this.killedBy = killer; // player who killed you
 		payLoad = {
 			t: "yd", // you died
 			n: killer.name, //The pro who kiled u :)

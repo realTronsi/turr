@@ -19,6 +19,14 @@ export class Player{
       this.serverY = Infinity;
       this.middleX = Infinity;
       this.middleY = Infinity;
+      this.chatMessage = gameData.m || "";
+      this.chatDeletion = false;
+      if (this.chatMessage != ""){
+        this.chatOpacity = 1;
+      }
+      else{
+        this.chatOpacity = 0;
+      }
       ctx.font = "20px Arial";
       this.name = fitText(ctx, this.name, 300);
       ctx.font = "25px Arial";
@@ -42,6 +50,10 @@ export class Player{
       this.energy = 100;
       this.midenergy = 100;
       this.svrenergy = 100;
+
+      this.chatMessage = "";
+      this.chatOpacity = 0;
+      this.chatDeletion = false;
 
       
       this.maxEnergy = 100;

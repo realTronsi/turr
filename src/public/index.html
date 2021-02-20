@@ -1,31 +1,45 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <title>turr.io</title>
-    <link rel="icon" type="image/png" href="/favicon.png"/>
-    <script src="https://rawgit.com/kawanet/msgpack-lite/master/dist/msgpack.min.js"></script>
-  </head>
-  <body>
-		<div id="loading-screen" style="display: flex;">
-			<h1 id="loading-text">Loading</h1>
-      <div class="loader"></div>
-		</div>
-    <div id="menu" style="display: none;">
-      <div class="inner">
-        <div class="logo">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Turr.io</title>
+	<meta name="description" content="Multiplayer Tower Defense PvP Game">
+	<link rel="icon" type="image/png" href="/favicon.png" />
+	<script src="https://rawgit.com/kawanet/msgpack-lite/master/dist/msgpack.min.js">
+
+	</script>
+</head>
+
+<body>
+	<div id="loading-screen" style="display: flex;">
+		<h1 id="loading-text">Loading</h1>
+		<div class="loader"></div>
+	</div>
+	<div id="menu" style="display: none;">
+		<div class="inner">
+			<div class="logo">
 				<h1>turr.io</h1>
-        <h2 class="madeBy">made by Tronsi and haha0201</h2>
-        <div>
-        <input id="usernameInput" type="text" maxlength=16 placeholder="Username" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></input>
+				<h2 class="madeBy">made by Tronsi and haha0201</h2>
+				<div>
+					<input id="usernameInput" type="text" maxlength=16 placeholder="Username" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></input>
         </div>
         <div>
         <button id="playButton" style="pointer-events: auto;">
 					Play
         </div>
         </button>
+        <button id="tutorialButton">
+          Tutorial
+        </button>
 			</div>
+      </div>
+    </div>
+    <div id="tutorial" style="display: none;">
+      <img id="tutorialImage" src="/assets/icons/tutorial.svg" alt="Svg isn't supported on your browser :(">
+      <div>
+      <button id="backToMenu">Back To Menu</button>
       </div>
     </div>
 		<div id="server-selection" style="display: none;">
@@ -45,6 +59,17 @@
     </div>
     <div id="game" style="display: none;">
       <canvas id="gameCanvas" width="1600" height="900"></canvas>
+      <div id="chatHolder" style="display: none;">
+        <input
+        id="chatBox"
+        type="text"
+        placeholder="Enter Message"
+        autocomplete="off"
+        maxlength="36"
+        spellcheck="false"
+        class="chat1"
+        />
+      </div>
     </div>
   </body>
 </html>

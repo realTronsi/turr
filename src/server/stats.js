@@ -2,7 +2,7 @@ const Tiers = [3000, 15000, 50000, 150000, 1e69];
 
 const ElementStats = {
   basic: {
-    speed: 13,
+    speed: 13.5,
     attack: 1,
     defense: 100,
     friction: 0.5,
@@ -18,7 +18,8 @@ const ElementStats = {
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "bomb", "propel"],
-    maxEnergy: 100,
+		upgrades: ["magma"],
+    maxEnergy: 100
   },
   water: {
     speed: 11,
@@ -27,7 +28,7 @@ const ElementStats = {
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "streamer", "drown"],
-    maxEnergy: 100,
+    maxEnergy: 100
   },
   earth: {
     speed: 10,
@@ -36,9 +37,18 @@ const ElementStats = {
     friction: 0.5,
     fov: 0.9,
     towers: ["farm", "basic", "heal", "splinter", "observatory"],
-    maxEnergy: 100,
-  }
-
+    maxEnergy: 100
+  },
+	magma: {
+		speed: 12,
+    attack: 1.2,
+    defense: 85,
+    friction: 0.5,
+    fov: 1,
+    towers: ["farm", "basic", "heal", "bomb", "propel", "volcano"],
+		upgrades: [""],
+    maxEnergy: 100
+	}
 }
 const TowerStats = {
   farm: {
@@ -74,9 +84,9 @@ const TowerStats = {
   },
   bomb: {
     hp: 190,
-    energy: 60,
+    energy: 65,
     decay: 8,
-    reload: 1000,
+    reload: 1400,
     range: 700,
     size: 40,
     bullet: {
@@ -121,7 +131,7 @@ const TowerStats = {
     energy: 25,
 		decay: 24,
     size: 40,
-		effect: 60,
+		effect: 40,
 		radius: 200
   },
   splinter: {
@@ -150,11 +160,11 @@ const TowerStats = {
     }
   },
   observatory: {
-    hp: 200,
+    hp: 350,
     energy: 70,
     decay: 8,
     size: 60,
-    effect: 0.25
+    effect: 0.35
   }
   /*
   splinter: {
