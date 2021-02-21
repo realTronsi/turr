@@ -274,7 +274,7 @@ wss.on('connection', (ws, req) => {
 						width: client.size * 2,
 						height: client.size * 2,
 						gameId: client.gameId
-					}, true);
+					});
 
 					client.spawnProt = 150;
 

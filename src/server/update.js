@@ -33,6 +33,11 @@ function update(arenas, delta) { // main game loop
 		}
 
 		// PLAYERS UPDATE
+		let tempqt = new Quadtree({
+				width: arena.width,
+				height: arena.height,
+				maxElements: 5
+		})
 		for (let p of Object.keys(arena.players)) {
 			const player = arena.players[p];
 			player.isDamaged = false;
@@ -238,8 +243,10 @@ function update(arenas, delta) { // main game loop
 
 
 				player.effects.drowned = 100;
+				tempqt.push(qtPlayer);
 			}
 		}
+		arena.playerqt = tempqt;
 
 		// TOWERS UPDATE
 		for (let t of Object.keys(arena.towers)) {

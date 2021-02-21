@@ -430,7 +430,7 @@ class Arena {
 			width: client.size * 2,
       height: client.size * 2,
       gameId: client.gameId
-    }, true);
+    });
 
 		this.playerCount++;
 
