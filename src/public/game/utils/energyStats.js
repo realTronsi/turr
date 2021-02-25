@@ -26,5 +26,19 @@ export const TowerStats = {
   observatory: {
     energy: 70,
     size: 60
+  },
+  volcano: {
+    energy: 65,
+    size: 60
+  },
+  slingshot: {
+    energy: 45,
+    size: 50
+  },
+  "ice gunner": {
+    energy: 45
+  },
+  ionizer: {
+    energy: 55
   }
 }

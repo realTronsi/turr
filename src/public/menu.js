@@ -5,32 +5,32 @@ export function initMenu(client) {
 	// called from connection.js ws.open callback
 	client.ws.onopen = () => { }; // empty onopen callback
 	const playButton = document.getElementById("playButton");
-  const menuDiv = document.getElementById("menu");
-  const tutorialDiv = document.getElementById("tutorial");
+	const menuDiv = document.getElementById("menu");
+	const tutorialDiv = document.getElementById("tutorial");
 	playButton.style.pointerEvents = "auto";
 	playButton.addEventListener("click", () => {
 		playButton.style.pointerEvents = "none"; // disable accidental double click
 		playButton.innerHTML = `<div class="loader2" style="" id="playLoader"></div>`;
 		initServerSelection(client);
 	});
-  const tutorialButton = document.getElementById("tutorialButton");
-  tutorialButton.addEventListener("click", () => {
-    menuDiv.style.display = "none";
-    tutorialDiv.style.display = "";
-    playButton.style.pointerEvents = "none";
-  })
-  const backToMenuButton = document.getElementById("backToMenu");
-  backToMenuButton.addEventListener("click", () => {
-    menuDiv.style.display = "";
-    tutorialDiv.style.display = "none";
-    playButton.style.pointerEvents = "auto";
-  })
+	const tutorialButton = document.getElementById("tutorialButton");
+	tutorialButton.addEventListener("click", () => {
+		menuDiv.style.display = "none";
+		tutorialDiv.style.display = "";
+		playButton.style.pointerEvents = "none";
+	})
+	const backToMenuButton = document.getElementById("backToMenu");
+	backToMenuButton.addEventListener("click", () => {
+		menuDiv.style.display = "";
+		tutorialDiv.style.display = "none";
+		playButton.style.pointerEvents = "auto";
+	})
 }
 
 export function initServerSelection(client) {
-	document.onkeydown = () => {};
-	document.onkeyup = () => {}; // clear listeners
-  const menuDiv = document.getElementById('menu');
+	document.onkeydown = () => { };
+	document.onkeyup = () => { }; // clear listeners
+	const menuDiv = document.getElementById('menu');
 	const serverSelectionDiv = document.getElementById("server-selection");
 
 	sendPacket(client.ws,
@@ -41,76 +41,76 @@ export function initServerSelection(client) {
 	client.ws.onmessage = msg => {
 		let data = msgpack.decode(new Uint8Array(msg.data));
 		try {
-			switch(data.t){ //data type
+			switch (data.t) { //data type
 				case "ssr": { // server selection response
 					menuDiv.style.display = "none";
-	        serverSelectionDiv.style.display = "flex";
-          const serverSelectionData = document.getElementById("serverSelectionData");
-          serverSelectionData.innerHTML = "";
+					serverSelectionDiv.style.display = "flex";
+					const serverSelectionData = document.getElementById("serverSelectionData");
+					serverSelectionData.innerHTML = "";
 
 					// add loading wheel to play button
-					
-          for(let i = data.d.length; i--; i>0){
-            const serverData = data.d[i];
-            serverSelectionData.innerHTML += `
+
+					for (let i = data.d.length; i--; i > 0) {
+						const serverData = data.d[i];
+						serverSelectionData.innerHTML += `
             <button id="${serverData.id}" class="server-card">
 				      ${serverData.title}
 			      </button>
             `
-          }
+					}
 
-          const serverCards = document.querySelectorAll('.server-card');
-          for(let serverCard of serverCards){
-            serverCard.addEventListener("click", () => {
-              joinServer(client, serverCard.id)
-            })
-          }
+					const serverCards = document.querySelectorAll('.server-card');
+					for (let serverCard of serverCards) {
+						serverCard.addEventListener("click", () => {
+							joinServer(client, serverCard.id)
+						})
+					}
 				};
 				default: break;
 			}
 		} catch (err) {
-      console.log("bug with server selection response: "+err)
-    }
+			console.log("bug with server selection response: " + err)
+		}
 	}
 }
 
-export function joinServer(client, serverId){
-  sendPacket(client.ws,
-    {
+export function joinServer(client, serverId) {
+	sendPacket(client.ws,
+		{
 			t: "js", // join server
-      id: serverId, // server id
-      n: document.getElementById("usernameInput").value // nickname
-	  });
+			id: serverId, // server id
+			n: document.getElementById("usernameInput").value // nickname
+		});
 	client.ws.onmessage = msg => {
 		// handle errors/success
-    try{
-      let data = msgpack.decode(new Uint8Array(msg.data));
-			switch(data.t){
-        case "jsf": {
-          //Join Server Fail
-          switch(data.m){
-            case "sf": {
-              error("Server full!")
-              break;
-            }
-            case "ns": {
-              error("Server closed!")
-              break;
-            }
-          }
-          initServerSelection(client); // basically resets so client sees correct updated servers
+		try {
+			let data = msgpack.decode(new Uint8Array(msg.data));
+			switch (data.t) {
+				case "jsf": {
+					//Join Server Fail
+					switch (data.m) {
+						case "sf": {
+							error("Server full!")
+							break;
+						}
+						case "ns": {
+							error("Server closed!")
+							break;
+						}
+					}
+					initServerSelection(client); // basically resets so client sees correct updated servers
 					break;
-        }
-        case "jss": {
+				}
+				case "jss": {
 					initGame(data, client);
-          break;
-        }
-      }
-    } catch{}
+					break;
+				}
+			}
+		} catch{ }
 	}
-  const serverCards = document.querySelectorAll('.server-card');
-  for(let serverCard of serverCards){
-    serverCard.style.pointerEvents = "none";
-    //Backend disable too.
-  }
+	const serverCards = document.querySelectorAll('.server-card');
+	for (let serverCard of serverCards) {
+		serverCard.style.pointerEvents = "none";
+		//Backend disable too.
+	}
 }

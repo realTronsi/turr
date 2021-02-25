@@ -30,7 +30,7 @@ function bombTower(arena, tower, delta) {
 			//Shoot Bullet
 			const bulletId = arena.createBulletId();
 			//id, parentId, x, y, dir, stats
-			arena.bullets[bulletId] = new Bullet(bulletId, tower.parentId, tower.parentStats, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet)
+			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet, tower)
 		}
 	}
 }

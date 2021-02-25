@@ -2,7 +2,10 @@ let numToType = {
   "0": "basic",
 	"1": "bomb",
 	"2": "water",
-  "3": "splinter"
+  "3": "splinter",
+  "4": "rock",
+  "5": "ice",
+  "6": "plasma"
 }
 export class Bullet{
   constructor(gameData){
@@ -20,6 +23,12 @@ export class Bullet{
     this.lastX = this.serverX;
     this.lastY = this.serverY;
     this.baseSize = this.size;
+    if (this.type == "ice" || this.type == "rock"){
+      this.rotate = Math.random() * 6.28;
+    }
+    else{
+      this.rotate = 0;
+    }
   }
   updatePack(gameData){
     if (gameData.s){
@@ -27,7 +36,11 @@ export class Bullet{
     }
     this.lastX = this.serverX;
     this.lastY = this.serverY;
-    this.serverX = gameData.x;
-    this.serverY = gameData.y;
+    if (gameData.x != undefined){
+      this.serverX = gameData.x;
+    }
+    if (gameData.y != undefined){
+      this.serverY = gameData.y;
+    }
   }
 }

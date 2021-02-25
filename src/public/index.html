@@ -10,6 +10,49 @@
 	<script src="https://rawgit.com/kawanet/msgpack-lite/master/dist/msgpack.min.js">
 
 	</script>
+
+	<!-- ADINPLAY -->
+
+	<script>
+		window.aiptag = window.aiptag || {cmd: []};
+	aiptag.cmd.display = aiptag.cmd.display || [];
+	aiptag.cmd.player = aiptag.cmd.player || [];
+
+	//CMP tool settings
+	aiptag.cmp = {
+		show: true,
+		position: "centered",  //centered, bottom
+		button: true,
+		buttonText: "Privacy settings",
+		buttonPosition: "bottom-left" //bottom-left, bottom-right, top-left, top-right
+	}
+
+	aiptag.cmd.player.push(function() {
+		aiptag.adplayer = new aipPlayer({
+			AIP_REWARDEDCOMPLETE: function (evt)  {
+				//evt can be: timeout, empty or closed
+				alert("Rewarded Ad Completed: " + evt);
+			},
+			AIP_REWARDEDGRANTED: function ()  {
+				alert("Reward Granted");
+			},
+		});
+	});
+
+	function show_rewarded() {
+		//check if the adslib is loaded correctly or blocked by adblockers etc.
+		if (typeof aiptag.adplayer !== 'undefined') {
+			aiptag.cmd.player.push(function() { aiptag.adplayer.startRewardedAd(); });
+		} else {
+			//Adlib didnt load this could be due to an adblocker, timeout etc.
+			//Please add your script here that starts the content, this usually is the same script as added in AIP_REWARDEDCOMPLETE.
+			alert("Rewarded Ad Could not be loaded, load your content here");
+		}
+	}
+	</script>
+	<script async src="//api.adinplay.com/libs/aiptag/pub/TRR/turr.io/tag.min.js">
+
+	</script>
 </head>
 
 <body>
@@ -17,6 +60,17 @@
 		<h1 id="loading-text">Loading</h1>
 		<div class="loader"></div>
 	</div>
+	<div id="adc1" class="ad_container" style="display: flex;">
+		<div id="turr-io_160x600_1" style="position: absolute; left: 10px; z-index: 6942;">
+			<script type='text/javascript'>
+				aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_1'); });
+			</script>
+		</div>
+		<div id="turr-io_160x600_2" style="position: absolute; right: 10px; z-index: 6942;">
+			<script type='text/javascript'>
+				aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_2'); });
+			</script>
+		</div>
 	<div id="menu" style="display: none;">
 		<div class="inner">
 			<div class="logo">
@@ -57,6 +111,7 @@
         <h5 id="errorExit">Click to Exit</h5>
       </div>
     </div>
+	</div>
     <div id="game" style="display: none;">
       <canvas id="gameCanvas" width="1600" height="900"></canvas>
       <div id="chatHolder" style="display: none;">
@@ -70,6 +125,18 @@
         class="chat1"
         />
       </div>
+			<div id="adc2" class="ad_container" style="display: none;">
+      	<div id="turr-io_160x600_3" style="position: absolute; left: 10px;">
+			  <script type='text/javascript'>
+				aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_3'); });
+			  </script>
+		    </div>
+    		<div id="turr-io_160x600_4" style="position: absolute; right: 10px;">
+			  <script type='text/javascript'>
+				aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_4'); });
+			  </script>
+			</div>
+		</div>
     </div>
   </body>
 </html>

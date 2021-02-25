@@ -5,6 +5,8 @@ const { Bullet } = require(".././objects.js");
 function splinterBullet(arena, bullet, delta, b) {
   bullet.x += bullet.xv * delta;
   bullet.y += bullet.yv * delta;
+  bullet.changed["x"] = true;
+  bullet.changed["y"] = true;
   bullet.stats.hp -= bullet.stats.decay * delta;
   bullet.stats.size += bullet.stats.expandAmount * delta;
   bullet.changed["s"] = true;
@@ -53,11 +55,11 @@ function splinterBullet(arena, bullet, delta, b) {
     let id = arena.createBulletId();
     let dir = Math.atan2(bullet.yv, bullet.xv);
 
-    arena.bullets[id] = new Bullet(id, bullet.parentId, bullet.parentStats, bullet.x, bullet.y, dir, bullet.stats.bullet);
+    arena.bullets[id] = new Bullet(id, bullet.x, bullet.y, dir, bullet.stats.bullet, bullet.tower);
     id = arena.createBulletId();
-    arena.bullets[id] = new Bullet(id, bullet.parentId, bullet.parentStats, bullet.x, bullet.y, dir + 0.52, bullet.stats.bullet);
+    arena.bullets[id] = new Bullet(id, bullet.x, bullet.y, dir + 0.52, bullet.stats.bullet, bullet.tower);
     id = arena.createBulletId();
-    arena.bullets[id] = new Bullet(id, bullet.parentId, bullet.parentStats, bullet.x, bullet.y, dir - 0.52, bullet.stats.bullet);
+    arena.bullets[id] = new Bullet(id, bullet.x, bullet.y, dir - 0.52, bullet.stats.bullet, bullet.tower);
 		/*
 		new Bullet(bulletId, tower.parentId, tower.parentStats, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet)
 		*/

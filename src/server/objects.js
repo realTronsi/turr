@@ -7,18 +7,22 @@ const { ksCalc } = require("./utils/ksCalc.js");
 const { spawnPoint } = require("./utils/spawn.js");
 
 class Bullet {
-  constructor(id, parentId, parentStats, x, y, dir, stats){
+  constructor(id, x, y, dir, stats, tower){
+		this.tower = tower;
     this.id = id;
     this.x = x;
     this.y = y;
     this.dir = dir;
-    this.parentId = parentId;
+    this.parentId = tower.parentId;
     if (stats.type === "bomb"){
       this.stage = "normal";
     }
+		if(stats.type == "plasma"){
+			this.stage = "expanding";
+		}
     this.stats = JSON.parse(JSON.stringify(stats));
-    this.stats.speed = this.stats.speed / 1000;
-    this.stats.decay = this.stats.decay / 1000;
+    this.stats.speed /= 1000;
+    this.stats.decay /= 1000;
     this.xv = Math.cos(this.dir) * this.stats.speed;
     this.yv = Math.sin(this.dir) * this.stats.speed;
     //Offset location so it spawns at the end of the turret out of the tower
@@ -27,10 +31,10 @@ class Bullet {
     //Changed attributes
     this.changed = {};
     this.seenBy = []; //Clients who are seeing the bullet
-    this.parentStats = parentStats;
+    this.parentStats = tower.parentStats;
 
 
-		this.stats.damage = stats.damage * parentStats.attack;
+		this.stats.damage = stats.damage * this.parentStats.attack;
 
 
   }
@@ -39,7 +43,10 @@ class Bullet {
 			"basic": 0,
 			"bomb": 1,
 			"water": 2,
-      "splinter": 3
+      "splinter": 3,
+      "rock": 4,
+      "ice": 5,
+      "plasma": 6
 		}
     let pack = {
       i: this.id,
@@ -53,12 +60,18 @@ class Bullet {
   }
   getUpdatePack(){
     const pack = {
-      i: this.id,
-      x: Math.round(this.x),
-      y: Math.round(this.y)
     };
+    if (this.changed["x"]){
+      pack.x = Math.round(this.x);
+    }
+    if (this.changed["y"]){
+      pack.y = Math.round(this.y);
+    }
     if (this.changed["s"]){
       pack.s = Math.round(this.stats.size);
+    }
+    if (Object.keys(pack).length > 0){
+      pack.i = this.id;
     }
     return pack;
   }
@@ -98,6 +111,18 @@ class Tower {
       this.effect = TowerStats[this.type].effect;
     }
 
+		if(["volcano"].includes(this.type)){
+			this.state = TowerStats[this.type].state;
+		}
+
+		if(this.type == "volcano"){
+			this.explosionTimer = TowerStats[this.type].explosionTimer;
+		}
+
+		if(["volcano"].includes(this.type)){
+			this.animation = 0;
+		}
+
 		this.seenBy = []; // clients who've seen the tower
 
 		this.changed = {};
@@ -110,8 +135,8 @@ class Tower {
 			s: this.size * 2,
       id: this.id,
       pi: this.parentId,
-			d: this.dir,
-      hp: this.hp,
+			d: Math.round(this.dir*100)/100,
+      hp: Math.round(this.hp),
       mh: this.maxHP
     }
 		if(this.type == "heal" || this.type == "drown"){
@@ -120,14 +145,20 @@ class Tower {
     if (this.type == "bomb"){
       delete pack.d;
     }
+		if(this.type == "volcano"){
+			pack.a = this.animation;
+		}
     return pack;
   }
 	getUpdatePack(){
 		let pack = {};
     for(let i of Object.keys(this.changed)){
-      if (i === "d"){
+      if (i == "d"){
         pack.d = Math.round(this.dir*100)/100;
       }
+			if (i == "animation"){
+				pack.a = this.animation;
+			}
     }
     pack.hp = Math.round(this.hp);
     pack.id = this.id;
@@ -171,7 +202,8 @@ class Client {
     
     this.effects = {
       drowned: 100,
-      observatory: 0
+      observatory: 0,
+      frozen: 0
     };
 
 		this.stats = ElementStats["basic"];
@@ -229,7 +261,7 @@ class Client {
 			t: "pd", // player died
 			i: this.gameId
 		}
-		for(let p in Object.keys(arena.players)){
+		for(let p of Object.keys(arena.players)){
 			let player = arena.players[p];
 			if(player != undefined){
 				if(player.inFov.includes(this)){
@@ -281,9 +313,10 @@ class Client {
 }
 
 class Arena {
-	constructor(id, name, width, height, maxPlayers){
+	constructor(id, name, width, height, maxPlayers, gamemode){
     this.id = id;
 		this.name = name;
+		this.gamemode = gamemode;
     this.maxPlayers = maxPlayers;
 		this.joinQueue = [];
 		this.players = {};

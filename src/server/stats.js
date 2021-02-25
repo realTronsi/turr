@@ -13,21 +13,22 @@ const ElementStats = {
   },
   fire: {
     speed: 12,
-    attack: 1.2,
-    defense: 85,
+    attack: 1.25,
+    defense: 80,
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "bomb", "propel"],
-		upgrades: ["magma"],
+		upgrades: ["magma", "plasma"],
     maxEnergy: 100
   },
   water: {
     speed: 11,
-    attack: 1.1,
+    attack: 1.05,
     defense: 110,
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "streamer", "drown"],
+		upgrades: ["ice"],
     maxEnergy: 100
   },
   earth: {
@@ -37,16 +38,45 @@ const ElementStats = {
     friction: 0.5,
     fov: 0.9,
     towers: ["farm", "basic", "heal", "splinter", "observatory"],
+    upgrades: ["rock"],
     maxEnergy: 100
   },
 	magma: {
-		speed: 12,
-    attack: 1.15,
+		speed: 11.5,
+    attack: 1.1,
     defense: 95,
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "bomb", "propel", "volcano"],
 		upgrades: [],
+    maxEnergy: 100
+	},
+	plasma: {
+		speed: 10.5,
+    attack: 1.35,
+    defense: 85,
+    friction: 0.5,
+    fov: 1,
+    towers: ["farm", "basic", "heal", "bomb", "propel", "ionizer"],
+		upgrades: [],
+    maxEnergy: 100
+	},
+  rock: {
+    speed: 9.5,
+    attack: 0.9,
+    defense: 145,
+    friction: 0.5,
+    fov: 0.9,
+    towers: ["farm", "basic", "heal", "splinter", "observatory", "slingshot"],
+    maxEnergy: 100
+  },
+	ice: {
+		speed: 1.2,
+    attack: 1.1,
+    defense: 100,
+    friction: 0.9,
+    fov: 0.95,
+    towers: ["farm", "basic", "heal", "streamer", "drown", "ice gunner"],
     maxEnergy: 100
 	}
 }
@@ -56,7 +86,7 @@ const TowerStats = {
     energy: 30,
 		decay: 8,
     size: 40,
-		effect: 5000/1000 //23/1000
+		effect: 23/1000
   },
   basic: {
     hp: 150,
@@ -91,7 +121,7 @@ const TowerStats = {
     size: 40,
     bullet: {
       type: "bomb",
-			damage: 8.3333,
+			damage: 8,
 			size: 32,
 			speed: 480,
       hp: 12,
@@ -165,28 +195,94 @@ const TowerStats = {
     decay: 8,
     size: 60,
     effect: 0.35
+  },
+  volcano: {
+    hp: 1500,
+    decay: 600,
+    energy: 65,
+    size: 60,
+		explosionTimer: 1000,
+		state: "normal",
+		bullet: {
+      type: "bomb",
+			damage: 8,
+			size: 60,
+			speed: 0,
+      hp: 1,
+      decay: 100,
+			explodeRadius: 450,
+			explodeSpeed: 900/1000
+    },
+		bullet2: {
+			type: "bomb",
+			damage: 6,
+			size: 28,
+			speed: 250,
+      hp: 2,
+      decay: 1,
+			explodeRadius: 220,
+			explodeSpeed: 420/1000
+		},
+		bullet3: {
+			type: "rock",
+			damage: 60,
+			size: 18,
+			speed: 950,
+      hp: 10,
+      decay: 7
+		}
+  },
+  slingshot: {
+    hp: 250,
+    energy: 45,
+		decay: 8,
+    size: 50,
+		reload: 1700,
+		range: 900,
+    bullet: {
+      type: "rock",
+			damage: 50,
+			size: 30,
+			speed: 1200,
+      hp: 15,
+      decay: 12
+    }
+  },
+  "ice gunner": {
+		hp: 250,
+    energy: 45,
+		decay: 8,
+    size: 40,
+		reload: 400,
+		range: 550,
+    bullet: {
+      type: "ice",
+			damage: 3,
+			size: 11,
+			speed: 650,
+      hp: 15,
+      decay: 12,
+      effect: 0.25
+    }
+	},
+  ionizer: {
+    hp: 360,
+    energy: 55,
+		decay: 8,
+    size: 40,
+		reload: 1900,
+		range: 800,
+    bullet: {
+      type: "plasma",
+			damage: 14,
+			size: 6,
+			speed: 850,
+      hp: 3,
+      decay: 1,
+			growSpeed: 15/1000,
+			damageGrow: 8/1000,
+			maxSize: 25
+    }
   }
-  /*
-  splinter: {
-    hp: 170,
-    energy: 50,
-		decay: 6
-  },
-  core: {
-    hp: 240,
-    energy: 50,
-		decay: 6
-  },
-  barrier: {
-    hp: 400,
-    energy: 50,
-    decay: 10
-  },
-  sandpit: {
-    hp: 40,
-    energy: 50,
-    decay: 4
-  }
-  */
 }
 module.exports = {TowerStats, ElementStats }

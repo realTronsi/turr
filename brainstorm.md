@@ -1,15 +1,14 @@
 Yellow: FFD249
 Red: db4f00
 
-# HUGE BUGS:
-# Collisions bugged, when debugging quadtree collisions are off
-# when lots of players turret soemtimes doesn't shoot or shoot at owner which idek how that can happen, unless the quadtree is experiencing data loss
-
-# this doesn't happen in https://turr.io though - can't you just revert to latest stable as a test?
 
 
 Fire Element -> #c4160a
 Magma Element -> #ad3434
+Earth Element -> #1b8c1d
+Rock Element -> #3c3c3c
+Water Element -> #0b58a1
+Plasma Element -> #a82ca2
 
 
 # UPGRADES
@@ -17,22 +16,70 @@ Fire -> Fire II, Magma (Volcano Tower), Plasma
 Water -> Water II, Ice, Electricity
 Earth -> Earth II, Rock, Metal
 
+electricity tesla coil shouldnt be that hard anyways ill probably be back very late at night so uh whatever
+
+
+TIER 3 iS ALL ATTACKING TOWERS
+
+Ideas:
+
+each element effects should not effect opposing element, for example burn effect from fires will not affect water, freeze effect from waters will not affect earths, and effects from earth will not affect fires idk, this will at least encourage diversity rather than ppl camping the same element
+
+^^ will confuse new playrs tho so I might have to update tutorial if we add this or smth
+
+Metal -  
+
+Ice - shoots ice cubes which freeze you upon contact, its simple concept but it'll work
+
+Plasma - 
+
+
+
+
+Random Ideas
+
+Qualities of Ice
+Freezing others
+Melting (into puddles)
+Having low friction (initially)
+Frostbite
+Slowing things down
+Being brittle, but acts like a shield
+Countering fire very well
+
+Qualities of Metal
+Strong and difficult to break
+Vulnerable to fire (will melt and become bruhed)
+Slow and dense (hard to control)
+Great at cutting things (melee)
+
+Qualities of Plasma
+Not a fluid or a solid
+Very hot (can melt everything)
+Can phase through things (it's plasma what do you expect)
+Very low density (should move rather quickly)
+Plasma is affected by electric and magnetic fields in ways not seen in other forms of matter. These fields can influence plasmas over great distances, pinching, warping and shaping them, as like the sun. Thus, we must make our plasma element act the same way - it is way more vulnerable to outside forces, but it can also damage others a lot
+
+
 
 
 
 
 Tower Brainstorm
 Magma - Volcano (explodes 2 seconds after being placed with a huge aoe effect and 8 smlal bullets in all directions)
-Plasma/Fire II/III/IV - Burn (If you're within a radius of it, you get burned, meaning you lose hp, you're slower, and your energy doesn't gain back as fast, for a few seconds. The effect wears off after some time)
+Fire II - Burn (If you're within a radius of it, you get burned, meaning you lose hp, you're slower, and your energy doesn't gain back as fast, for a few seconds. The effect wears off after some time)
+Plasma - Phase (upon placemenent, you go through towers and bullets, as well as having increased speed. Used to witchunt or perhaps defend? When the tower dies (which is around 2-3 seconds unless it's destroyed faster), you are back to normal)
 
 
 Water II - Water Jet (It shoots bullets that both damage and slow the player down)
-Ice - Barrier (Enemies cannot place any towers in a radius of this tower)
+Ice - A0 Cannon - shoots icicles/cold bullets that also slows towers/players
+
+Barrier (Enemies cannot place any towers in a radius of this tower), or an ice sniper
 Electricity - Tesla Coil
 
 Earth II - Tank (in a radius of this tower, you cannot take any damage - obvs doesnt last long and costs a lot)
-Rock - 
-Metael - 
+Rock - Catapult (High speed, medium damage, low reload tower - maybe the ammo can also slowly slow down over time?)
+Metal - Rust (over time, it decays, releasing slow-moving particles that deal small damage but slow players down a bit upon touch)
 
 # CANNOT ADD 0 DECAY TOWERS DUE TO THE WAY PLAYER ID IS GENERATED OR MAKE 0 DECAY TOWERS DIE AFTER PLAYER LEAVES/DIES
 

@@ -7,7 +7,11 @@ export const ConvertTowerToId = {
   "streamer": 5,
   "drown": 6,
   "splinter": 7,
-  "observatory": 8
+  "observatory": 8,
+  "volcano": 9,
+  "slingshot": 10,
+  "ice gunner": 11,
+  "ionizer": 12
 }
 export const ConvertIdToTower = {
   "0": "farm",
@@ -18,5 +22,9 @@ export const ConvertIdToTower = {
   "5": "streamer",
   "6": "drown",
   "7": "splinter",
-  "8": "observatory"
+  "8": "observatory",
+  "9": "volcano",
+  "10": "slingshot",
+  "11": "ice gunner",
+  "12": "ionizer"
 }

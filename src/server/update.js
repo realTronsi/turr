@@ -1,4 +1,5 @@
 const msgpack = require("msgpack-lite");
+const Quadtree = require("quadtree-lib");
 const { dist } = require("./utils/dist");
 const { reduce_num } = require("./utils/numred");
 const { TowerStats, ElementStats } = require("./stats");
@@ -14,12 +15,20 @@ const farmTower = require("./towers/farm");
 const healTower = require("./towers/heal");
 const splinterTower = require("./towers/splinter");
 const streamerTower = require("./towers/streamer");
+const volcanoTower = require("./towers/volcano");
+const slingshotTower = require("./towers/slingshot");
+const iceGunnerTower = require("./towers/icegunner");
+const ionizerTower = require("./towers/ionizer");
+
 /* BULLET REQUIRE */
 
 const basicBullet = require("./bullets/basic");
 const bombBullet = require("./bullets/bomb");
 const splinterBullet = require("./bullets/splinter");
 const waterBullet = require("./bullets/water");
+const rockBullet = require("./bullets/rock");
+const iceBullet = require("./bullets/ice");
+const plasmaBullet = require("./bullets/plasma");
 
 function update(arenas, delta) { // main game loop
 	for (let a of Object.keys(arenas)) {
@@ -154,12 +163,15 @@ function update(arenas, delta) { // main game loop
 					player.changed["y"] = true;
 				}
 
+        if (player.effects.frozen <= 0){
 
 				player.x += player.xv * delta / 25 * player.effects.drowned / 100;
 				player.y += player.yv * delta / 25 * player.effects.drowned / 100;
 
 				player.x += player.bxv * delta / 25 * player.effects.drowned / 100;
 				player.y += player.byv * delta / 25 * player.effects.drowned / 100;
+
+        }
 
 				// tower collision
 
@@ -243,6 +255,7 @@ function update(arenas, delta) { // main game loop
 
 
 				player.effects.drowned = 100;
+        player.effects.frozen -= delta/1000;
 				tempqt.push(qtPlayer);
 			}
 		}
@@ -251,6 +264,8 @@ function update(arenas, delta) { // main game loop
 		// TOWERS UPDATE
 		for (let t of Object.keys(arena.towers)) {
 			const tower = arena.towers[t];
+
+      tower.changed = {};
 
 			tower.hp -= tower.decay * delta;
 
@@ -268,7 +283,15 @@ function update(arenas, delta) { // main game loop
 				drownTower(arena, tower, delta);
 			} else if (tower.type == "splinter") {
 				splinterTower(arena, tower, delta);
-			}
+			} else if(tower.type == "volcano"){
+				volcanoTower(arena, tower, delta);
+			} else if(tower.type == "slingshot"){
+        slingshotTower(arena, tower, delta);
+      } else if(tower.type == "ice gunner"){
+        iceGunnerTower(arena, tower, delta);
+      } else if(tower.type == "ionizer"){
+        ionizerTower(arena, tower, delta);
+      }
 
 
 			if (tower.hp <= 0) {
@@ -294,6 +317,7 @@ function update(arenas, delta) { // main game loop
 		//BULLETS UPDATE
 		for (let b of Object.keys(arena.bullets)) {
 			const bullet = arena.bullets[b];
+      bullet.changed = {};
 
 			switch (bullet.stats.type) {
 				case "bomb": {
@@ -312,6 +336,18 @@ function update(arenas, delta) { // main game loop
 					basicBullet(arena, bullet, delta, b);
 					break;
 				}
+        case "rock": {
+          rockBullet(arena, bullet, delta, b);
+          break;
+        }
+        case "ice": {
+          iceBullet(arena, bullet, delta, b);
+          break;
+        }
+        case "plasma": {
+          plasmaBullet(arena, bullet, delta, b);
+          break;
+        }
 				default: break;
 			}
 		}

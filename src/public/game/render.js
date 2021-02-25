@@ -12,15 +12,19 @@ import { ElementTiers, TierXP } from "./utils/tierList.js";
 import { roundRect } from "./utils/roundRect.js";
 
 const TowerDescriptions = {
-  farm: `Slowly gives XP`,
-  basic: `Shoots at things`,
-  heal: `Heals in a radius`,
-  bomb: `Shoots bombs at things`,
-  propel: `Propels you upon contact`,
-  streamer: `Rapidly shoots water`,
-  drown: `Slows down others`,
-  splinter: `Shoots seeds which bloom`,
-  observatory: `Gives you more vision`
+  farm: [`Slowly gives XP`],
+  basic: [`Shoots bullets at`, `enemies`],
+  heal: [`Heals you in a`, `radius`],
+  bomb: [`Shoots explosive`, `bombs at enemies`],
+  propel: [`Gives a temporary speed`, `boost on contact`],
+  streamer: [`Rapidly shoots water`],
+  drown: [`Slows down enemies`, `in a radius`],
+  splinter: [`Shoots seeds which`, `split into three`],
+  observatory: [`Gives you more fov`, `on contact`],
+  volcano: [`Erupts when hp hits`, `zero`],
+  slingshot: [`Shoots rocks that slowly`, `loses speed & damage`],
+  "ice gunner": [`Shoots ice which`, `freezes enemies`],
+  ionizer: [`Shoots powerful plasma`, `with infinite pierce`]
 }
 
 const ElementSprites = {
@@ -29,6 +33,9 @@ const ElementSprites = {
   water: createImage("../../assets/elements/element_water.svg"),
   earth: createImage("../../assets/elements/element_earth.svg"),
   magma: createImage("../../assets/elements/element_magma.svg"),
+  rock: createImage("../../assets/elements/element_rock.svg"),
+  ice: createImage("../../assets/elements/element_ice.svg"),
+  plasma: createImage("../../assets/elements/element_plasma.svg")
 }
 
 function capFirst(string) {
@@ -40,16 +47,28 @@ const BulletSprites = {
     red: createImage("../../assets/bullets/basic_red.svg")
   },
   bomb: {
-    yellow: createImage("../../assets/bullets/basic_yellow.svg"),
-    red: createImage("../../assets/bullets/basic_red.svg")
+    yellow: createImage("../../assets/bullets/bomb_yellow.svg"),
+    red: createImage("../../assets/bullets/bomb_red.svg")
   },
   water: {
     yellow: createImage("../../assets/bullets/water_blue.svg"),
-    red: createImage("../../assets/bullets/basic_red.svg")
+    red: createImage("../../assets/bullets/water_red.svg")
   },
   splinter: {
     yellow: createImage("../../assets/bullets/splinter_green.svg"),
-    red: createImage("../../assets/bullets/basic_red.svg")
+    red: createImage("../../assets/bullets/splinter_red.svg")
+  },
+  rock: {
+    yellow: createImage("../../assets/bullets/rock_you.svg"),
+    red: createImage("../../assets/bullets/rock_red.svg")
+  },
+  ice: {
+    yellow: createImage("../../assets/bullets/ice_blue.svg"),
+    red: createImage("../../assets/bullets/ice_red.svg")
+  },
+  plasma: {
+    yellow: createImage("../../assets/bullets/plasma_purple.svg"),
+    red: createImage("../../assets/bullets/plasma_red.svg")
   }
 }
 const TowerSprites = {
@@ -89,8 +108,26 @@ const TowerSprites = {
     yellow: createImage("../../assets/towers/tower_observatory_yellow.svg"),
     red: createImage("../../assets/towers/tower_observatory_red.svg")
   },
-  
-  
+  volcano: {
+    yellow: createImage("../../assets/towers/tower_volcano_yellow.svg"),
+    red: createImage("../../assets/towers/tower_volcano_red.svg")
+  },
+  slingshot: {
+    yellow: createImage("../../assets/towers/tower_slingshot_yellow.svg"),
+    red: createImage("../../assets/towers/tower_slingshot_red.svg")
+  },
+  "ice gunner": {
+    yellow: createImage("../../assets/towers/tower_ice_gunner_yellow.svg"),
+    red: createImage("../../assets/towers/tower_ice_gunner_red.svg")
+  },
+  ionizer: {
+    yellow: createImage("../../assets/towers/tower_ionizer_yellow.svg"),
+    red: createImage("../../assets/towers/tower_ionizer_red.svg")
+  },
+
+
+
+
 }
 const IconSprites = {
   energy: createImage("../../assets/icons/logo_energy.svg"),
@@ -158,7 +195,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
               ctx.globalAlpha = 0.3;
               ctx.fillStyle = "#e08080";
             }
-            if (tower.type === "drown"){
+            if (tower.type === "drown") {
               ctx.globalAlpha = 0.4;
               ctx.fillStyle = "#34568c";
             }
@@ -171,7 +208,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
             if (tower.type === "heal") {
               ctx.strokeStyle = "#ff0000";
             }
-            if (tower.type === "drown"){
+            if (tower.type === "drown") {
               ctx.strokeStyle = "#002fba";
             }
             ctx.beginPath();
@@ -192,7 +229,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
               ctx.globalAlpha = 0.3;
               ctx.fillStyle = "#c4bd72";
             }
-            if (tower.type === "drown"){
+            if (tower.type === "drown") {
               ctx.globalAlpha = 0.2;
               ctx.fillStyle = "#5c8fe0"
             }
@@ -205,7 +242,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
             if (tower.type === "heal") {
               ctx.strokeStyle = "#a6ad1f";
             }
-            if (tower.type === "drown"){
+            if (tower.type === "drown") {
               ctx.strokeStyle = "#2e4870";
             }
             ctx.beginPath();
@@ -228,18 +265,22 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
   for (let id of Object.keys(gameData.bullets)) {
     const bullet = gameData.bullets[id];
     let alpha = bullet.opacity;
-    if (bullet.type === "bomb"){
-      alpha /= (bullet.size/bullet.baseSize);
+    if (bullet.type === "bomb") {
+      alpha /= (bullet.size / bullet.baseSize);
     }
     ctx.globalAlpha = alpha;
+    ctx.translate(bullet.x, bullet.y);
+    ctx.rotate(bullet.rotate);
     if (bullet.parentId != gameData.you.id) {
       //not your bullet :c
-      ctx.drawImage(BulletSprites[bullet.type].red, bullet.x - bullet.size, bullet.y - bullet.size, bullet.size * 2, bullet.size * 2);
+      ctx.drawImage(BulletSprites[bullet.type].red, -bullet.size, -bullet.size, bullet.size * 2, bullet.size * 2);
     }
     else {
       //your bullet c:
-      ctx.drawImage(BulletSprites[bullet.type].yellow, bullet.x - bullet.size, bullet.y - bullet.size, bullet.size * 2, bullet.size * 2);
+      ctx.drawImage(BulletSprites[bullet.type].yellow, -bullet.size, -bullet.size, bullet.size * 2, bullet.size * 2);
     }
+    ctx.rotate(-bullet.rotate);
+    ctx.translate(-bullet.x, -bullet.y);
   }
   ctx.globalAlpha = 1;
   //Draw Towers
@@ -298,6 +339,13 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
           ctx.lineTo(tower.x - tower.size / 2 + (tower.size * tower.hp / tower.maxHP), tower.y + tower.size / 2 + 10);
           ctx.stroke();
         }
+
+        ctx.globalAlpha = tower.animation / 120;
+        ctx.beginPath();
+        ctx.fillStyle = "rgb(255, 0, 0)"
+        ctx.arc(tower.x, tower.y, tower.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
       }
     }
   }
@@ -311,11 +359,11 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     if (player.x != null && player.y != null) {
       if (gameData.you.dead != true || id != gameData.you.id) {
         //Spawn Protection Alpha
-        if (player.spawnProt == 1){
-        ctx.globalAlpha = 0.4;
+        if (player.spawnProt == 1) {
+          ctx.globalAlpha = 0.4;
         }
-        else{
-        ctx.globalAlpha = 1;
+        else {
+          ctx.globalAlpha = 1;
         }
         //Player Body
         ctx.drawImage(ElementSprites[player.element], player.x - player.size, player.y - player.size, player.size * 2, player.size * 2)
@@ -341,7 +389,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
         ctx.globalAlpha = player.chatOpacity;
         ctx.font = "25px Arial";
         let chatWidth = ctx.measureText(player.chatMessage).width;
-        roundRect(ctx, player.x - chatWidth/2 - 5, player.y - player.size - 33, player.x + chatWidth/2 + 5, player.y - player.size - 4, 3, "rgba(60, 60, 60)");
+        roundRect(ctx, player.x - chatWidth / 2 - 5, player.y - player.size - 33, player.x + chatWidth / 2 + 5, player.y - player.size - 4, 3, "rgba(60, 60, 60)");
         ctx.fillStyle = "white";
         ctx.fillText(player.chatMessage, player.x, player.y - player.size - 11);
 
@@ -447,7 +495,12 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
       ctx.fillStyle = "rgb(0, 0, 0)"
       ctx.fillRect(slotX - 40, 800, 80, 80)
       ctx.globalAlpha = 1;
-      ctx.drawImage(TowerSprites[towerSlots[i]].yellow, slotX - 60, 780, 120, 120)
+      if (towerSlots[i] != "ionizer") {
+        ctx.drawImage(TowerSprites[towerSlots[i]].yellow, slotX - 60, 780, 120, 120)
+      }
+      else {
+        ctx.drawImage(TowerSprites[towerSlots[i]].yellow, slotX - 55, 785, 110, 110)
+      }
       ctx.font = "16px Arial";
       ctx.fillStyle = "rgb(0, 0, 0)"
       ctx.fillText(i + 1, slotX - 31, 872)
@@ -459,25 +512,32 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
         ctx.globalAlpha = 1;
         ctx.fillStyle = "rgb(240, 240, 240)"
         ctx.font = "bold 32px Arial";
-        ctx.fillText(capFirst(towerSlots[i]), slotX, 710)
-        ctx.font = "19px Arial";
-        ctx.fillText(TowerDescriptions[towerSlots[i]], slotX, 735);
+        ctx.fillText(capFirst(towerSlots[i]), slotX, 700)
+
+        let descLength = TowerDescriptions[towerSlots[i]].length - 1;
+        for (let j = 0; j < TowerDescriptions[towerSlots[i]].length; j++) {
+          //800 - (towerSlotsLength / 2) * 100 + i * 100;
+          let descY = 730 - (descLength / 2) * 10 + j * 20;
+          ctx.font = "19px Arial";
+          ctx.fillText(TowerDescriptions[towerSlots[i]][j], slotX, descY);
+        }
+
+
         ctx.font = "13px Arial";
         ctx.fillText("Energy Required", slotX, 760)
 
-        //mini Health bar
         ctx.lineCap = "round";
         ctx.lineWidth = 10;
         ctx.strokeStyle = "rgb(140, 140, 140)"
         ctx.beginPath();
-        ctx.moveTo(slotX - 112, 772)
-        ctx.lineTo(slotX + 112, 772)
+        ctx.moveTo(slotX - 100, 772)
+        ctx.lineTo(slotX + 100, 772)
         ctx.stroke();
         ctx.lineWidth = 8;
         ctx.strokeStyle = "#e7cc47"
         ctx.beginPath();
-        ctx.moveTo(slotX - 112, 772)
-        ctx.lineTo(slotX - 112 + 226 * (TowerStats[towerSlots[i]].energy / gameData.you.maxEnergy), 772)
+        ctx.moveTo(slotX - 100, 772)
+        ctx.lineTo(slotX - 100 + 200 * (TowerStats[towerSlots[i]].energy / gameData.you.maxEnergy), 772)
         ctx.stroke();
       }
 
@@ -491,7 +551,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     ctx.beginPath();
     ctx.fillStyle = "rgb(255, 0, 0)"
     ctx.globalAlpha = 0.5;
-    ctx.arc(20 + 200*gameData.you.x/gameData.arenaWidth, 680+200*gameData.you.y/gameData.arenaHeight, 5, 0, Math.PI * 2);
+    ctx.arc(20 + 200 * gameData.you.x / gameData.arenaWidth, 680 + 200 * gameData.you.y / gameData.arenaHeight, 5, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.globalAlpha = 1;
@@ -501,7 +561,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
       ctx.globalAlpha = 0.4;
       let towerSize = TowerStats[held].size || 40;
 
-      ctx.drawImage(TowerSprites[held].yellow, mouse.x - towerSize*2 * gameData.you.fov, mouse.y - towerSize*2 * gameData.you.fov, towerSize*4 * gameData.you.fov, towerSize*4 * gameData.you.fov);
+      ctx.drawImage(TowerSprites[held].yellow, mouse.x - towerSize * 2 * gameData.you.fov, mouse.y - towerSize * 2 * gameData.you.fov, towerSize * 4 * gameData.you.fov, towerSize * 4 * gameData.you.fov);
 
 
 
@@ -525,20 +585,20 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 
     //Calculate XP Needed & Progress
     let xpTier = 0;
-    while(true){
-      if (xpTier >= TierXP.length){
+    while (true) {
+      if (xpTier >= TierXP.length) {
         break;
       }
-      if (gameData.you.xp < TierXP[xpTier+1]){
+      if (gameData.you.xp < TierXP[xpTier + 1]) {
         break;
       }
-      xpTier ++;
+      xpTier++;
     }
     let lastXP = TierXP[xpTier];
     let nextXP = TierXP[xpTier + 1];
     let progress = gameData.you.xp - lastXP;
     let xpNeeded = nextXP - lastXP;
-    
+
     //Draw
     ctx.lineCap = "round";
     ctx.beginPath();
@@ -550,10 +610,10 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     ctx.beginPath();
     ctx.strokeStyle = "#42c2f5"
     ctx.lineWidth = 16;
-    ctx.moveTo(1550, 800-(progress/xpNeeded*700));
+    ctx.moveTo(1550, 800 - (progress / xpNeeded * 700));
     ctx.lineTo(1550, 800);
     ctx.stroke();
-    if (xpTier >= ElementTiers[gameData.you.element].tier){
+    if (xpTier >= ElementTiers[gameData.you.element].tier) {
       ctx.font = "bold 40px Arial";
       ctx.fillStyle = "rgb(0, 0, 0)"
       ctx.fillText("Choose Your Element", 800, 65)
@@ -566,7 +626,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
         ctx.fillStyle = upgrades[i].color;
         ctx.globalAlpha = 0.4;
         ctx.fillRect(slotX - 50, 100, 100, 100)
-        
+
         ctx.globalAlpha = 1;
         ctx.font = "bold 30px Arial";
         ctx.fillText(capFirst(upgrades[i].name), slotX, 160);
@@ -574,14 +634,90 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
         ctx.fillStyle = "rgb(0, 0, 0)"
         ctx.fillText(capFirst(upgrades[i].name), slotX, 160);
 
-        if (mouse.x > slotX - 50 && mouse.x < slotX + 50 && mouse.y > 100 && mouse.y < 200){
-        ctx.globalAlpha = 0.1;
-        ctx.fillStyle = "rgb(255, 255, 255)"
-        ctx.fillRect(slotX - 50, 100, 100, 100)
+        if (mouse.x > slotX - 50 && mouse.x < slotX + 50 && mouse.y > 100 && mouse.y < 200) {
+          ctx.globalAlpha = 0.1;
+          ctx.fillStyle = "rgb(255, 255, 255)"
+          ctx.fillRect(slotX - 50, 100, 100, 100)
+
+          ctx.globalAlpha = 0.3;
+          ctx.fillStyle = "rgb(100, 100, 100)"
+          ctx.fillRect(slotX - 50, 210, 100, 90);
+          ctx.globalAlpha = 1;
+          ctx.font = "bold 20px Arial";
+          let upgradeHP = ElementTiers[upgrades[i].name].maxHP;
+          let upgradeAttack = ElementTiers[upgrades[i].name].attack;
+          let upgradeSpeed = ElementTiers[upgrades[i].name].speed;
+          let upgradeFOV = ElementTiers[upgrades[i].name].fov;
+          let changeDefense = upgradeHP - ElementTiers[gameData.you.element].maxHP;
+          let changeAttack = upgradeAttack - ElementTiers[gameData.you.element].attack;
+          let changeSpeed = upgradeSpeed - ElementTiers[gameData.you.element].speed;
+          let changeFov = upgradeFOV - ElementTiers[gameData.you.element].fov;
+
+          ctx.fillStyle = "rgb(0, 0, 0)"
+
+          if (changeAttack >= 0) {
+            if (changeAttack != 0) {
+              ctx.fillStyle = "#457a28"
+            }
+            else {
+              ctx.fillStyle = "rgb(100, 100, 100)"
+            }
+            ctx.fillText("Att +" + Math.round(changeAttack / ElementTiers[gameData.you.element].attack * 100) + "%", slotX, 230)
+          }
+          else {
+            ctx.fillStyle = "#d93639"
+            ctx.fillText("Att -" + Math.abs(Math.round(changeAttack / ElementTiers[gameData.you.element].attack * 100)) + "%", slotX, 230)
+          }
+
+          if (changeDefense >= 0) {
+            if (changeDefense != 0) {
+              ctx.fillStyle = "#457a28"
+            }
+            else {
+              ctx.fillStyle = "rgb(100, 100, 100)"
+            }
+            ctx.fillText("Def +" + Math.round(changeDefense / ElementTiers[gameData.you.element].maxHP * 100) + "%", slotX, 250)
+          }
+          else {
+            ctx.fillStyle = "#d93639"
+            ctx.fillText("Def -" + Math.abs(Math.round(changeDefense / ElementTiers[gameData.you.element].maxHP * 100)) + "%", slotX, 250)
+          }
+          if (changeSpeed >= 0) {
+            if (changeSpeed != 0) {
+              ctx.fillStyle = "#457a28"
+            }
+            else {
+              ctx.fillStyle = "rgb(100, 100, 100)"
+            }
+            ctx.fillText("Spd +" + Math.round(changeSpeed / ElementTiers[gameData.you.element].speed * 100) + "%", slotX, 270)
+          }
+          else {
+            ctx.fillStyle = "#d93639"
+            ctx.fillText("Spd -" + Math.abs(Math.round(changeSpeed / ElementTiers[gameData.you.element].speed * 100)) + "%", slotX, 270)
+          }
+          if (changeFov <= 0) {
+            if (changeFov != 0) {
+              ctx.fillStyle = "#457a28"
+            }
+            else {
+              ctx.fillStyle = "rgb(100, 100, 100)"
+            }
+            ctx.fillText("Fov +" + Math.abs(Math.round(changeFov / ElementTiers[gameData.you.element].fov * 100)) + "%", slotX, 290)
+          }
+          else {
+            ctx.fillStyle = "#d93639"
+            ctx.fillText("Fov -" + Math.abs(Math.round(changeFov / ElementTiers[gameData.you.element].fov * 100)) + "%", slotX, 290)
+          }
+
+
+
+
+
+
         }
 
         ctx.globalAlpha = 1;
-        
+
       }
     }
   }
@@ -592,27 +728,27 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     ctx.globalAlpha = deathScreenOpacity;
     ctx.fillStyle = "rgb(0, 0, 0)"
     ctx.fillRect(0, 0, 1600, 900);
-    ctx.globalAlpha = deathScreenOpacity*2;
+    ctx.globalAlpha = deathScreenOpacity * 2;
     ctx.font = "60px Arial";
     ctx.fillStyle = "rgb(240, 240, 240)"
     ctx.fillText("You were killed by " + gameData.you.killer, 800, 300);
-		ctx.fillStyle = "rgb(230, 230, 230)"
+    ctx.fillStyle = "rgb(230, 230, 230)"
     ctx.font = "40px Arial";
     ctx.fillText("Final score: " + gameData.you.finalScore, 800, 620);
-		ctx.fillStyle = "rgb(240, 240, 240)"
+    ctx.fillStyle = "rgb(240, 240, 240)"
     ctx.font = "50px Arial";
     ctx.fillText("[ Space to Respawn ]", 800, 740)
     ctx.globalAlpha = 1;
   }
 
   //Draw game messages (like you killed player)
-  for(let i in gameMessages){
+  for (let i in gameMessages) {
     const gameMessage = gameMessages[i];
-    ctx.globalAlpha = Math.max(Math.min(gameMessage.timer*2, 1), 0);
+    ctx.globalAlpha = Math.max(Math.min(gameMessage.timer * 2, 1), 0);
     ctx.font = "35px Arial";
     let msgWidth = ctx.measureText(gameMessage.value).width;
     ctx.fillStyle = "rgb(50, 50, 50)"
-    ctx.fillRect(800 -msgWidth/2 - 8, 40+i*50, msgWidth + 16, 40);
+    ctx.fillRect(800 - msgWidth / 2 - 8, 40 + i * 50, msgWidth + 16, 40);
     ctx.fillStyle = "rgb(230, 230, 230)"
     ctx.fillText(gameMessage.value, 800, 70 + i * 50);
     ctx.globalAlpha = 1;

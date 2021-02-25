@@ -5,6 +5,8 @@ function bombBullet(arena, bullet, delta, b) {
 	if (bullet.stage == "normal") {
 		bullet.x += bullet.xv * delta;
 		bullet.y += bullet.yv * delta;
+    bullet.changed["x"] = true;
+    bullet.changed["y"] = true;
 		bullet.stats.hp -= bullet.stats.decay * delta;
 		let collides = getBulletCollider(arena, bullet);
 		if (collides.length > 0) {

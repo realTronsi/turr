@@ -12,6 +12,8 @@ export class Tower{
     this.hp = gameData.hp;
     this.maxHP = gameData.mh;
     this.size = gameData.s;
+    this.baseSize = this.size;
+    this.animation = 0;
     if (gameData.ar != undefined){
       this.auraRadius = gameData.ar;
       this.auraDir = 0;
@@ -19,6 +21,8 @@ export class Tower{
     else{
       this.auraRadius = 0;
     }
+
+
   }
   updatePack(updatePack){
     if (updatePack.d != undefined){
@@ -26,6 +30,10 @@ export class Tower{
     }
     if (updatePack.hp != undefined){
       this.hp = updatePack.hp;
+    }
+    if (updatePack.a != undefined){
+      this.animation = updatePack.a;
+      this.size = this.baseSize + this.animation/2;
     }
   }
 }

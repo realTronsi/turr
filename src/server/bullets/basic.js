@@ -5,6 +5,8 @@ function basicBullet(arena, bullet, delta, b) {
 	bullet.x += bullet.xv * delta;
 	bullet.y += bullet.yv * delta;
 	bullet.stats.hp -= bullet.stats.decay * delta;
+  bullet.changed["x"] = true;
+  bullet.changed["y"] = true;
 
 	let collides = getBulletCollider(arena, bullet);
 	for (let collider of collides) {

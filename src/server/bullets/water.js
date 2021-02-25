@@ -4,6 +4,8 @@ const msgpack = require("msgpack-lite");
 function waterBullet(arena, bullet, delta, b) {
 	bullet.x += bullet.xv * delta;
 	bullet.y += bullet.yv * delta;
+  bullet.changed["x"] = true;
+  bullet.changed["y"] = true;
 	bullet.stats.damage -= bullet.stats.damageDecay * delta;
 	bullet.stats.size -= bullet.stats.sizeDecay * delta;
 	if (bullet.stats.size < 0) {

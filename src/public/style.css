@@ -51,6 +51,14 @@ padding:0;
   -o-transition: opacity 0.3s ease-in-out;
   transition: opacity 0.3s ease-in-out;
 }
+.ad_container {
+	position: absolute;
+  display: flex;
+  justify-content:center; 
+  align-items:center;
+  height: 100%;
+  width: 100%;
+}
 #server-selection{
   position: absolute;
   display:flex;
@@ -406,10 +414,10 @@ input:focus {
 }
 
 #tutorial {
-  overflow: auto;
   height: 100vh;
 	display: flex;
   justify-content: center;
+	overflow-y: auto;
 }
 #tutorialImage {
   width: 90vh;
@@ -419,10 +427,7 @@ input:focus {
 #tutorial::-webkit-scrollbar {
   display: block;
   background: black;
-  width: 20px;
-}
-#tutorial::-webkit-scrollbar {
-  width: 20px;
+  width: 10px;
 }
 
 /* Track */
