@@ -29,7 +29,8 @@ export const ElementTiers = {
   water: {
     tier: 2,
     upgrades: [
-      {color: "#4ec4cc", name: "ice"}
+      {color: "#4ec4cc", name: "ice"},
+      {color: "#bdbd44", name: "electricity"}
     ],
     towers: ["farm", "basic", "heal", "streamer", "drown"],
     fov: 1,
@@ -89,6 +90,16 @@ export const ElementTiers = {
     attack: 1.35,
     maxHP: 85,
     fov: 1,
+  },
+  electricity: {
+    tier: 3,
+    upgrades: [],
+    towers: ["farm", "basic", "heal", "streamer", "drown"],
+    maxEnergy: 100,
+    speed: 12,
+    attack: 1.15,
+    maxHP: 97,
+    fov: 1
   }
   
 }

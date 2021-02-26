@@ -6,32 +6,6 @@ const uuid = require("uuid");
 //const rateLimit = require("ws-rate-limit")(50, '2s')
 const app = express();
 
-/*
-major bugs
-client crashes when 20 bots, also weird issue where packets arent updating when 20 bots so ur energy bar isn't growing and everything is like delayed but ur movement is fine so its super weird 
-
-EDIT I THINK ITS MAXPAYLOAD IM TURNING OFF MAXPAYLOAD FOR THE NOT SHOWING ENERGY BAR AND STUFF
-
-ALso sometimes first bullet of plasma tower is hidden underneath
-
-also bug where u can still select tower while typing in chat, so like try typing 3 in chat or smth (causes a bunch of accidentally placements)
-
-these all need to be fixed immediately :P
-
-if theres lag spike client interpolation goes absolutely nuts and u start jittering if packets are slightly delayed
-
-try to make interpolation so its like diep where after a while it stops or smth, try going on diep and go to team and in the middle oft he map and when you lag try seeing how you move. iirc it just stops intepo if it doesn't get packets from server for long enough 
-
-also we need to rework respawn screen so it fades in and pppl can't immediately respawn
-
-on a side note, we should ad the ads on respawn screen now, and add a message to say "please consider disabling your ad blocker to support turr" if adblocker is on
-
-also we need to call the ad refresh button on menus, so if someone goes tutorial screen or goes server selection ads should refresh
-*/
-/*
-did u fix we need fix
-*/
-
 /* FOR TURR.IO
 
 const fs = require('fs');
@@ -135,6 +109,8 @@ const { TowerStats, ElementStats } = require("./stats");
 
 wss.on('connection', (ws, req) => {
 	ws.binaryType = "arraybuffer"; // for msgpack
+
+	console.log(req.headers.origin);
 
 	if(req.headers.origin != "https://turrio.realtronsi.repl.co" && req.headers.origin != "https://4adfe54e-0dc8-4394-90b7-5a8558b05f14.id.repl.co"){
 		// send CORS error message

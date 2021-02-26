@@ -165,7 +165,7 @@ Random Tower Idea
 Glass TOWER - Upon death, it explodes and deals 60 damage to everything in a high radius. Be careful.
 
 
-
+3rd coil lights, 2nd coil lights, then 1st coil lights, then it attacks
 
 
 Drone Tower [Lv ???] [Nature?] - Spawns drones that automatically follow the nearest enemy, upon touch rams them and both the drone and enemy lose

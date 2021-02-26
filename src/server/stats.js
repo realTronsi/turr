@@ -28,7 +28,7 @@ const ElementStats = {
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "streamer", "drown"],
-		upgrades: ["ice"],
+		upgrades: ["ice", "electricity"],
     maxEnergy: 100
   },
   earth: {
@@ -78,7 +78,18 @@ const ElementStats = {
     fov: 0.95,
     towers: ["farm", "basic", "heal", "streamer", "drown", "ice gunner"],
     maxEnergy: 100
-	}
+	},
+  electricity: {
+    speed: 12,
+    attack: 1.15,
+    defense: 97,
+    friction: 0.5,
+    fov: 1,
+    towers: ["farm", "basic", "heal", "streamer", "drown"],
+		upgrades: [],
+    maxEnergy: 100
+  },
+  
 }
 const TowerStats = {
   farm: {

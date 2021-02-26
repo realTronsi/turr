@@ -35,7 +35,8 @@ const ElementSprites = {
   magma: createImage("../../assets/elements/element_magma.svg"),
   rock: createImage("../../assets/elements/element_rock.svg"),
   ice: createImage("../../assets/elements/element_ice.svg"),
-  plasma: createImage("../../assets/elements/element_plasma.svg")
+  plasma: createImage("../../assets/elements/element_plasma.svg"),
+  electricity: createImage("../../assets/elements/element_electricity.svg")
 }
 
 function capFirst(string) {
@@ -627,12 +628,14 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
         ctx.globalAlpha = 0.4;
         ctx.fillRect(slotX - 50, 100, 100, 100)
 
+        ctx.drawImage(ElementSprites[upgrades[i].name], slotX-72/2, 105, 72, 72)
+
         ctx.globalAlpha = 1;
-        ctx.font = "bold 30px Arial";
-        ctx.fillText(capFirst(upgrades[i].name), slotX, 160);
+        ctx.font = "bold 20px Arial";
+        ctx.fillText(capFirst(upgrades[i].name), slotX, 191);
         ctx.globalAlpha = 0.5;
         ctx.fillStyle = "rgb(0, 0, 0)"
-        ctx.fillText(capFirst(upgrades[i].name), slotX, 160);
+        ctx.fillText(capFirst(upgrades[i].name), slotX, 191);
 
         if (mouse.x > slotX - 50 && mouse.x < slotX + 50 && mouse.y > 100 && mouse.y < 200) {
           ctx.globalAlpha = 0.1;

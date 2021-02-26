@@ -39,6 +39,7 @@ export function init_connection(){
 		loadDiv.classList.add("fade");
 		waitForTransitionEnd(loadDiv, () => {
 			loadDiv.style.display = "none";
+			document.getElementById("menu").style.display = "flex";
 			menuDiv.style.display = "flex";
 			initMenu(client);
 		});

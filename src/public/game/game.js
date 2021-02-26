@@ -15,10 +15,13 @@ const chatBox = document.getElementById("chatBox");
 let chatOpened = false;
 
 export function initGame(data, client) {
-	document.getElementById("adc1").style.display = "none";
+	document.getElementById("menu").style.display = "none";
 	
 	aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_1'); });
 	aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_2'); });
+
+	document.getElementById("turr-io_160x600_1").style.display = "none";
+	document.getElementById("turr-io_160x600_2").style.display = "none";
 
 	//Show Game Div
 	const serverSelection = document.getElementById("server-selection")
@@ -235,7 +238,7 @@ export function initGame(data, client) {
 				//get bytelength = console.log(msg.data.byteLength)
 
 				//Update
-				interpTime = 500;
+				interpTime = 200;
 				for (let playerData of data.p) {
 					if (gameData.players[playerData.g] != undefined) {
 						//Update player that isn't you

@@ -60,17 +60,6 @@
 		<h1 id="loading-text">Loading</h1>
 		<div class="loader"></div>
 	</div>
-	<div id="adc1" class="ad_container" style="display: flex;">
-		<div id="turr-io_160x600_1" style="position: absolute; left: 10px; z-index: 6942;">
-			<script type='text/javascript'>
-				aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_1'); });
-			</script>
-		</div>
-		<div id="turr-io_160x600_2" style="position: absolute; right: 10px; z-index: 6942;">
-			<script type='text/javascript'>
-				aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_2'); });
-			</script>
-		</div>
 	<div id="menu" style="display: none;">
 		<div class="inner">
 			<div class="logo">
@@ -111,7 +100,16 @@
         <h5 id="errorExit">Click to Exit</h5>
       </div>
     </div>
-	</div>
+		<div id="turr-io_160x600_1" style="position: absolute; left: 10px; top: calc(50% - 300px)">
+			<script type='text/javascript'>
+				aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_1'); });
+			</script>
+		</div>
+		<div id="turr-io_160x600_2" style="position: absolute; right: 10px; top: calc(50% - 300px)">
+			<script type='text/javascript'>
+				aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_2'); });
+			</script>
+		</div>
     <div id="game" style="display: none;">
       <canvas id="gameCanvas" width="1600" height="900"></canvas>
       <div id="chatHolder" style="display: none;">
