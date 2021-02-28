@@ -19,6 +19,7 @@ const volcanoTower = require("./towers/volcano");
 const slingshotTower = require("./towers/slingshot");
 const iceGunnerTower = require("./towers/icegunner");
 const ionizerTower = require("./towers/ionizer");
+const teslaCoilTower = require("./towers/teslacoil");
 
 /* BULLET REQUIRE */
 
@@ -29,12 +30,13 @@ const waterBullet = require("./bullets/water");
 const rockBullet = require("./bullets/rock");
 const iceBullet = require("./bullets/ice");
 const plasmaBullet = require("./bullets/plasma");
+const electricityBullet = require("./bullets/electricity");
 
 function update(arenas, delta) { // main game loop
 	for (let a of Object.keys(arenas)) {
 		const arena = arenas[a];
-		if(arena.joinQueue.length > 0){
-			for(let client of arena.joinQueue){
+		if (arena.joinQueue.length > 0) {
+			for (let client of arena.joinQueue) {
 				arena.addPlayer(client);
 				updateArenaLeaderboard(arena);
 			}
@@ -43,9 +45,9 @@ function update(arenas, delta) { // main game loop
 
 		// PLAYERS UPDATE
 		let tempqt = new Quadtree({
-				width: arena.width,
-				height: arena.height,
-				maxElements: 5
+			width: arena.width,
+			height: arena.height,
+			maxElements: 5
 		})
 		for (let p of Object.keys(arena.players)) {
 			const player = arena.players[p];
@@ -78,15 +80,15 @@ function update(arenas, delta) { // main game loop
 					}
 				}
 
-				player.chatTimer -= delta/1000;
+				player.chatTimer -= delta / 1000;
 				player.chatTimer = Math.max(player.chatTimer, 0);
 
-				if(player.chatMessage != "" && player.chatTimer <= 0){
+				if (player.chatMessage != "" && player.chatTimer <= 0) {
 					const payLoad = {
 						t: "dch",
 						i: player.gameId
 					}
-					for(let pl of Object.keys(arena.players)){
+					for (let pl of Object.keys(arena.players)) {
 						arena.players[pl].ws.send(msgpack.encode(payLoad));
 					}
 					player.chatMessage = "";
@@ -163,21 +165,27 @@ function update(arenas, delta) { // main game loop
 					player.changed["y"] = true;
 				}
 
-        if (player.effects.frozen <= 0){
+				if (player.effects.frozen <= 0) {
 
-				player.x += player.xv * delta / 25 * player.effects.drowned / 100;
-				player.y += player.yv * delta / 25 * player.effects.drowned / 100;
 
-				player.x += player.bxv * delta / 25 * player.effects.drowned / 100;
-				player.y += player.byv * delta / 25 * player.effects.drowned / 100;
+          /*
+          very bugged friction independent movement ->  * (drag^(dt*dt) - 1) / (dt*ln(drag));
+          */
 
-        }
+					player.x += player.xv * delta / 25 * player.effects.drowned / 100;
+					player.y += player.yv * delta / 25 * player.effects.drowned / 100;
+
+
+					player.x += player.bxv * delta / 25 * player.effects.drowned / 100;
+					player.y += player.byv * delta / 25 * player.effects.drowned / 100;
+
+				}
 
 				// tower collision
 
 				let inObservatory = player.effects.observatory == 0 ? false : true;
 
-        player.effects.observatory = 0;
+				player.effects.observatory = 0;
 
 				if (inObservatory) {
 					player.fov = ElementStats[player.element].fov;
@@ -201,9 +209,9 @@ function update(arenas, delta) { // main game loop
 							}
 							player.effects.observatory = towerObject.effect;
 							let angle = Math.atan2(towerObject.y - player.y, towerObject.x - player.x);
-              let dist = Math.sqrt(Math.pow(towerObject.x - player.x, 2) + Math.pow(towerObject.y - player.y, 2));
-							player.xv += 82 * Math.cos(angle) * delta / 1000 * dist/50;
-							player.yv += 82 * Math.sin(angle) * delta / 1000 * dist/50;
+							let dist = Math.sqrt(Math.pow(towerObject.x - player.x, 2) + Math.pow(towerObject.y - player.y, 2));
+							player.xv += 82 * Math.cos(angle) * delta / 1000 * dist / 50;
+							player.yv += 82 * Math.sin(angle) * delta / 1000 * dist / 50;
 						} else {
 							let dx = player.x - towerObject.x;
 							let dy = player.y - towerObject.y;
@@ -255,7 +263,7 @@ function update(arenas, delta) { // main game loop
 
 
 				player.effects.drowned = 100;
-        player.effects.frozen -= delta/1000;
+				player.effects.frozen -= delta / 1000;
 				tempqt.push(qtPlayer);
 			}
 		}
@@ -265,7 +273,7 @@ function update(arenas, delta) { // main game loop
 		for (let t of Object.keys(arena.towers)) {
 			const tower = arena.towers[t];
 
-      tower.changed = {};
+			tower.changed = {};
 
 			tower.hp -= tower.decay * delta;
 
@@ -283,15 +291,17 @@ function update(arenas, delta) { // main game loop
 				drownTower(arena, tower, delta);
 			} else if (tower.type == "splinter") {
 				splinterTower(arena, tower, delta);
-			} else if(tower.type == "volcano"){
+			} else if (tower.type == "volcano") {
 				volcanoTower(arena, tower, delta);
-			} else if(tower.type == "slingshot"){
-        slingshotTower(arena, tower, delta);
-      } else if(tower.type == "ice gunner"){
-        iceGunnerTower(arena, tower, delta);
-      } else if(tower.type == "ionizer"){
-        ionizerTower(arena, tower, delta);
-      }
+			} else if (tower.type == "slingshot") {
+				slingshotTower(arena, tower, delta);
+			} else if (tower.type == "ice gunner") {
+				iceGunnerTower(arena, tower, delta);
+			} else if (tower.type == "ionizer") {
+				ionizerTower(arena, tower, delta);
+			} else if (tower.type == "tesla coil") {
+				teslaCoilTower(arena, tower, delta);
+			}
 
 
 			if (tower.hp <= 0) {
@@ -317,7 +327,7 @@ function update(arenas, delta) { // main game loop
 		//BULLETS UPDATE
 		for (let b of Object.keys(arena.bullets)) {
 			const bullet = arena.bullets[b];
-      bullet.changed = {};
+			bullet.changed = {};
 
 			switch (bullet.stats.type) {
 				case "bomb": {
@@ -336,18 +346,22 @@ function update(arenas, delta) { // main game loop
 					basicBullet(arena, bullet, delta, b);
 					break;
 				}
-        case "rock": {
-          rockBullet(arena, bullet, delta, b);
-          break;
-        }
-        case "ice": {
-          iceBullet(arena, bullet, delta, b);
-          break;
-        }
-        case "plasma": {
-          plasmaBullet(arena, bullet, delta, b);
-          break;
-        }
+				case "rock": {
+					rockBullet(arena, bullet, delta, b);
+					break;
+				}
+				case "ice": {
+					iceBullet(arena, bullet, delta, b);
+					break;
+				}
+				case "plasma": {
+					plasmaBullet(arena, bullet, delta, b);
+					break;
+				}
+				case "electricity": {
+					electricityBullet(arena, bullet, delta, b);
+					break;
+				}
 				default: break;
 			}
 		}
@@ -420,21 +434,46 @@ function sendToPlayers(arenas, delta) {
 			}
 			for (let b of Object.keys(arena.bullets)) {
 				const bullet = arena.bullets[b];
-				if (Math.abs(bullet.x - player.x) <= 1 / player.fov * 800 + bullet.stats.size && Math.abs(bullet.y - player.y) <= 1 / player.fov * 450 + bullet.stats.size) {
-					if (!bullet.seenBy.includes(player)) {
-						//Bullet is re-entering fov or entering it for the first time
-						bulletUpdatePacks.push(bullet.getInitPack());
-						bullet.seenBy.push(player);
+				if (bullet.stats.type == "electricity") {
+					let infov = false;
+					for (let node of bullet.stats.nodes) {
+						if (Math.abs(node.x - player.x) <= 1 / player.fov * 800 && Math.abs(node.y - player.y) <= 1 / player.fov * 450) {
+							infov = true;
+							break;
+						}
 					}
-					else {
-						//Bullet has been in fov
-						bulletUpdatePacks.push(bullet.getUpdatePack());
+					if (infov == true) {
+						if (!bullet.seenBy.includes(player)) {
+							//Bullet is re-entering fov or entering it for the first time
+							bulletUpdatePacks.push(bullet.getInitPack());
+							bullet.seenBy.push(player);
+						}
+						else {
+							//Bullet has been in fov
+							bulletUpdatePacks.push(bullet.getUpdatePack());
+						}
+					} else {
+						if (bullet.seenBy.includes(player)) {
+							bullet.seenBy.splice(bullet.seenBy.indexOf(player), 1);
+							bulletUpdatePacks.push(bullet.getRemovePack());
+						}
 					}
-				}
-				else {
-					if (bullet.seenBy.includes(player)) {
-						bullet.seenBy.splice(bullet.seenBy.indexOf(player), 1);
-						bulletUpdatePacks.push(bullet.getRemovePack());
+				} else {
+					if (Math.abs(bullet.x - player.x) <= 1 / player.fov * 800 + bullet.stats.size && Math.abs(bullet.y - player.y) <= 1 / player.fov * 450 + bullet.stats.size) {
+						if (!bullet.seenBy.includes(player)) {
+							//Bullet is re-entering fov or entering it for the first time
+							bulletUpdatePacks.push(bullet.getInitPack());
+							bullet.seenBy.push(player);
+						}
+						else {
+							//Bullet has been in fov
+							bulletUpdatePacks.push(bullet.getUpdatePack());
+						}
+					} else {
+						if (bullet.seenBy.includes(player)) {
+							bullet.seenBy.splice(bullet.seenBy.indexOf(player), 1);
+							bulletUpdatePacks.push(bullet.getRemovePack());
+						}
 					}
 				}
 			}
@@ -450,10 +489,10 @@ function sendToPlayers(arenas, delta) {
 				bp: bulletUpdatePacks
 			};
 			if (sendEnergy) {
-				payLoad.e = Math.round(player.energy);
+				payLoad.e = Math.round(player.energy * 10) / 10;
 			}
 			if (sendHealth) {
-				payLoad.h = Math.round(player.hp);
+				payLoad.h = Math.round(player.hp * 10) / 10;
 			}
 			if (sendXP) {
 				payLoad.xp = Math.round(player.xp);
@@ -462,6 +501,20 @@ function sendToPlayers(arenas, delta) {
 		}
 		for (let p of Object.keys(arena.players)) {
 			arena.players[p].changed = {}; // reset changed properties
+		}
+		for (let b of Object.keys(arena.bullets)) {
+			const bullet = arena.bullets[b];
+			if (bullet.die == true) {
+				const bullet = arena.bullets[b];
+				for (let player of bullet.seenBy) {
+					const payLoad = {
+						t: "rb",
+						i: bullet.id
+					}
+					player.ws.send(msgpack.encode(payLoad));
+				}
+				delete arena.bullets[b];
+			}
 		}
 	}
 }

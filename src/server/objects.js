@@ -46,7 +46,8 @@ class Bullet {
       "splinter": 3,
       "rock": 4,
       "ice": 5,
-      "plasma": 6
+      "plasma": 6,
+      "electricity": 7
 		}
     let pack = {
       i: this.id,
@@ -56,6 +57,21 @@ class Bullet {
       pi: this.parentId,
       s: Math.round(this.stats.size),
     };
+		if(this.stats.type == "electricity"){
+			pack = {
+				i: this.id,
+				t: typeToNum[this.stats.type],
+				pi: this.parentId
+			}
+			pack.nd = [];
+			// electricity branches will be a new bullet
+			for(let i = this.stats.nodes.length; i > 0; i--){
+				pack.nd.push({
+					x: this.stats.nodes[this.stats.nodes.length - i].x,
+					y: this.stats.nodes[this.stats.nodes.length - i].y
+				});
+			}
+		}
     return pack;
   }
   getUpdatePack(){
@@ -70,6 +86,16 @@ class Bullet {
     if (this.changed["s"]){
       pack.s = Math.round(this.stats.size);
     }
+		if (this.changed["nodes"] != null){
+			pack.nd = [];
+			// electricity branches will be a new bullet
+			for(let i = this.changed["nodes"]; i > 0; i--){
+				pack.nd.push({
+					x: this.stats.nodes[this.stats.nodes.length - i].x,
+					y: this.stats.nodes[this.stats.nodes.length - i].y
+				});
+			}
+		}
     if (Object.keys(pack).length > 0){
       pack.i = this.id;
     }
@@ -119,7 +145,7 @@ class Tower {
 			this.explosionTimer = TowerStats[this.type].explosionTimer;
 		}
 
-		if(["volcano"].includes(this.type)){
+		if(["volcano", "tesla coil"].includes(this.type)){
 			this.animation = 0;
 		}
 
@@ -145,7 +171,7 @@ class Tower {
     if (this.type == "bomb"){
       delete pack.d;
     }
-		if(this.type == "volcano"){
+		if(this.type == "volcano" || this.type == "tesla coil"){
 			pack.a = this.animation;
 		}
     return pack;
@@ -466,7 +492,6 @@ class Arena {
     });
 
 		this.playerCount++;
-
 	}
   static getAllSelectionData(arenas){
     let data = [];

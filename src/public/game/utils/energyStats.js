@@ -40,5 +40,8 @@ export const TowerStats = {
   },
   ionizer: {
     energy: 55
+  },
+  "tesla coil": {
+    energy: 55
   }
 }

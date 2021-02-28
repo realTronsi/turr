@@ -11,7 +11,8 @@ const ttToStr = {
   "9": "volcano",
   "10": "slingshot",
   "11": "ice gunner",
-  "12": "ionizer"
+  "12": "ionizer",
+  "13": "tesla coil"
 }
 const strToTt = {
 	"farm": 0,
@@ -26,7 +27,8 @@ const strToTt = {
   "volcano": 9,
   "slingshot": 10,
   "ice gunner": 11,
-  "ionizer": 12
+  "ionizer": 12,
+  "tesla coil": 13
 }
 
 module.exports = { ttToStr, strToTt }

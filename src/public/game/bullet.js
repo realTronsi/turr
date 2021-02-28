@@ -5,7 +5,8 @@ let numToType = {
   "3": "splinter",
   "4": "rock",
   "5": "ice",
-  "6": "plasma"
+  "6": "plasma",
+  "7": "electricity"
 }
 export class Bullet{
   constructor(gameData){
@@ -29,6 +30,9 @@ export class Bullet{
     else{
       this.rotate = 0;
     }
+    if (this.type == "electricity"){
+      this.nodes = gameData.nd;
+    }
   }
   updatePack(gameData){
     if (gameData.s){
@@ -41,6 +45,11 @@ export class Bullet{
     }
     if (gameData.y != undefined){
       this.serverY = gameData.y;
+    }
+    if (gameData.nd != undefined){
+      for(let i of gameData.nd){
+        this.nodes.push(i);
+      }
     }
   }
 }

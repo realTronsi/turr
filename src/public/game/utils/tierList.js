@@ -94,7 +94,7 @@ export const ElementTiers = {
   electricity: {
     tier: 3,
     upgrades: [],
-    towers: ["farm", "basic", "heal", "streamer", "drown"],
+    towers: ["farm", "basic", "heal", "streamer", "drown", "tesla coil"],
     maxEnergy: 100,
     speed: 12,
     attack: 1.15,

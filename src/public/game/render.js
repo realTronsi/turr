@@ -24,7 +24,8 @@ const TowerDescriptions = {
   volcano: [`Erupts when hp hits`, `zero`],
   slingshot: [`Shoots rocks that slowly`, `loses speed & damage`],
   "ice gunner": [`Shoots ice which`, `freezes enemies`],
-  ionizer: [`Shoots powerful plasma`, `with infinite pierce`]
+  ionizer: [`Shoots powerful plasma`, `with infinite pierce`],
+  "tesla coil": [`Shoots electricity which`, `can chain to others`]
 }
 
 const ElementSprites = {
@@ -125,6 +126,10 @@ const TowerSprites = {
     yellow: createImage("../../assets/towers/tower_ionizer_yellow.svg"),
     red: createImage("../../assets/towers/tower_ionizer_red.svg")
   },
+  "tesla coil": {
+    yellow: createImage("../../assets/towers/tower_tesla_coil_yellow.svg"),
+    red: createImage("../../assets/towers/tower_tesla_coil_red.svg")
+  }
 
 
 
@@ -261,27 +266,31 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     }
   }
 
-
+	let ZBULLETS = []; // bullets that need to be drawn above players and towers
 
   for (let id of Object.keys(gameData.bullets)) {
     const bullet = gameData.bullets[id];
-    let alpha = bullet.opacity;
-    if (bullet.type === "bomb") {
-      alpha /= (bullet.size / bullet.baseSize);
+    if (bullet.type == "electricity") {
+			ZBULLETS.push(bullet);
+		} else {
+      let alpha = bullet.opacity;
+      if (bullet.type === "bomb") {
+        alpha /= (bullet.size / bullet.baseSize);
+      }
+      ctx.globalAlpha = alpha;
+      ctx.translate(bullet.x, bullet.y);
+      ctx.rotate(bullet.rotate);
+      if (bullet.parentId != gameData.you.id) {
+        //not your bullet :c
+        ctx.drawImage(BulletSprites[bullet.type].red, -bullet.size, -bullet.size, bullet.size * 2, bullet.size * 2);
+      }
+      else {
+        //your bullet c:
+        ctx.drawImage(BulletSprites[bullet.type].yellow, -bullet.size, -bullet.size, bullet.size * 2, bullet.size * 2);
+      }
+      ctx.rotate(-bullet.rotate);
+      ctx.translate(-bullet.x, -bullet.y);
     }
-    ctx.globalAlpha = alpha;
-    ctx.translate(bullet.x, bullet.y);
-    ctx.rotate(bullet.rotate);
-    if (bullet.parentId != gameData.you.id) {
-      //not your bullet :c
-      ctx.drawImage(BulletSprites[bullet.type].red, -bullet.size, -bullet.size, bullet.size * 2, bullet.size * 2);
-    }
-    else {
-      //your bullet c:
-      ctx.drawImage(BulletSprites[bullet.type].yellow, -bullet.size, -bullet.size, bullet.size * 2, bullet.size * 2);
-    }
-    ctx.rotate(-bullet.rotate);
-    ctx.translate(-bullet.x, -bullet.y);
   }
   ctx.globalAlpha = 1;
   //Draw Towers
@@ -341,12 +350,22 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
           ctx.stroke();
         }
 
-        ctx.globalAlpha = tower.animation / 120;
-        ctx.beginPath();
-        ctx.fillStyle = "rgb(255, 0, 0)"
-        ctx.arc(tower.x, tower.y, tower.size / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1;
+				if(tower.type == "volcano"){
+					ctx.globalAlpha = tower.animation / 120;
+					ctx.beginPath();
+					ctx.fillStyle = "rgb(255, 0, 0)"
+					ctx.arc(tower.x, tower.y, tower.size / 2, 0, Math.PI * 2);
+					ctx.fill();
+					ctx.globalAlpha = 1;
+				} else if(tower.type == "tesla coil" && tower.animation == 1){
+					ctx.globalAlpha = 0.7;
+					ctx.beginPath();
+					ctx.strokeStyle = "#d2b0ff"
+          ctx.lineWidth = tower.size / 12;
+					ctx.arc(tower.x, tower.y, tower.size / 2 - tower.size / 24, 0, Math.PI * 2);
+					ctx.stroke();
+					ctx.globalAlpha = 1;
+				}
       }
     }
   }
@@ -398,6 +417,25 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
       }
     }
   }
+
+	for(let bullet of ZBULLETS){
+		if(bullet.type == "electricity"){
+			ctx.globalAlpha = bullet.opacity;
+      ctx.beginPath();
+      ctx.lineWidth = 10;
+      if (bullet.parentId != gameData.you.id){
+        ctx.strokeStyle = "#e32914";
+      } else {
+        ctx.strokeStyle = "#7d3dcc";
+      }
+      ctx.moveTo(bullet.x, bullet.y);
+      for(let i of bullet.nodes){
+        ctx.lineTo(i.x, i.y);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+		}
+	}
 
 
 
@@ -628,7 +666,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
         ctx.globalAlpha = 0.4;
         ctx.fillRect(slotX - 50, 100, 100, 100)
 
-        ctx.drawImage(ElementSprites[upgrades[i].name], slotX-72/2, 105, 72, 72)
+        ctx.drawImage(ElementSprites[upgrades[i].name], slotX - 72 / 2, 105, 72, 72)
 
         ctx.globalAlpha = 1;
         ctx.font = "bold 20px Arial";

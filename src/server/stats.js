@@ -85,11 +85,10 @@ const ElementStats = {
     defense: 97,
     friction: 0.5,
     fov: 1,
-    towers: ["farm", "basic", "heal", "streamer", "drown"],
+    towers: ["farm", "basic", "heal", "streamer", "drown", "tesla coil"],
 		upgrades: [],
     maxEnergy: 100
-  },
-  
+  }
 }
 const TowerStats = {
   farm: {
@@ -294,6 +293,24 @@ const TowerStats = {
 			damageGrow: 8/1000,
 			maxSize: 25
     }
-  }
+	},
+	"tesla coil": {
+		hp: 360,
+    energy: 55,
+		decay: 8,
+    size: 40,
+		reload: 1900,
+		range: 300,
+    bullet: {
+      type: "electricity",
+			damage: 15,
+			size: 0,
+			nodes: [],
+			chainSpeed: 150,
+			chainDistance: 350,
+			maxChain: 5,
+			timer: 150
+    }
+	}
 }
 module.exports = {TowerStats, ElementStats }

@@ -87,18 +87,19 @@ function filterMsg(msg) {
 	return msg;
 }
 
-
+ 
 const { TowerStats, ElementStats } = require("./stats");
 
 (() => {
 	let arenaId = uuid.v4();
-	arenas[arenaId] = new Arena(arenaId, "1v1 Sandbox", 1500, 1500, 2, "sandbox");
-	arenaId = uuid.v4();
-	arenas[arenaId] = new Arena(arenaId, "1v1 Room 2", 1500, 1500, 2, "normal");
-	arenaId = uuid.v4();
-	arenas[arenaId] = new Arena(arenaId, "1v1 Room 1", 1500, 1500, 2, "normal");
-	arenaId = uuid.v4();
 	arenas[arenaId] = new Arena(arenaId, "Sandbox 1", 4000, 4000, 20, "sandbox");
+  
+  arenaId = uuid.v4();
+	arenas[arenaId] = new Arena(arenaId, "Torture", 500, 500, 20, "sandbox");
+  
+  arenaId = uuid.v4();
+  arenas[arenaId] = new Arena(arenaId, "Small Sandbox", 1500, 1500, 20, "sandbox");
+  
 	for (let arenaCreateVariable = 2; arenaCreateVariable > 0; arenaCreateVariable--) {
 		let arenaId = uuid.v4();
 		arenas[arenaId] = new Arena(arenaId, "Arena " + arenaCreateVariable, 4000, 4000, 20, "normal");
@@ -110,7 +111,7 @@ const { TowerStats, ElementStats } = require("./stats");
 wss.on('connection', (ws, req) => {
 	ws.binaryType = "arraybuffer"; // for msgpack
 
-	console.log(req.headers.origin);
+	//console.log(req.headers.origin);
 
 	if(req.headers.origin != "https://turrio.realtronsi.repl.co" && req.headers.origin != "https://4adfe54e-0dc8-4394-90b7-5a8558b05f14.id.repl.co"){
 		// send CORS error message

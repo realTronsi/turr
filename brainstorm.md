@@ -1,3 +1,17 @@
+Player A places turret, moves down. Player B gets killed by that turret in the fov outside of player A. Then, player B respawns, player A moves somwhere else, and player B moves to where player A was when player B just respawned. Player A's ghost is there even though Player A has moved.
+
+
+
+
+
+
+
+Frame-rate independent friction
+position += velocity * (drag^(dt*dt) - 1) / (dt*ln(drag));
+velocity *= pow(drag, dt);
+
+
+
 Yellow: FFD249
 Red: db4f00
 
@@ -17,6 +31,12 @@ Water -> Water II, Ice, Electricity
 Earth -> Earth II, Rock, Metal
 
 electricity tesla coil shouldnt be that hard anyways ill probably be back very late at night so uh whatever
+
+
+Metal - shoots a strong bullet that deals 5x dmg to towers
+
+
+Titanium - Shield Tower
 
 
 TIER 3 iS ALL ATTACKING TOWERS
