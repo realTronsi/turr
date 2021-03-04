@@ -1,14 +1,15 @@
-const { dist } = require(".././utils/dist");
+const { getNearestPlayer, getNearestTower, getAuraPlayerCollider } = require(".././utils/towerCollide");
 
 function healTower(arena, tower, delta) {
-const parent = arena.players[tower.parentId];
-				if (parent != undefined) {
-					if (dist(parent.x, parent.y, tower.x, tower.y) < parent.size + tower.radius) {
-						// parent is being healed
-						parent.hp += tower.effect * delta * parent.stats.defense / 100;
-						parent.hp = Math.min(parent.hp, parent.stats.defense);
-					}
-				}
+	let colliders = getAuraPlayerCollider(arena, tower, 0);
+	const parent = arena.players[tower.parentId];
+	for (let c of colliders) {
+		const player = arena.players[c.gameId];
+		if (player != undefined) {
+			player.hp += tower.effect * delta * parent.stats.defense / 100;
+			player.hp = Math.min(player.hp, player.stats.defense);
+		}
+	}
 }
 
 module.exports = healTower

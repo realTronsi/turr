@@ -17,7 +17,8 @@ export const ElementTiers = {
     tier: 2,
     upgrades: [
       {color: "#a12020", name: "magma"},
-      {color: "#dc4fe3", name: "plasma"}
+      {color: "#dc4fe3", name: "plasma"},
+      {color: "#e3e3c1", name: "light"}
     ],
     towers: ["farm", "basic", "heal", "bomb", "propel"],
     maxHP: 80,
@@ -42,7 +43,8 @@ export const ElementTiers = {
   earth: {
     tier: 2,
     upgrades: [
-      {color: "#444444", name: "rock"}
+      {color: "#632305", name: "rock"},
+      {color: "#43464b", name: "metal"}
     ],
     towers: ["farm", "basic", "heal", "splinter", "observatory"],
     fov: 0.9,
@@ -100,7 +102,26 @@ export const ElementTiers = {
     attack: 1.15,
     maxHP: 97,
     fov: 1
+  },
+  metal: {
+    tier: 3,
+    upgrades: [],
+    towers: ["farm", "basic", "heal", "splinter", "observatory", "cannon"],
+    speed: 9,
+    attack: 0.75,
+    maxHP: 175,
+    maxEnergy: 100,
+    fov: 0.9,
+  },
+  light: {
+    tier: 3,
+    upgrades: [],
+    towers: ["farm", "basic", "heal", "bomb", "propel"],
+    speed: 12.5,
+		attack: 1.25,
+		maxHP: 90,
+    maxEnergy: 110,
+		fov: 1.2,
   }
-  
 }
-export const TierXP = [0, 3000, 15000, 50000, 150000, Infinity]
+export const TierXP = [0, 1000, 3000, 8000, 20000, Infinity]

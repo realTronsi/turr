@@ -7,6 +7,7 @@ function getBulletCollider(arena, bullet) {
 		width: bullet.stats.size * 2,
 		height: bullet.stats.size * 2
 	}, function(element1, element2) {
+		if((arena.gamemode == "team") && element2.team == bullet.team) return false;
 		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < bullet.stats.size + element2.width / 2 && bullet.parentId != element2.gameId && arena.players[element2.gameId].spawnProt <= 0)
 	});
 
@@ -33,6 +34,7 @@ function getBulletCollider(arena, bullet) {
 		width: bullet.stats.size * 2,
 		height: bullet.stats.size * 2
 	}, function(element1, element2) {
+		if((arena.gamemode == "team") && element2.team == bullet.team) return false;
 		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < bullet.stats.size + element2.width / 2 && bullet.parentId != element2.parentId)
 	});
 

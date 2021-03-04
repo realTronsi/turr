@@ -18,7 +18,7 @@ const ElementStats = {
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "bomb", "propel"],
-		upgrades: ["magma", "plasma"],
+		upgrades: ["magma", "plasma", "light"],
     maxEnergy: 100
   },
   water: {
@@ -38,7 +38,7 @@ const ElementStats = {
     friction: 0.5,
     fov: 0.9,
     towers: ["farm", "basic", "heal", "splinter", "observatory"],
-    upgrades: ["rock"],
+    upgrades: ["rock", "metal"],
     maxEnergy: 100
   },
 	magma: {
@@ -88,7 +88,25 @@ const ElementStats = {
     towers: ["farm", "basic", "heal", "streamer", "drown", "tesla coil"],
 		upgrades: [],
     maxEnergy: 100
-  }
+  },
+  metal: {
+    speed: 9,
+    attack: 0.75,
+    defense: 175,
+    friction: 0.5,
+    fov: 0.9,
+    towers: ["farm", "basic", "heal", "splinter", "observatory", "cannon"],
+    maxEnergy: 100
+  },
+	light: {
+		speed: 12.5,
+		attack: 1.25,
+		defense: 90,
+    friction: 0.5,
+		fov: 1.2,
+		towers: ["farm", "basic", "heal", "bomb", "propel"],
+		maxEnergy: 110
+	}
 }
 const TowerStats = {
   farm: {
@@ -126,7 +144,7 @@ const TowerStats = {
     hp: 190,
     energy: 65,
     decay: 8,
-    reload: 1400,
+    reload: 1800,
     range: 700,
     size: 40,
     bullet: {
@@ -167,9 +185,9 @@ const TowerStats = {
     }
   },
   drown: {
-    hp: 240,
+    hp: 80,
     energy: 25,
-		decay: 24,
+		decay: 8,
     size: 40,
 		effect: 40,
 		radius: 200
@@ -258,6 +276,24 @@ const TowerStats = {
       decay: 12
     }
   },
+  cannon: {
+    hp: 400,
+    energy: 65,
+		decay: 8,
+    size: 45,
+		reload: 1500,
+		range: 720,
+    bullet: {
+      type: "cannonball",
+			damage: 30,
+			size: 20,
+			speed: 1100,
+      hp: 15,
+      decay: 12,
+      multiplier: 7,
+      knockback: 28
+    }
+  },
   "ice gunner": {
 		hp: 250,
     energy: 45,
@@ -307,7 +343,7 @@ const TowerStats = {
 			size: 0,
 			nodes: [],
 			chainSpeed: 150,
-			chainDistance: 350,
+			chainDistance: 300,
 			maxChain: 5,
 			timer: 150
     }

@@ -6,7 +6,7 @@ const uuid = require("uuid");
 //const rateLimit = require("ws-rate-limit")(50, '2s')
 const app = express();
 
-/* FOR TURR.IO
+/* FOR TURR.IO Remember to rename client app.js and append version number to enforce cache clearing such as app?v1.js
 
 const fs = require('fs');
 const https = require('https')
@@ -28,7 +28,7 @@ app.use(express.static("src/dist"));
 httpsServer.listen(443, "0.0.0.0")
 
 */
-const wss = new WebSocket.Server({ 
+const wss = new WebSocket.Server({
 	noServer: true
 });
 
@@ -47,9 +47,9 @@ app.get('/', (req, res) => {
 	res.sendFile(path.join(__dirname, '/dist/index.html'));
 });
 
-app.get('/robots.txt', function (req, res) {
-  res.type('text/plain');
-  res.send("User-agent: *\nAllow: /");
+app.get('/robots.txt', function(req, res) {
+	res.type('text/plain');
+	res.send("User-agent: *\nAllow: /");
 });
 
 app.get('*', (req, res) => {
@@ -57,9 +57,9 @@ app.get('*', (req, res) => {
 });
 
 server.on('upgrade', (request, socket, head) => {
-		wss.handleUpgrade(request, socket, head, socket => {
-			wss.emit('connection', socket, request);
-		});
+	wss.handleUpgrade(request, socket, head, socket => {
+		wss.emit('connection', socket, request);
+	});
 });
 
 //Constants Defining
@@ -87,23 +87,17 @@ function filterMsg(msg) {
 	return msg;
 }
 
- 
+
 const { TowerStats, ElementStats } = require("./stats");
 
 (() => {
 	let arenaId = uuid.v4();
-	arenas[arenaId] = new Arena(arenaId, "Sandbox 1", 4000, 4000, 20, "sandbox");
-  
-  arenaId = uuid.v4();
-	arenas[arenaId] = new Arena(arenaId, "Torture", 500, 500, 20, "sandbox");
-  
-  arenaId = uuid.v4();
-  arenas[arenaId] = new Arena(arenaId, "Small Sandbox", 1500, 1500, 20, "sandbox");
-  
-	for (let arenaCreateVariable = 2; arenaCreateVariable > 0; arenaCreateVariable--) {
-		let arenaId = uuid.v4();
-		arenas[arenaId] = new Arena(arenaId, "Arena " + arenaCreateVariable, 4000, 4000, 20, "normal");
-	}
+	arenas[arenaId] = new Arena(arenaId, "Sandbox", 2500, 2500, 15, "sandbox");
+	arenaId = uuid.v4();
+	arenas[arenaId] = new Arena(arenaId, "Two Teams", 4000, 4000, 15, "team_2");
+	arenaId = uuid.v4();
+	arenas[arenaId] = new Arena(arenaId, "FFA Normal", 4000, 4000, 20, "normal");
+
 })();
 
 
@@ -113,7 +107,7 @@ wss.on('connection', (ws, req) => {
 
 	//console.log(req.headers.origin);
 
-	if(req.headers.origin != "https://turrio.realtronsi.repl.co" && req.headers.origin != "https://4adfe54e-0dc8-4394-90b7-5a8558b05f14.id.repl.co"){
+	if (req.headers.origin != "https://turrio.realtronsi.repl.co" && req.headers.origin != "https://4adfe54e-0dc8-4394-90b7-5a8558b05f14.id.repl.co" && req.headers.origin != "https://turr.io") {
 		// send CORS error message
 		ws.close();
 	}
@@ -125,7 +119,7 @@ wss.on('connection', (ws, req) => {
 	const client = new Client(ws, clientId);
 	clients[clientId] = client;
 	let clientArena;
-	
+
 	ws.on('message', msg => {
 		try {
 			let data = msgpack.decode(new Uint8Array(msg));
@@ -161,7 +155,7 @@ wss.on('connection', (ws, req) => {
 									client.name = "Player";
 								}
 								// successful join
-                arena.joinQueue.push(client);
+								arena.joinQueue.push(client);
 								clientArena = arena;
 								break;
 							}
@@ -241,14 +235,26 @@ wss.on('connection', (ws, req) => {
 					clientArena.towers[towerid] = tower;
 
 					// when pushing to quadtree, x and y represents top left corner so we must subtract the radius, keep this in mind for collision algorithms where we have to add back the radius
-					clientArena.towerqt.push({
-						x: towerX - towerSize,
-						y: towerY - towerSize,
-						width: towerSize * 2,
-						height: towerSize * 2,
-						id: towerid,
-						parentId: client.gameId
-					});
+					if (client.team != undefined) {
+						clientArena.towerqt.push({
+							x: towerX - towerSize,
+							y: towerY - towerSize,
+							width: towerSize * 2,
+							height: towerSize * 2,
+							id: towerid,
+							parentId: client.gameId,
+							team: client.team
+						});
+					} else {
+						clientArena.towerqt.push({
+							x: towerX - towerSize,
+							y: towerY - towerSize,
+							width: towerSize * 2,
+							height: towerSize * 2,
+							id: towerid,
+							parentId: client.gameId
+						});
+					}
 
 					client.spawnProt = 0; // disable spawnProt
 					client.changed["spawnProt"] = true;
@@ -256,10 +262,10 @@ wss.on('connection', (ws, req) => {
 				}
 				case "upg": {
 					// upgrade element
-					if (client.tier == 1 && client.xp < 3000) break;
-					if (client.tier == 2 && client.xp < 15000) break;
-          if (ElementStats[client.element].upgrades == undefined) break;
-					
+					if (client.tier == 1 && client.xp < 1000) break;
+					if (client.tier == 2 && client.xp < 3000) break;
+					if (ElementStats[client.element].upgrades == undefined) break;
+
 					if (ElementStats[client.element].upgrades[data.c] != undefined) {
 						// upgrade exists
 						let element = ElementStats[client.element].upgrades[data.c];
@@ -269,7 +275,7 @@ wss.on('connection', (ws, req) => {
 						client.stats = ElementStats[element];
 						client.fov = client.stats.fov;
 					}
-          
+
 
 					break;
 				}
@@ -282,6 +288,10 @@ wss.on('connection', (ws, req) => {
 					let spawn = spawnPoint(arenas[client.arenaId]);
 					client.x = spawn.x;
 					client.y = spawn.y;
+					client.xv = 0;
+					client.yv = 0;
+					client.bxv = 0;
+					client.byv = 0;
 					client.changed["x"] = true;
 					client.changed["y"] = true;
 					client.inFov = [];
@@ -289,13 +299,24 @@ wss.on('connection', (ws, req) => {
 					client.element = "basic";
 					client.changed["element"] = true;
 
-					arenas[client.arenaId].playerqt.push({
-						x: client.x - client.size,
-						y: client.y - client.size,
-						width: client.size * 2,
-						height: client.size * 2,
-						gameId: client.gameId
-					});
+					if (arenas[client.arenaId].gamemode == "team") {
+						arenas[client.arenaId].playerqt.push({
+							x: client.x - client.size,
+							y: client.y - client.size,
+							width: client.size * 2,
+							height: client.size * 2,
+							gameId: client.gameId,
+							team: client.team
+						});
+					} else {
+						arenas[client.arenaId].playerqt.push({
+							x: client.x - client.size,
+							y: client.y - client.size,
+							width: client.size * 2,
+							height: client.size * 2,
+							gameId: client.gameId
+						});
+					}
 
 					client.spawnProt = 150;
 
@@ -363,38 +384,14 @@ wss.on('connection', (ws, req) => {
 			console.log(err);
 		}
 	});
-  
-  ws.on('limited', msg => {
-    console.log("Person spammed too many messages to server.");
-  });
+
+	ws.on('limited', msg => {
+		console.log("Person spammed too many messages to server.");
+	});
 
 	ws.on('close', () => {
-		if (client.arenaId !== undefined) {
-			let affectedArena = arenas[client.arenaId];
-			let deletedClient = arenas[client.arenaId].players[client.gameId];
-			if (affectedArena != undefined && deletedClient != undefined) {
-				delete affectedArena.players[client.gameId];
-
-				//Delete player in Quadtree
-				let deleteQtPlayer = affectedArena.playerqt.find(function(element) {
-					return element.gameId === deletedClient.gameId
-				})
-				if (deleteQtPlayer.length > 0) {
-					affectedArena.playerqt.remove(deleteQtPlayer[0]);
-				}
-				affectedArena.playerCount = Object.keys(affectedArena.players).length;
-
-
-
-				for (let i of Object.keys(affectedArena.players)) {
-					const player = affectedArena.players[i];
-					const payLoad = {
-						t: "pl",
-						g: deletedClient.gameId
-					}
-					player.ws.send(msgpack.encode(payLoad))
-				}
-			}
+		if (clientArena != undefined) {
+			clientArena.closequeue.push(client);
 		}
 		delete clients[clientId];
 	});
@@ -410,7 +407,7 @@ setInterval(() => {
 	while (delta > 39) {
 		update(arenas, 39)
 		delta -= 39;
-  }
+	}
 	//Update the rest of the delta
 	update(arenas, delta)
 	sendToPlayers(arenas, delta);
@@ -419,3 +416,26 @@ setInterval(() => {
 setInterval(() => {
 	updateLeaderboard(arenas);
 }, 1000 / 1)
+//send minimap in team modes
+setInterval(() => {
+	for(let a of Object.keys(arenas)){
+		const arena = arenas[a];
+		if (arena.gamemode == "team"){
+			for(let team of arena.teams){
+				let data = [];
+				for(let p in team){
+					data.push(Math.round(team[p].x));
+					data.push(Math.round(team[p].y));
+				}
+				for(let p in team){
+					const payLoad = {
+						t: "mm", //mini map
+						d: data,
+						s: p // self
+					}
+					team[p].ws.send(msgpack.encode(payLoad));
+				}
+			}
+    }
+	}
+}, 1000 / 0.5)

@@ -14,6 +14,7 @@ export class Tower{
     this.size = gameData.s;
     this.baseSize = this.size;
     this.animation = 0;
+    this.team = gameData.tm;
 		if(gameData.a != undefined){
 			this.animation = gameData.a;
 		}

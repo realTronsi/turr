@@ -23,6 +23,10 @@ function teslaCoilTower(arena, tower, delta) {
 		}
   }
 	if (tower.reload < 0) {
+		if(tower.animation != 1){
+			tower.animation = 1;
+			tower.changed["animation"] = true;
+		}
 		if (tower.hasTarget) {
 			//Shoot Bullet
       tower.reload = tower.maxReload;

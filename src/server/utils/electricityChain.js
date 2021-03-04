@@ -9,6 +9,7 @@ function electricityChain(arena, bullet) {
 		width: bullet.stats.chainDistance * 2,
 		height: bullet.stats.chainDistance * 2
 	}, function(element1, element2) {
+		if((arena.gamemode == "team") && element2.team == bullet.team) return false;
 		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < bullet.stats.chainDistance && bullet.parentId != element2.gameId && arena.players[element2.gameId].spawnProt <= 0 && pt.includes(element2.gameId) == false)
 	});
 
@@ -20,6 +21,7 @@ function electricityChain(arena, bullet) {
 		width: bullet.stats.chainDistance * 2,
 		height: bullet.stats.chainDistance * 2
 	}, function(element1, element2) {
+		if((arena.gamemode == "team") && element2.team == bullet.team) return false;
 		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < bullet.stats.chainDistance && bullet.parentId != element2.parentId && pt.includes(element2.id) == false)
 	});
 

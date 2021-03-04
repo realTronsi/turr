@@ -1,9 +1,36 @@
-Player A places turret, moves down. Player B gets killed by that turret in the fov outside of player A. Then, player B respawns, player A moves somwhere else, and player B moves to where player A was when player B just respawned. Player A's ghost is there even though Player A has moved.
+
+instead of
+
+ hi
+ hi
+>hi
+
+do
+
+hi
+hi
+> hi
+
+Water -> Acid
+
+========================
+HUGE BUG WITH TEAM MODE
+turrets shoot at own team's towers
+
+========================
 
 
-
-
-
+Elements That work
+Basic
+Fire
+Magma 
+Plasma
+Water
+Ice 
+Electricity
+Earth
+Rock
+Metal
 
 
 Frame-rate independent friction
@@ -20,15 +47,25 @@ Red: db4f00
 Fire Element -> #c4160a
 Magma Element -> #ad3434
 Earth Element -> #1b8c1d
-Rock Element -> #3c3c3c
+Metal Element -> #43464b
+Rock Element -> #632305
 Water Element -> #0b58a1
 Plasma Element -> #a82ca2
+Electricity Element -> #b2bd22
+Light Element -> #fffca6
 
 
 # UPGRADES
-Fire -> Fire II, Magma (Volcano Tower), Plasma
+Fire -> Light, Magma (Volcano Tower), Plasma
 Water -> Water II, Ice, Electricity
 Earth -> Earth II, Rock, Metal
+
+Light -> Dark
+
+Dark -> Shadow, Ghost, Void
+
+Dark Tower -> Karma, becomes much more powerful upon taking damage
+
 
 electricity tesla coil shouldnt be that hard anyways ill probably be back very late at night so uh whatever
 
@@ -235,3 +272,4 @@ https://github.com/asaarinen/qtree/
 
 https://www.npmjs.com/package/js-quadtree
 
+enough

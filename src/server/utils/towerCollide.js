@@ -16,6 +16,7 @@ function getNearestPlayer(arena, tower) {
 		}
 	}, function(element1, element2) {
 		if(arena.players[element2.gameId] == undefined) return false;
+		if((arena.gamemode == "team") && element2.team == tower.team) return false;
 		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.range && element2.gameId != tower.parentId && arena.players[element2.gameId].spawnProt <= 0)
 	});
 	return collider;
@@ -38,21 +39,46 @@ function getNearestTower(arena, tower) {
 			collider = enemy.id;
 		}
 	}, function(element1, element2) {
+		if((arena.gamemode == "team") && element2.team == tower.team) return false;
 		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.range && element1.parentId != element2.parentId)
 	});
 	return collider;
 }
 
-function getAuraPlayerCollider(arena, tower) {
-	let collisions = arena.playerqt.colliding({
-		x: tower.x - tower.size,
-		y: tower.y - tower.size,
-		width: tower.size * 2,
-		height: tower.size * 2
-	}, function(element1, element2) {
-		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.radius && arena.players[element2.gameId].spawnProt <= 0 && element2.gameId != tower.parentId)
-	})
-	return collisions;
+function getAuraPlayerCollider(arena, tower, target) {
+	/*
+		Target:
+		0 - Allies (Includes parent)
+		1 - Enemy Players
+	*/
+	if(target == 0){
+		let collisions = arena.playerqt.colliding({
+			x: tower.x - tower.radius,
+			y: tower.y - tower.radius,
+			width: tower.radius * 2,
+			height: tower.radius * 2
+		}, function(element1, element2) 
+		{
+			if(arena.gamemode == "team"){
+				return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.radius && element2.team == tower.team)
+			} else {
+				return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.radius && element2.gameId == tower.parentId)
+			}
+		})
+		return collisions;
+	} else if(target == 1){
+		let collisions = arena.playerqt.colliding({
+			x: tower.x - tower.radius,
+			y: tower.y - tower.radius,
+			width: tower.radius * 2,
+			height: tower.radius * 2
+		}, function(element1, element2) 
+		{
+			if((arena.gamemode == "team") && element2.team == tower.team) return false;
+			return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.radius && arena.players[element2.gameId].spawnProt <= 0 && element2.gameId != tower.parentId)
+		})
+		return collisions;
+	}
 }
 
 module.exports = { getNearestPlayer, getNearestTower, getAuraPlayerCollider }

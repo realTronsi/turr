@@ -20,6 +20,8 @@ const slingshotTower = require("./towers/slingshot");
 const iceGunnerTower = require("./towers/icegunner");
 const ionizerTower = require("./towers/ionizer");
 const teslaCoilTower = require("./towers/teslacoil");
+const cannonTower = require("./towers/cannon");
+
 
 /* BULLET REQUIRE */
 
@@ -31,6 +33,7 @@ const rockBullet = require("./bullets/rock");
 const iceBullet = require("./bullets/ice");
 const plasmaBullet = require("./bullets/plasma");
 const electricityBullet = require("./bullets/electricity");
+const cannonballBullet = require("./bullets/cannonball");
 
 function update(arenas, delta) { // main game loop
 	for (let a of Object.keys(arenas)) {
@@ -42,6 +45,41 @@ function update(arenas, delta) { // main game loop
 			}
 			arena.joinQueue = [];
 		}
+
+		// leave queue
+		for (let client of arena.closequeue) {
+			if (arena != undefined && client != undefined) {
+				delete arena.players[client.gameId];
+
+				//Delete player in Quadtree
+				let deleteQtPlayer = arena.playerqt.find(function(element) {
+					return element.gameId === client.gameId
+				})
+				if (deleteQtPlayer.length > 0) {
+					arena.playerqt.remove(deleteQtPlayer[0]);
+				}
+				arena.playerCount = Object.keys(arena.players).length;
+
+				//Delete player in Team
+				if (arena.gamemode == "team") {
+					if (arena.teams[client.team].includes(client)) {
+						arena.teams[client.team].splice(arena.teams[client.team].indexOf(client), 1);
+					}
+				}
+
+
+
+				for (let i of Object.keys(arena.players)) {
+					const player = arena.players[i];
+					const payLoad = {
+						t: "pl",
+						g: client.gameId
+					}
+					player.ws.send(msgpack.encode(payLoad))
+				}
+			}
+		}
+		arena.closequeue = [];
 
 		// PLAYERS UPDATE
 		let tempqt = new Quadtree({
@@ -168,9 +206,9 @@ function update(arenas, delta) { // main game loop
 				if (player.effects.frozen <= 0) {
 
 
-          /*
-          very bugged friction independent movement ->  * (drag^(dt*dt) - 1) / (dt*ln(drag));
-          */
+					/*
+					very bugged friction independent movement ->  * (drag^(dt*dt) - 1) / (dt*ln(drag));
+					*/
 
 					player.x += player.xv * delta / 25 * player.effects.drowned / 100;
 					player.y += player.yv * delta / 25 * player.effects.drowned / 100;
@@ -201,17 +239,34 @@ function update(arenas, delta) { // main game loop
 				}, function(tower) {
 					let towerObject = arena.towers[tower.id];
 					if (towerObject.collide != false) {
-						if (towerObject.type == "observatory" && towerObject.parentId == player.gameId) {
-							if (inObservatory == true) {
-								player.changed["fov"] = false;
+						if (towerObject.type == "observatory") {
+							if (arena.gamemode == "team") {
+								if (towerObject.team == player.team) {
+									if (inObservatory == true) {
+										player.changed["fov"] = false;
+									} else {
+										player.changed["fov"] = true;
+									}
+									player.effects.observatory = towerObject.effect;
+									let angle = Math.atan2(towerObject.y - player.y, towerObject.x - player.x);
+									let dist = Math.sqrt(Math.pow(towerObject.x - player.x, 2) + Math.pow(towerObject.y - player.y, 2));
+									player.xv += 82 * Math.cos(angle) * delta / 1000 * dist / 50;
+									player.yv += 82 * Math.sin(angle) * delta / 1000 * dist / 50;
+								}
 							} else {
-								player.changed["fov"] = true;
+								if (towerObject.parentId == player.gameId) {
+									if (inObservatory == true) {
+										player.changed["fov"] = false;
+									} else {
+										player.changed["fov"] = true;
+									}
+									player.effects.observatory = towerObject.effect;
+									let angle = Math.atan2(towerObject.y - player.y, towerObject.x - player.x);
+									let dist = Math.sqrt(Math.pow(towerObject.x - player.x, 2) + Math.pow(towerObject.y - player.y, 2));
+									player.xv += 82 * Math.cos(angle) * delta / 1000 * dist / 50;
+									player.yv += 82 * Math.sin(angle) * delta / 1000 * dist / 50;
+								}
 							}
-							player.effects.observatory = towerObject.effect;
-							let angle = Math.atan2(towerObject.y - player.y, towerObject.x - player.x);
-							let dist = Math.sqrt(Math.pow(towerObject.x - player.x, 2) + Math.pow(towerObject.y - player.y, 2));
-							player.xv += 82 * Math.cos(angle) * delta / 1000 * dist / 50;
-							player.yv += 82 * Math.sin(angle) * delta / 1000 * dist / 50;
 						} else {
 							let dx = player.x - towerObject.x;
 							let dy = player.y - towerObject.y;
@@ -228,10 +283,20 @@ function update(arenas, delta) { // main game loop
 
 					if (towerObject.type == "propel") {
 						// boost code here :P
-						if (towerObject.parentId === player.gameId) {
-							let angle = Math.atan2(player.yv, player.xv);
-							player.bxv = Math.cos(angle) * towerObject.effect;
-							player.byv = Math.sin(angle) * towerObject.effect;
+						if(player.xv > 0 || player.yv > 0){
+						if (arena.gamemode == "team") {
+							if (towerObject.team === player.team) {
+								let angle = Math.atan2(player.yv, player.xv);
+								player.bxv = Math.cos(angle) * towerObject.effect;
+								player.byv = Math.sin(angle) * towerObject.effect;
+							}
+						} else {
+							if (towerObject.parentId === player.gameId) {
+								let angle = Math.atan2(player.yv, player.xv);
+								player.bxv = Math.cos(angle) * towerObject.effect;
+								player.byv = Math.sin(angle) * towerObject.effect;
+							}
+						}
 						}
 					}
 				}, function(element1, element2) {
@@ -301,6 +366,8 @@ function update(arenas, delta) { // main game loop
 				ionizerTower(arena, tower, delta);
 			} else if (tower.type == "tesla coil") {
 				teslaCoilTower(arena, tower, delta);
+			} else if (tower.type == "cannon") {
+				cannonTower(arena, tower, delta);
 			}
 
 
@@ -360,6 +427,10 @@ function update(arenas, delta) { // main game loop
 				}
 				case "electricity": {
 					electricityBullet(arena, bullet, delta, b);
+					break;
+				}
+				case "cannonball": {
+					cannonballBullet(arena, bullet, delta, b);
 					break;
 				}
 				default: break;

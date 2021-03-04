@@ -43,5 +43,9 @@ export const TowerStats = {
   },
   "tesla coil": {
     energy: 55
+  },
+  cannon: {
+    energy: 65,
+    size: 45
   }
 }

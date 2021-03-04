@@ -6,6 +6,7 @@ import { ElementTiers } from "./utils/tierList.js";
 
 export class Player{
   constructor(gameData){
+    console.log(gameData)
     if (gameData.g != undefined){
       //Create player (not you)
       this.gameId = gameData.g;
@@ -19,6 +20,14 @@ export class Player{
       this.serverY = Infinity;
       this.middleX = Infinity;
       this.middleY = Infinity;
+      if (gameData.t != undefined && gameData.t != null){
+        this.team = gameData.t;
+        this.inteam = true;
+      }
+      else{
+        this.team = this.gameId;
+        this.inteam = false;
+      }
       this.chatMessage = gameData.m || "";
       this.chatDeletion = false;
       if (this.chatMessage != ""){
@@ -54,6 +63,15 @@ export class Player{
       this.chatMessage = "";
       this.chatOpacity = 0;
       this.chatDeletion = false;
+
+      if (gameData.team != undefined && gameData.team != null){
+        this.team = gameData.team;
+        this.inteam = true;
+      }
+      else{
+        this.team = this.gameId;
+        this.inteam = false;
+      }
 
       
       this.maxEnergy = 100;

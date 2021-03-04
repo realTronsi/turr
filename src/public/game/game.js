@@ -50,6 +50,7 @@ export function initGame(data, client) {
     players: {},
     towers: {},
     bullets: {},
+    teamMinimap: [],
     you: new Player(data.s) // yourself
   };
   let held = false;
@@ -298,6 +299,19 @@ export function initGame(data, client) {
         delete gameData.players[data.g];
         break;
       }
+      case "mm": {
+				let minimap = [];
+				for(let p = 0; p < data.d.length; p+=2){
+					if(p != data.s * 2){
+						minimap.push({
+							x: data.d[p],
+							y: data.d[p + 1]
+						});
+					}
+				}
+        gameData.teamMinimap = minimap;
+        break;
+      }
       case "ntp": {
         //New tower placed
         gameData.towers[data.d.id] = new Tower(data.d);
@@ -308,7 +322,7 @@ export function initGame(data, client) {
         break;
       }
       case "rb": {
-        gameData.bullets[data.i].opacity = 0.999;
+        gameData.bullets[data.i].die = true;
         gameData.bullets[data.i].dx = gameData.bullets[data.i].serverX - gameData.bullets[data.i].lastX;
         gameData.bullets[data.i].dy = gameData.bullets[data.i].serverY - gameData.bullets[data.i].lastY;
         gameData.bullets[data.i].serverX = data.x;
@@ -341,7 +355,7 @@ export function initGame(data, client) {
         //You, a pro, killed a noob
         //n: name
 
-        gameMessages.push({
+        gameMessages.push({ 
           value: "You killed " + data.n,
           timer: 4
         })
@@ -411,7 +425,6 @@ export function initGame(data, client) {
 
     Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages, deathScreenOpacity);
     Update(gameData, delta, gameMessages, interpTime)
-
     requestAnimationFrame(() => {
       mainLoop(gameData);
     });

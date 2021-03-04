@@ -6,7 +6,8 @@ let numToType = {
   "4": "rock",
   "5": "ice",
   "6": "plasma",
-  "7": "electricity"
+  "7": "electricity",
+  "8": "cannonball"
 }
 export class Bullet{
   constructor(gameData){
@@ -24,6 +25,8 @@ export class Bullet{
     this.lastX = this.serverX;
     this.lastY = this.serverY;
     this.baseSize = this.size;
+		this.die = false;
+    this.team = gameData.tm;
     if (this.type == "ice" || this.type == "rock"){
       this.rotate = Math.random() * 6.28;
     }
@@ -32,6 +35,7 @@ export class Bullet{
     }
     if (this.type == "electricity"){
       this.nodes = gameData.nd;
+			this.opacity = 0.7;
     }
   }
   updatePack(gameData){
