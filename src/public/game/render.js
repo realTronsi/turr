@@ -48,7 +48,8 @@ const TowerDescriptions = {
 	"ice gunner": [`Shoots ice which`, `freezes enemies`],
 	ionizer: [`Shoots powerful plasma`, `with infinite pierce`],
 	"tesla coil": [`Shoots electricity which`, `can chain to others`],
-	"cannon": [`Extra dmg to towers`, `and knockbacks players`]
+	"cannon": [`Extra dmg to towers`, `and knockbacks players`],
+  "laser": [`Slowly turns & shoots`, `a continous laser`]
 }
 
 const TeamColors = [
@@ -176,7 +177,10 @@ const TowerSprites = {
 		yellow: createImage("../../assets/towers/tower_cannon_yellow.svg"),
 		red: createImage("../../assets/towers/tower_cannon_red.svg")
 	},
-
+  laser: {
+		yellow: createImage("../../assets/towers/tower_laser_yellow.svg"),
+		red: createImage("../../assets/towers/tower_laser_red.svg")
+	},
 
 
 }
@@ -332,7 +336,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 
 	for (let id of Object.keys(gameData.bullets)) {
 		const bullet = gameData.bullets[id];
-		if (bullet.type == "electricity") {
+		if (bullet.type == "electricity" || bullet.type == "beam") {
 			ZBULLETS.push(bullet);
 		} else {
 			let alpha = bullet.opacity;
@@ -459,7 +463,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 				}
 
 				if (tower.type == "volcano") {
-					ctx.globalAlpha = tower.animation / 120;
+					ctx.globalAlpha = tower.animation / 30;
 					ctx.beginPath();
 					ctx.fillStyle = "rgb(255, 0, 0)"
 					ctx.arc(tower.x, tower.y, tower.size / 2, 0, Math.PI * 2);
@@ -593,6 +597,37 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 			ctx.stroke();
 			ctx.globalAlpha = 1;
 		}
+    if (bullet.type == "beam"){
+      ctx.globalAlpha = 0.5;
+
+
+      ctx.beginPath();
+      ctx.lineWidth = bullet.width;
+      if (!yourBullet){
+        ctx.strokeStyle = "#e32914";
+      }
+      else{
+        ctx.strokeStyle = "#59b048";
+      }
+      ctx.moveTo(bullet.start.x, bullet.start.y);
+      ctx.lineTo(bullet.end.x, bullet.end.y);
+      ctx.stroke();
+
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.lineWidth = bullet.width/2;
+      if (!yourBullet){
+        ctx.strokeStyle = "#e32914";
+      }
+      else{
+        ctx.strokeStyle = "#59b048";
+      }
+      ctx.moveTo(bullet.start.x, bullet.start.y);
+      ctx.lineTo(bullet.end.x, bullet.end.y);
+      ctx.stroke();
+
+      
+    }
 	}
 
 

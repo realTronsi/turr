@@ -6,16 +6,16 @@ export const TowerStats = {
     energy: 35
   },
   heal: {
-    energy: 40
+    energy: 30
   },
   bomb: {
-    energy: 65
+    energy: 55
   },
   propel: {
-    energy: 35
+    energy: 25
   },
   streamer: {
-    energy: 60
+    energy: 40
   },
   drown: {
     energy: 25
@@ -24,7 +24,7 @@ export const TowerStats = {
     energy: 40
   },
   observatory: {
-    energy: 70,
+    energy: 60,
     size: 60
   },
   volcano: {
@@ -39,13 +39,16 @@ export const TowerStats = {
     energy: 45
   },
   ionizer: {
-    energy: 55
+    energy: 50
   },
   "tesla coil": {
-    energy: 55
+    energy: 45
   },
   cannon: {
-    energy: 65,
+    energy: 55,
     size: 45
+  },
+  laser: {
+    energy: 55
   }
 }

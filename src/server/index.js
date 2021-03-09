@@ -3,8 +3,13 @@ const WebSocket = require('ws');
 const msgpack = require("msgpack-lite");
 const path = require("path");
 const uuid = require("uuid");
-//const rateLimit = require("ws-rate-limit")(50, '2s')
+const rateLimit = require("ws-rate-limit")("1s", 60)
 const app = express();
+
+/* 
+future security patches: limit incoming packet sizes
+
+*/
 
 /* FOR TURR.IO Remember to rename client app.js and append version number to enforce cache clearing such as app?v1.js
 
@@ -113,12 +118,16 @@ wss.on('connection', (ws, req) => {
 	}
 
 
-	//rateLimit(ws);
+	rateLimit(ws);
 
 	const clientId = uuid.v4();
 	const client = new Client(ws, clientId);
 	clients[clientId] = client;
 	let clientArena;
+
+	ws.on('limited', msg => {
+		ws.close();
+	});
 
 	ws.on('message', msg => {
 		try {
@@ -383,10 +392,6 @@ wss.on('connection', (ws, req) => {
 		catch (err) {
 			console.log(err);
 		}
-	});
-
-	ws.on('limited', msg => {
-		console.log("Person spammed too many messages to server.");
 	});
 
 	ws.on('close', () => {

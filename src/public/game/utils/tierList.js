@@ -9,7 +9,7 @@ export const ElementTiers = {
     towers: ["farm", "basic", "heal"],
     maxHP: 100,
     maxEnergy: 100,
-    speed: 13.5,
+    speed: 12.5,
     attack: 1,
     fov: 1
   },
@@ -23,7 +23,7 @@ export const ElementTiers = {
     towers: ["farm", "basic", "heal", "bomb", "propel"],
     maxHP: 80,
     maxEnergy: 100,
-    speed: 12,
+    speed: 11,
     attack: 1.25,
     fov: 1
   },
@@ -37,8 +37,8 @@ export const ElementTiers = {
     fov: 1,
     maxHP: 110,
     maxEnergy: 100,
-    speed: 11,
-    attack: 1.1
+    speed: 10,
+    attack: 1.05
   },
   earth: {
     tier: 2,
@@ -50,7 +50,7 @@ export const ElementTiers = {
     fov: 0.9,
     maxHP: 140,
     maxEnergy: 100,
-    speed: 10,
+    speed: 9,
     attack: 0.8
   },
   magma: {
@@ -61,13 +61,13 @@ export const ElementTiers = {
     maxHP: 95,
     maxEnergy: 100,
     attack: 1.1,
-    speed: 11.5
+    speed: 10.5
   },
   rock: {
     tier: 3,
     upgrades: [],
     towers: ["farm", "basic", "heal", "splinter", "observatory", "slingshot"],
-    speed: 9.5,
+    speed: 8.5,
     attack: 0.9,
     maxHP: 145,
     maxEnergy: 100,
@@ -80,7 +80,7 @@ export const ElementTiers = {
     fov: 0.95,
     maxHP: 100,
     maxEnergy: 100,
-    speed: 11.4,
+    speed: 10.4,
     attack: 1.1
   },
   plasma: {
@@ -98,7 +98,7 @@ export const ElementTiers = {
     upgrades: [],
     towers: ["farm", "basic", "heal", "streamer", "drown", "tesla coil"],
     maxEnergy: 100,
-    speed: 12,
+    speed: 11,
     attack: 1.15,
     maxHP: 97,
     fov: 1
@@ -107,17 +107,17 @@ export const ElementTiers = {
     tier: 3,
     upgrades: [],
     towers: ["farm", "basic", "heal", "splinter", "observatory", "cannon"],
-    speed: 9,
-    attack: 0.75,
-    maxHP: 175,
+    speed: 8,
+    attack: 1,
+    maxHP: 160,
     maxEnergy: 100,
     fov: 0.9,
   },
   light: {
     tier: 3,
     upgrades: [],
-    towers: ["farm", "basic", "heal", "bomb", "propel"],
-    speed: 12.5,
+    towers: ["farm", "basic", "heal", "bomb", "propel", "laser"],
+    speed: 11.5,
 		attack: 1.25,
 		maxHP: 90,
     maxEnergy: 110,

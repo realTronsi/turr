@@ -5,6 +5,7 @@ const { reduce_num } = require("./utils/numred");
 const { TowerStats, ElementStats } = require("./stats");
 const { Bullet } = require("./objects.js");
 const { etToStr, strToEt } = require("./utils/etcast");
+const lineIntersects = require("./utils/lineIntersect");
 
 /* TOWER REQUIRE */
 
@@ -21,7 +22,7 @@ const iceGunnerTower = require("./towers/icegunner");
 const ionizerTower = require("./towers/ionizer");
 const teslaCoilTower = require("./towers/teslacoil");
 const cannonTower = require("./towers/cannon");
-
+const laserTower = require("./towers/laser");
 
 /* BULLET REQUIRE */
 
@@ -34,6 +35,7 @@ const iceBullet = require("./bullets/ice");
 const plasmaBullet = require("./bullets/plasma");
 const electricityBullet = require("./bullets/electricity");
 const cannonballBullet = require("./bullets/cannonball");
+const beamBullet = require("./bullets/beam");
 
 function update(arenas, delta) { // main game loop
 	for (let a of Object.keys(arenas)) {
@@ -136,7 +138,7 @@ function update(arenas, delta) { // main game loop
 				if (player.energy >= player.stats.maxEnergy) {
 					player.changed["energy"] = false;
 				}
-				player.energy += 0.007 * delta;
+				player.energy += 0.006 * delta;
 				player.energy = Math.min(player.energy, player.stats.maxEnergy);
 				player.changed["health"] = true;
 				if (player.hp >= player.stats.defense) {
@@ -283,20 +285,20 @@ function update(arenas, delta) { // main game loop
 
 					if (towerObject.type == "propel") {
 						// boost code here :P
-						if(player.xv > 0 || player.yv > 0){
-						if (arena.gamemode == "team") {
-							if (towerObject.team === player.team) {
-								let angle = Math.atan2(player.yv, player.xv);
-								player.bxv = Math.cos(angle) * towerObject.effect;
-								player.byv = Math.sin(angle) * towerObject.effect;
+						if(player.xv != 0 || player.yv != 0){
+							if (arena.gamemode == "team") {
+								if (towerObject.team === player.team) {
+									let angle = Math.atan2(player.yv, player.xv);
+									player.bxv = Math.cos(angle) * towerObject.effect;
+									player.byv = Math.sin(angle) * towerObject.effect;
+								}
+							} else {
+								if (towerObject.parentId === player.gameId) {
+									let angle = Math.atan2(player.yv, player.xv);
+									player.bxv = Math.cos(angle) * towerObject.effect;
+									player.byv = Math.sin(angle) * towerObject.effect;
+								}
 							}
-						} else {
-							if (towerObject.parentId === player.gameId) {
-								let angle = Math.atan2(player.yv, player.xv);
-								player.bxv = Math.cos(angle) * towerObject.effect;
-								player.byv = Math.sin(angle) * towerObject.effect;
-							}
-						}
 						}
 					}
 				}, function(element1, element2) {
@@ -368,7 +370,9 @@ function update(arenas, delta) { // main game loop
 				teslaCoilTower(arena, tower, delta);
 			} else if (tower.type == "cannon") {
 				cannonTower(arena, tower, delta);
-			}
+			} else if (tower.type == "laser"){
+        laserTower(arena, tower, delta);
+      }
 
 
 			if (tower.hp <= 0) {
@@ -431,6 +435,10 @@ function update(arenas, delta) { // main game loop
 				}
 				case "cannonball": {
 					cannonballBullet(arena, bullet, delta, b);
+					break;
+				}
+				case "beam": {
+					beamBullet(arena, bullet, delta, b);
 					break;
 				}
 				default: break;
@@ -505,7 +513,25 @@ function sendToPlayers(arenas, delta) {
 			}
 			for (let b of Object.keys(arena.bullets)) {
 				const bullet = arena.bullets[b];
-				if (bullet.stats.type == "electricity") {
+				if(bullet.stats.type == "beam"){
+					// check if beam line intersects in fov
+					//if(lineIntersects(bullet.stats.start.x, bullet.stats.start.y, bullet.stats.end.x, bullet.stats.end.y, player.x - 1 / player.fov * 800, player.y - 1 / player.fov * 450, player.x + 1 / player.fov * 800, player.y - 1 / player.fov * 450) || lineIntersects(bullet.stats.start.x, bullet.stats.start.y, bullet.stats.end.x, bullet.stats.end.y, player.x - 1 / player.fov * 800, player.y + 1 / player.fov * 450, player.x + 1 / player.fov * 800, player.y + 1 / player.fov * 450) || lineIntersects(bullet.stats.start.x, bullet.stats.start.y, bullet.stats.end.x, bullet.stats.end.y, player.x - 1 / player.fov * 800, player.y - 1 / player.fov * 450, player.x - 1 / player.fov * 800, player.y + 1 / player.fov * 450) || lineIntersects(bullet.stats.start.x, bullet.stats.start.y, bullet.stats.end.x, bullet.stats.end.y, player.x + 1 / player.fov * 800, player.y - 1 / player.fov * 450, player.x + 1 / player.fov * 800, player.y + 1 / player.fov * 450)){
+						if (!bullet.seenBy.includes(player)) {
+							//Bullet is re-entering fov or entering it for the first time
+							bulletUpdatePacks.push(bullet.getInitPack());
+							bullet.seenBy.push(player);
+						} else {
+							//Bullet has been in fov
+							bulletUpdatePacks.push(bullet.getUpdatePack());
+						}
+					//} else {
+						//if (bullet.seenBy.includes(player)) {
+							//bullet.seenBy.splice(bullet.seenBy.indexOf(player), 1);
+							//bulletUpdatePacks.push(bullet.getRemovePack());
+						//}
+					//}
+				} else if (bullet.stats.type == "electricity") {
+					// if cannot see electricity with small fov, its because we do not account for line segement colliding with fov since both nodes could be outside of fov while line still inside fov (see line segement intersect with rectangle)
 					let infov = false;
 					for (let node of bullet.stats.nodes) {
 						if (Math.abs(node.x - player.x) <= 1 / player.fov * 800 && Math.abs(node.y - player.y) <= 1 / player.fov * 450) {
@@ -535,8 +561,7 @@ function sendToPlayers(arenas, delta) {
 							//Bullet is re-entering fov or entering it for the first time
 							bulletUpdatePacks.push(bullet.getInitPack());
 							bullet.seenBy.push(player);
-						}
-						else {
+						} else {
 							//Bullet has been in fov
 							bulletUpdatePacks.push(bullet.getUpdatePack());
 						}

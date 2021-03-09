@@ -1,8 +1,17 @@
 const Tiers = [3000, 15000, 50000, 150000, 1e69];
 
+/*
+Everyone speed nerf
+Metal + 33% attack - 9% defense nerf
+Plasma Bullet life span 50%
+Basic Tower Reload time +30%
+everything damage and bullet speed nerfed
+decay decreased
+*/
+
 const ElementStats = {
   basic: {
-    speed: 13.5,
+    speed: 12.5,
     attack: 1,
     defense: 100,
     friction: 0.5,
@@ -12,7 +21,7 @@ const ElementStats = {
     upgrades: ["fire", "water", "earth"]
   },
   fire: {
-    speed: 12,
+    speed: 11,
     attack: 1.25,
     defense: 80,
     friction: 0.5,
@@ -22,7 +31,7 @@ const ElementStats = {
     maxEnergy: 100
   },
   water: {
-    speed: 11,
+    speed: 10,
     attack: 1.05,
     defense: 110,
     friction: 0.5,
@@ -32,7 +41,7 @@ const ElementStats = {
     maxEnergy: 100
   },
   earth: {
-    speed: 10,
+    speed: 9,
     attack: 0.8,
     defense: 140,
     friction: 0.5,
@@ -42,7 +51,7 @@ const ElementStats = {
     maxEnergy: 100
   },
 	magma: {
-		speed: 11.5,
+		speed: 10.5,
     attack: 1.1,
     defense: 95,
     friction: 0.5,
@@ -52,7 +61,7 @@ const ElementStats = {
     maxEnergy: 100
 	},
 	plasma: {
-		speed: 10.5,
+		speed: 9.5,
     attack: 1.35,
     defense: 85,
     friction: 0.5,
@@ -62,7 +71,7 @@ const ElementStats = {
     maxEnergy: 100
 	},
   rock: {
-    speed: 9.5,
+    speed: 8.5,
     attack: 0.9,
     defense: 145,
     friction: 0.5,
@@ -71,7 +80,7 @@ const ElementStats = {
     maxEnergy: 100
   },
 	ice: {
-		speed: 1.2,
+		speed: 1.1,
     attack: 1.1,
     defense: 100,
     friction: 0.9,
@@ -80,7 +89,7 @@ const ElementStats = {
     maxEnergy: 100
 	},
   electricity: {
-    speed: 12,
+    speed: 11,
     attack: 1.15,
     defense: 97,
     friction: 0.5,
@@ -90,21 +99,21 @@ const ElementStats = {
     maxEnergy: 100
   },
   metal: {
-    speed: 9,
-    attack: 0.75,
-    defense: 175,
+    speed: 8,
+    attack: 1,
+    defense: 160,
     friction: 0.5,
     fov: 0.9,
     towers: ["farm", "basic", "heal", "splinter", "observatory", "cannon"],
     maxEnergy: 100
   },
 	light: {
-		speed: 12.5,
+		speed: 11.5,
 		attack: 1.25,
 		defense: 90,
     friction: 0.5,
 		fov: 1.2,
-		towers: ["farm", "basic", "heal", "bomb", "propel"],
+		towers: ["farm", "basic", "heal", "bomb", "propel", "laser"],
 		maxEnergy: 110
 	}
 }
@@ -112,98 +121,98 @@ const TowerStats = {
   farm: {
     hp: 120,
     energy: 30,
-		decay: 8,
+		decay: 7,
     size: 40,
 		effect: 23/1000
   },
   basic: {
-    hp: 150,
+    hp: 140,
     energy: 35,
-		decay: 8,
+		decay: 7,
     size: 40,
-		reload: 500,
+		reload: 700,
 		range: 750,
     bullet: {
       type: "basic",
-			damage: 22,
+			damage: 17,
 			size: 12,
-			speed: 700,
+			speed: 650,
       hp: 15,
       decay: 12
     }
   },
   heal: {
-    hp: 240,
-    energy: 40,
-		decay: 8,
+    hp: 200,
+    energy: 30,
+		decay: 7,
     size: 40,
-		effect: 4/1000,
+		effect: 3/1000,
 		radius: 250
   },
   bomb: {
-    hp: 190,
-    energy: 65,
-    decay: 8,
-    reload: 1800,
+    hp: 170,
+    energy: 55,
+    decay: 7,
+    reload: 1400,
     range: 700,
     size: 40,
     bullet: {
       type: "bomb",
-			damage: 8,
+			damage: 4,
 			size: 32,
-			speed: 480,
+			speed: 450,
       hp: 12,
       decay: 8,
-			explodeRadius: 150,
-			explodeSpeed: 350/1000
+			explodeRadius: 160,
+			explodeSpeed: 360/1000
     }
   },
   propel: {
     hp: 120,
-    energy: 35,
-		decay: 8,
+    energy: 25,
+		decay: 7,
     size: 40,
-		effect: 60,
+		effect: 50,
     collide: false
   },
   streamer: {
-    hp: 260,
-    energy: 60,
-    decay: 8,
-    reload: 190,
+    hp: 200,
+    energy: 40,
+    decay: 7,
+    reload: 180,
     range: 690,
     size: 40,
     bullet: {
       type: "water",
-			damage: 6,
+			damage: 5,
 			size: 15,
-			speed: 650,
+			speed: 630,
       hp: 1,
       decay: 0,
 			sizeDecay: 15/1200,
-			damageDecay: 6/1200
+			damageDecay: 5/1200
     }
   },
   drown: {
     hp: 80,
     energy: 25,
-		decay: 8,
+		decay: 7,
     size: 40,
-		effect: 40,
+		effect: 30,
 		radius: 200
   },
   splinter: {
     hp: 240,
     energy: 40,
-    decay: 8,
+    decay: 7,
     reload: 1100,
     range: 900,
     size: 40,
     bullet: {
       type: "splinter",
-			damage: 8.5,
+			damage: 5,
 			size: 20,
-			speed: 520,
+			speed: 500,
       hp: 2,
       decay: 2.5,
 			expandAmount: 25/1000,
@@ -211,25 +220,25 @@ const TowerStats = {
 				type: "basic",
 				hp: 5,
 				decay: 8,
-				damage: 18,
-				size: 13,
+				damage: 12,
+				size: 12,
 				speed: 700
 			}
     }
   },
   observatory: {
     hp: 350,
-    energy: 70,
-    decay: 8,
+    energy: 60,
+    decay: 7,
     size: 60,
-    effect: 0.35
+    effect: 0.2
   },
   volcano: {
-    hp: 1500,
-    decay: 600,
+    hp: 300,
+    decay: 100,
     energy: 65,
     size: 60,
-		explosionTimer: 1000,
+		explosionTimer: 200,
 		state: "normal",
 		bullet: {
       type: "bomb",
@@ -239,17 +248,17 @@ const TowerStats = {
       hp: 1,
       decay: 100,
 			explodeRadius: 450,
-			explodeSpeed: 900/1000
+			explodeSpeed: 800/1000
     },
 		bullet2: {
 			type: "bomb",
-			damage: 6,
+			damage: 5,
 			size: 28,
 			speed: 250,
       hp: 2,
       decay: 1,
-			explodeRadius: 220,
-			explodeSpeed: 420/1000
+			explodeRadius: 180,
+			explodeSpeed: 400/1000
 		},
 		bullet3: {
 			type: "rock",
@@ -258,52 +267,61 @@ const TowerStats = {
 			speed: 950,
       hp: 10,
       decay: 7
+		},
+    bullet4: {
+			type: "basic",
+			damage: 70,
+			size: 22,
+			speed: 600,
+      hp: 10,
+      decay: 7
 		}
+
   },
   slingshot: {
-    hp: 250,
+    hp: 180,
     energy: 45,
-		decay: 8,
+		decay: 7,
     size: 50,
 		reload: 1700,
 		range: 900,
     bullet: {
       type: "rock",
-			damage: 50,
+			damage: 40,
 			size: 30,
-			speed: 1200,
+			speed: 1150,
       hp: 15,
       decay: 12
     }
   },
   cannon: {
-    hp: 400,
-    energy: 65,
-		decay: 8,
+    hp: 300,
+    energy: 55,
+		decay: 7,
     size: 45,
-		reload: 1500,
-		range: 720,
+		reload: 1700,
+		range: 650,
     bullet: {
       type: "cannonball",
-			damage: 30,
+			damage: 22,
 			size: 20,
-			speed: 1100,
+			speed: 1050,
       hp: 15,
       decay: 12,
-      multiplier: 7,
+      multiplier: 5,
       knockback: 28
     }
   },
   "ice gunner": {
 		hp: 250,
     energy: 45,
-		decay: 8,
+		decay: 7,
     size: 40,
 		reload: 400,
 		range: 550,
     bullet: {
       type: "ice",
-			damage: 3,
+			damage: 7,
 			size: 11,
 			speed: 650,
       hp: 15,
@@ -312,34 +330,34 @@ const TowerStats = {
     }
 	},
   ionizer: {
-    hp: 360,
-    energy: 55,
-		decay: 8,
+    hp: 260,
+    energy: 50,
+		decay: 7,
     size: 40,
-		reload: 1900,
+		reload: 2100,
 		range: 800,
     bullet: {
       type: "plasma",
-			damage: 14,
+			damage: 8,
 			size: 6,
-			speed: 850,
-      hp: 3,
+			speed: 750,
+      hp: 1.5,
       decay: 1,
 			growSpeed: 15/1000,
-			damageGrow: 8/1000,
+			damageGrow: 4/1000,
 			maxSize: 25
     }
 	},
 	"tesla coil": {
-		hp: 360,
-    energy: 55,
-		decay: 8,
+		hp: 150,
+    energy: 45,
+		decay: 7,
     size: 40,
 		reload: 1900,
 		range: 300,
     bullet: {
       type: "electricity",
-			damage: 15,
+			damage: 20,
 			size: 0,
 			nodes: [],
 			chainSpeed: 150,
@@ -347,6 +365,22 @@ const TowerStats = {
 			maxChain: 5,
 			timer: 150
     }
+	},
+	laser: {
+		hp: 80,
+		energy: 55,
+		decay: 2,
+		size: 40,
+		range: 500,
+		spinSpeed: 1.2/1000,
+		beam: null, // beam itself, only one bullet at a time
+		bullet: {
+			type: "beam",
+			damage: 3,
+			size: 10, // width
+			start: {},
+			end: {}
+		}
 	}
 }
 module.exports = {TowerStats, ElementStats }

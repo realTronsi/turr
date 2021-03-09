@@ -36,7 +36,7 @@ export class Tower{
     if (updatePack.a != undefined){
       this.animation = updatePack.a;
 			if(this.type == "volcano"){
-      	this.size = this.baseSize + this.animation/2;
+      	this.size = this.baseSize + this.animation*2;
 			}
     }
   }

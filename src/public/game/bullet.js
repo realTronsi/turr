@@ -7,7 +7,8 @@ let numToType = {
   "5": "ice",
   "6": "plasma",
   "7": "electricity",
-  "8": "cannonball"
+  "8": "cannonball",
+  "9": "beam"
 }
 export class Bullet{
   constructor(gameData){
@@ -37,6 +38,18 @@ export class Bullet{
       this.nodes = gameData.nd;
 			this.opacity = 0.7;
     }
+    if (this.type == "beam"){
+      this.start = gameData.s;
+      this.end = gameData.e;
+      this.width = gameData.w;
+
+      this.laserAngle = Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
+      this.midAngle = this.laserAngle;
+      this.svrAngle = this.laserAngle;
+
+      this.laserLength = Math.sqrt(Math.pow(this.start.x - this.end.x, 2) + Math.pow(this.start.y - this.end.y, 2));
+    }
+
   }
   updatePack(gameData){
     if (gameData.s){
@@ -55,5 +68,13 @@ export class Bullet{
         this.nodes.push(i);
       }
     }
+    if (gameData.s != undefined && this.type == "beam"){
+      this.start = gameData.s;
+    }
+    if (gameData.e != undefined && this.type == "beam"){
+      this.svrAngle = Math.atan2(gameData.e.y - this.start.y, gameData.e.x - this.start.x);
+      this.laserLength = Math.sqrt(Math.pow(this.start.x - gameData.e.x, 2) + Math.pow(this.start.y - gameData.e.y, 2));
+    }
+    
   }
 }

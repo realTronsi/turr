@@ -13,7 +13,8 @@ export const ConvertTowerToId = {
   "ice gunner": 11,
   "ionizer": 12,
   "tesla coil": 13,
-  "cannon": 14
+  "cannon": 14,
+  "laser": 15
 }
 export const ConvertIdToTower = {
   "0": "farm",
@@ -30,5 +31,6 @@ export const ConvertIdToTower = {
   "11": "ice gunner",
   "12": "ionizer",
   "13": "tesla coil",
-  "14": "cannon"
+  "14": "cannon",
+  "15": "laser"
 }

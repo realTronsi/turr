@@ -25,12 +25,19 @@ function volcanoTower(arena, tower, delta) {
 			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, dir + (Math.random()/2*randPolarity()), TowerStats[tower.type].bullet2, tower);
 			dir+=2.0944;
 		}
-		dir = 0.897;
+		dir = 0.4485;
 		for(let i=0; i<7; i++){
 			bulletId = arena.createBulletId();
 			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, dir + (Math.random()/4*randPolarity()), TowerStats[tower.type].bullet3, tower);
 			dir+=0.897;
 		}
+    dir = 0;
+		for(let i=0; i<7; i++){
+			bulletId = arena.createBulletId();
+			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, dir + (Math.random()/4*randPolarity()), TowerStats[tower.type].bullet4, tower);
+			dir+=0.897;
+		}
+    
 	}
 }
 

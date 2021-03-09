@@ -57,7 +57,8 @@ class Bullet {
 			"ice": 5,
 			"plasma": 6,
 			"electricity": 7,
-			"cannonball": 8
+			"cannonball": 8,
+      "beam": 9
 		}
 		let pack = {
 			i: this.id,
@@ -85,6 +86,16 @@ class Bullet {
 				});
 			}
 		}
+		if(this.stats.type == "beam") {
+			pack = {
+				i: this.id,
+				t: typeToNum[this.stats.type],
+				pi: this.parentId,
+				s: this.stats.start,
+				e: this.stats.end,
+				w: this.stats.size
+			}
+		}
 		return pack;
 	}
 	getUpdatePack() {
@@ -108,6 +119,12 @@ class Bullet {
 					y: this.stats.nodes[this.stats.nodes.length - i].y
 				});
 			}
+		}
+		if (this.changed["start"]){
+			pack.s = this.stats.start;
+		}
+		if (this.changed["end"]){
+			pack.e = this.stats.end;
 		}
 		if (Object.keys(pack).length > 0) {
 			pack.i = this.id;
@@ -155,6 +172,10 @@ class Tower {
 
 		if (["volcano"].includes(this.type)) {
 			this.state = TowerStats[this.type].state;
+		}
+
+		if(this.type == "laser"){
+			this.spinSpeed = TowerStats[this.type].spinSpeed;
 		}
 
 		if (this.type == "volcano") {

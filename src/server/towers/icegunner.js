@@ -43,7 +43,7 @@ function iceGunnerTower(arena, tower, delta) {
 			//Shoot Bullet
 			const bulletId = arena.createBulletId();
 			//id, parentId, x, y, dir, stats
-			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir + (Math.random()*0.35)*randPolarity(), TowerStats[tower.type].bullet, tower)
+			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir + (Math.random()*0.25)*randPolarity(), TowerStats[tower.type].bullet, tower)
 		}
 	}
 }

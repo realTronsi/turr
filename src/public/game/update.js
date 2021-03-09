@@ -2,6 +2,11 @@ const serverTick = 30;
 function lerp(start, end, time) {
 	return start * (1 - time) + end * time;
 }
+function rotateInterp(start, end, time) {
+  let shortest_angle=((((end - start) % (Math.PI*2)) + Math.PI*3) % (Math.PI * 2)) - Math.PI;
+  console.log(end, shortest_angle)
+  return start + (shortest_angle * time) % (Math.PI * 2);
+}
 export function Update(gameData, delta, gameMessages, interpTime) {
 
 	for (let i of Object.keys(gameData.bullets)) {
@@ -77,6 +82,14 @@ export function Update(gameData, delta, gameMessages, interpTime) {
 			bullet.y = lerp(bullet.y, bullet.midY, delta / 1000 * serverTick)
 			bullet.midX = lerp(bullet.x, bullet.serverX, delta / 1000 * serverTick)
 			bullet.midY = lerp(bullet.y, bullet.serverY, delta / 1000 * serverTick)
+      if (bullet.type == "beam"){
+        bullet.laserAngle = rotateInterp(bullet.laserAngle, bullet.midAngle, delta / 1000 * serverTick)
+        bullet.midAngle = rotateInterp(bullet.midAngle, bullet.svrAngle, delta / 1000 * serverTick)
+
+        bullet.end.x = bullet.start.x + Math.cos(bullet.laserAngle) * bullet.laserLength;
+        bullet.end.y = bullet.start.y + Math.sin(bullet.laserAngle) * bullet.laserLength;
+
+      }
 
 		}
 	}

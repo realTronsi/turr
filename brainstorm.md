@@ -1,3 +1,34 @@
+(0, 0) -> (1, 0)
+(0, 0) -> (0.5, 0.5)
+(0, 0) -> (0, 1)
+
+next should be (0, 0) -> (-0.5, 0.5)
+
+but with your dumbass retarded approach you get
+
+(-0.5, 1.5)
+
+
+
+
+
+
+
+
+Ideas
+
+Magma Upgrades!
+Magma -> Lava (defense), Smoke (offense & speed)
+Lava -> Obsidian (defense), Ash (normal)
+Smoke -> Incense (defense), Oxygen (offense)
+
+
+update.js 512 does not work idk why
+
+i figured it out updatepack was not runing since i was handdling bullet in the tower itself while the bullet.changed is run in the bullet loop
+
+noob.
+
 
 instead of
 
@@ -13,9 +44,7 @@ hi
 
 Water -> Acid
 
-========================
-HUGE BUG WITH TEAM MODE
-turrets shoot at own team's towers
+
 
 ========================
 
@@ -272,4 +301,4 @@ https://github.com/asaarinen/qtree/
 
 https://www.npmjs.com/package/js-quadtree
 
-enough
+enoughdid
