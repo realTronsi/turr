@@ -13,6 +13,8 @@ future security patches: limit incoming packet sizes
 
 /* FOR TURR.IO Remember to rename client app.js and append version number to enforce cache clearing such as app?v1.js
 
+also remember to renable cors prevention
+
 const fs = require('fs');
 const https = require('https')
 const httpsOptions = {
@@ -37,7 +39,9 @@ const wss = new WebSocket.Server({
 	noServer: true
 });
 
-const server = app.listen(3000);
+const PORT = process.env.PORT || 3000;
+
+const server = app.listen(PORT);
 
 let lastTime = Date.now();
 
@@ -112,10 +116,10 @@ wss.on('connection', (ws, req) => {
 
 	//console.log(req.headers.origin);
 
-	if (req.headers.origin != "https://turrio.realtronsi.repl.co" && req.headers.origin != "https://4adfe54e-0dc8-4394-90b7-5a8558b05f14.id.repl.co" && req.headers.origin != "https://turr.io") {
+	//if (req.headers.origin != "https://turrio.realtronsi.repl.co" && req.headers.origin != "https://4adfe54e-0dc8-4394-90b7-5a8558b05f14.id.repl.co" && req.headers.origin != "https://turr.io") {
 		// send CORS error message
-		ws.close();
-	}
+	//	ws.close();
+	//}
 
 
 	rateLimit(ws);

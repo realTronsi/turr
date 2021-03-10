@@ -40,6 +40,8 @@ export function Update(gameData, delta, gameMessages, interpTime) {
 			player.middleY = lerp(player.middleY, player.serverY, delta / 1000 * serverTick)
 
 			player.redFlash += (-0.1 - player.redFlash) / 20;
+      player.poison += (-0.1 - player.poison) / 30;
+      
 			if (player.chatDeletion === true) {
 				player.chatOpacity -= 0.08;
 				if (player.chatOpacity < 0) {
@@ -66,6 +68,7 @@ export function Update(gameData, delta, gameMessages, interpTime) {
 			}
 
 			player.redFlash += (-0.1 - player.redFlash) / 20;
+			player.poison += (-0.1 - player.poison) / 30;
 
 			if (player.chatDeletion === true) {
 				player.chatOpacity -= 0.08;

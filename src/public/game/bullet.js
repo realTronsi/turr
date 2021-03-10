@@ -8,7 +8,9 @@ let numToType = {
   "6": "plasma",
   "7": "electricity",
   "8": "cannonball",
-  "9": "beam"
+  "9": "beam",
+  "10": "poison",
+  "11": "air"
 }
 export class Bullet{
   constructor(gameData){

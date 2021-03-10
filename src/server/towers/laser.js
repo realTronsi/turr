@@ -28,6 +28,7 @@ function laserTower(arena, tower, delta) {
 				}
 			}
 			tower.changed["d"] = true;
+      tower.dir = tower.dir % (Math.PI * 2)
 		}
 		tower.hasTarget = arena.players[nearestPlayerId];
 	} else {
@@ -56,6 +57,7 @@ function laserTower(arena, tower, delta) {
 					}
 					tower.changed["d"] = true;
 				}
+        tower.dir = tower.dir % (Math.PI * 2);
 			}
 			tower.hasTarget = arena.towers[nearestTowerId];
 		} else {

@@ -32,6 +32,7 @@ function beamBullet(arena, bullet, delta, b) {
 		}
 	}
 
+
 	if (arena.towers[bullet.tower.id] == undefined || arena.towers[bullet.tower.id].hasTarget == null) {
 		//Send Packet to Everyone
 		for (let player of bullet.seenBy) {

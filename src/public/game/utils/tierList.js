@@ -31,7 +31,8 @@ export const ElementTiers = {
     tier: 2,
     upgrades: [
       {color: "#4ec4cc", name: "ice"},
-      {color: "#bdbd44", name: "electricity"}
+      {color: "#bdbd44", name: "electricity"},
+      {color: "#888888", name: "air"},
     ],
     towers: ["farm", "basic", "heal", "streamer", "drown"],
     fov: 1,
@@ -44,7 +45,8 @@ export const ElementTiers = {
     tier: 2,
     upgrades: [
       {color: "#632305", name: "rock"},
-      {color: "#43464b", name: "metal"}
+      {color: "#43464b", name: "metal"},
+      {color: "#20d64b", name: "toxin"}
     ],
     towers: ["farm", "basic", "heal", "splinter", "observatory"],
     fov: 0.9,
@@ -122,6 +124,26 @@ export const ElementTiers = {
 		maxHP: 90,
     maxEnergy: 110,
 		fov: 1.2,
-  }
+  },
+  toxin: {
+    tier: 3,
+    upgrades: [],
+    towers: ["farm", "basic", "heal", "splinter", "observatory", "toxicator"],
+    speed: 9.6,
+    attack: 0.9,
+    maxHP: 125,
+    maxEnergy: 100,
+    fov: 1
+  },
+  air: {
+    tier: 3,
+    upgrades: [],
+    towers: ["farm", "basic", "heal", "streamer", "drown", "blower"],
+    speed: 11.5,
+    attack: 0.95,
+    maxHP: 95,
+    fov: 0.85,
+    maxEnergy: 100
+  },
 }
 export const TierXP = [0, 1000, 3000, 8000, 20000, Infinity]

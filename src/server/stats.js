@@ -1,4 +1,4 @@
-const Tiers = [3000, 15000, 50000, 150000, 1e69];
+const Tiers = [3000, 15000, 50000, 150000, Infinity];
 
 /*
 Everyone speed nerf
@@ -37,7 +37,7 @@ const ElementStats = {
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "streamer", "drown"],
-		upgrades: ["ice", "electricity"],
+		upgrades: ["ice", "electricity", "air"],
     maxEnergy: 100
   },
   earth: {
@@ -47,7 +47,7 @@ const ElementStats = {
     friction: 0.5,
     fov: 0.9,
     towers: ["farm", "basic", "heal", "splinter", "observatory"],
-    upgrades: ["rock", "metal"],
+    upgrades: ["rock", "metal", "toxin"],
     maxEnergy: 100
   },
 	magma: {
@@ -115,7 +115,27 @@ const ElementStats = {
 		fov: 1.2,
 		towers: ["farm", "basic", "heal", "bomb", "propel", "laser"],
 		maxEnergy: 110
-	}
+	},
+  toxin: {
+    speed: 9.6,
+    attack: 0.9,
+    defense: 125,
+    friction: 0.5,
+    fov: 1,
+    towers: ["farm", "basic", "heal", "splinter", "observatory", "toxicator"],
+    upgrades: [],
+    maxEnergy: 100
+  },
+  air: {
+    speed: 11.5,
+    attack: 0.95,
+    defense: 95,
+    friction: 0.5,
+    fov: 0.85,
+    towers: ["farm", "basic", "heal", "streamer", "drown", "blower"],
+		upgrades: [],
+    maxEnergy: 100
+  },
 }
 const TowerStats = {
   farm: {
@@ -231,7 +251,7 @@ const TowerStats = {
     energy: 60,
     decay: 7,
     size: 60,
-    effect: 0.2
+    effect: 0.66
   },
   volcano: {
     hp: 300,
@@ -341,7 +361,7 @@ const TowerStats = {
 			damage: 8,
 			size: 6,
 			speed: 750,
-      hp: 1.5,
+      hp: 1.3,
       decay: 1,
 			growSpeed: 15/1000,
 			damageGrow: 4/1000,
@@ -380,6 +400,41 @@ const TowerStats = {
 			size: 10, // width
 			start: {},
 			end: {}
+		}
+	},
+  toxicator: {
+    hp: 300,
+    energy: 30,
+    decay: 7, 
+    size: 30, 
+    range: 700,
+    reload: 1000,
+    bullet: {
+      type: "poison",
+      hp: 5,
+      decay: 8,
+      speed: 800,
+      damage: 0, 
+      size: 18,
+      effect: 8,
+      duration: 3000
+    }
+  },
+	blower: {
+		hp: 100,
+		energy: 20,
+		decay: 7,
+		size: 50,
+		range: 700,
+    reload: 1000,
+		bullet: {
+			type: "air",
+			damage: 0,
+			size: 10,
+			speed: 650,
+      hp: 1.5,
+      decay: 1.2,
+      knockback: 4
 		}
 	}
 }

@@ -1,5 +1,4 @@
 const isFirefox = typeof InstallTrigger !== 'undefined';
-console.log(isFirefox)
 
 
 function createImage(svg) {
@@ -49,7 +48,9 @@ const TowerDescriptions = {
 	ionizer: [`Shoots powerful plasma`, `with infinite pierce`],
 	"tesla coil": [`Shoots electricity which`, `can chain to others`],
 	"cannon": [`Extra dmg to towers`, `and knockbacks players`],
-  "laser": [`Slowly turns & shoots`, `a continous laser`]
+  "laser": [`Slowly turns & shoots`, `a continous laser`],
+  "toxicator": [`Poisons enemies which`, `deals damage over time`],
+  "blower": [`Shoots air that blows`, `enemies back`]
 }
 
 const TeamColors = [
@@ -76,7 +77,9 @@ const ElementSprites = {
 	plasma: createImage("../../assets/elements/element_plasma.svg"),
 	electricity: createImage("../../assets/elements/element_electricity.svg"),
 	metal: createImage("../../assets/elements/element_metal.svg"),
-  light: createImage("../../assets/elements/element_light.svg")
+  light: createImage("../../assets/elements/element_light.svg"),
+  toxin: createImage("../../assets/elements/element_toxin.svg"),
+  air: createImage("../../assets/elements/element_air.svg"),
 }
 
 function capFirst(string) {
@@ -115,6 +118,15 @@ const BulletSprites = {
 		yellow: createImage("../../assets/bullets/cannonball_yellow.svg"),
 		red: createImage("../../assets/bullets/cannonball_red.svg")
 	},
+  poison: {
+		yellow: createImage("../../assets/bullets/basic_yellow.svg"),
+		red: createImage("../../assets/bullets/basic_red.svg")
+	},
+  air: {
+		yellow: createImage("../../assets/bullets/basic_yellow.svg"),
+		red: createImage("../../assets/bullets/basic_red.svg")
+	},
+  
 }
 const TowerSprites = {
 	farm: {
@@ -181,7 +193,14 @@ const TowerSprites = {
 		yellow: createImage("../../assets/towers/tower_laser_yellow.svg"),
 		red: createImage("../../assets/towers/tower_laser_red.svg")
 	},
-
+  toxicator: {
+		yellow: createImage("../../assets/towers/tower_toxicator_yellow.svg"),
+		red: createImage("../../assets/towers/tower_toxicator_red.svg")
+	},
+  blower: {
+		yellow: createImage("../../assets/towers/tower_basic_yellow.svg"),
+		red: createImage("../../assets/towers/tower_basic_red.svg")
+	},
 
 }
 const IconSprites = {
@@ -548,6 +567,16 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 					ctx.fill();
 					ctx.globalAlpha = 1;
 				}
+        //Poison
+				if (player.poison > 0) {
+					ctx.globalAlpha = player.poison / 1.4;
+					ctx.fillStyle = "#d20aff"
+					ctx.beginPath();
+					ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+					ctx.fill();
+					ctx.globalAlpha = 1;
+				}
+        
 
 				ctx.globalAlpha = player.chatOpacity;
 				ctx.font = "25px Arial";
@@ -670,6 +699,19 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 		ctx.moveTo(450, 740);
 		ctx.lineTo(800 - ((1 - (gameData.you.hp / gameData.you.maxHP)) * 350), 740);
 		ctx.stroke();
+    
+    if (gameData.you.poison > 0){
+    ctx.beginPath()
+		ctx.lineWidth = 20;
+    ctx.globalAlpha = gameData.you.poison / 1.3;
+		ctx.strokeStyle = "#d447ff"
+		ctx.moveTo(450, 740);
+		ctx.lineTo(800 - ((1 - (gameData.you.hp / gameData.you.maxHP)) * 350), 740);
+		ctx.stroke();
+    ctx.globalAlpha = 1;
+    }
+    
+    
 
 		ctx.drawImage(IconSprites.health, 360, 690, 95, 95);
 

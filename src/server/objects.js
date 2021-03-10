@@ -45,7 +45,7 @@ class Bullet {
 
 		this.stats.damage = stats.damage * this.parentStats.attack;
 
-
+		this.basestats = this.stats;
 	}
 	getInitPack() {
 		let typeToNum = {
@@ -58,7 +58,9 @@ class Bullet {
 			"plasma": 6,
 			"electricity": 7,
 			"cannonball": 8,
-      "beam": 9
+      "beam": 9,
+      "poison": 10,
+      "air": 11
 		}
 		let pack = {
 			i: this.id,
@@ -307,6 +309,9 @@ class Client {
 			if (i == "fov") {
 				pack.fov = this.fov;
 			}
+      if (i == "poison"){
+        pack.pois = 0;
+      }
 		}
 		if (this.isDamaged) {
 			pack.isd = true;
@@ -360,13 +365,17 @@ class Client {
 
 		// reset stats
 
-		this.xp = Math.pow(this.xp, 0.95);
+		this.xp = Math.pow(this.xp, 0.92);
 		if (this.xp > 100000) {
 			this.xp = 100000;
 		}
 		this.stats = ElementStats["basic"];
 		this.fov = ElementStats["basic"].fov;
 		this.inFov = [];
+    if (this.effects.poison != null){
+      this.effects.poison.duration = 0;
+      this.effects.poison.reload = Infinity;
+    }
 
 		this.yv = 0;
 		this.xv = 0;

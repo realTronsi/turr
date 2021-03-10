@@ -8,7 +8,9 @@ const etToStr = {
   "6": "plasma",
   "7": "electricity",
   "8": "metal",
-  "9": "light"
+  "9": "light",
+  "10": "toxin",
+  "11": "air"
 }
 const strToEt = {
 	"fire": 0,
@@ -20,7 +22,9 @@ const strToEt = {
   "plasma": 6,
   "electricity": 7,
   "metal": 8,
-  "light": 9
+  "light": 9,
+  "toxin": 10,
+  "air": 11
 }
 
 module.exports = { etToStr, strToEt }

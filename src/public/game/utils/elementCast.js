@@ -8,7 +8,9 @@ export const etToStr = {
   "6": "plasma",
   "7": "electricity",
   "8": "metal",
-  "9": "light"
+  "9": "light",
+  "10": "toxin",
+  "11": "air"
 }
 export const strToEt = {
 	"fire": 0,
@@ -20,5 +22,7 @@ export const strToEt = {
   "plasma": 6,
   "electricity": 7,
   "metal": 8,
-  "light": 9
+  "light": 9,
+  "toxin": 10,
+  "air": 11
 }

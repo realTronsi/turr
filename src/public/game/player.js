@@ -84,6 +84,7 @@ export class Player{
       ctx.font = "25px Arial";
       this.shortName = fitText(ctx, this.name, 160);
       this.redFlash = 0;
+      this.poison = 0;
     }
   }
   updatePack(updatePack){
@@ -126,6 +127,9 @@ export class Player{
       this.middleX = Infinity;
       this.middleY = Infinity;
       this.spawnProt = 0;
+    }
+    if (updatePack.pois == 0){
+      this.poison = 1;
     }
     
   }

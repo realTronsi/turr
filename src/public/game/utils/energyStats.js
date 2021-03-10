@@ -50,5 +50,13 @@ export const TowerStats = {
   },
   laser: {
     energy: 55
+  },
+  toxicator: {
+    energy: 30,
+    size: 30
+  },
+  blower: {
+    energy: 20,
+    size: 50
   }
 }

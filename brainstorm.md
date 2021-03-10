@@ -1,12 +1,101 @@
-(0, 0) -> (1, 0)
-(0, 0) -> (0.5, 0.5)
-(0, 0) -> (0, 1)
+> Normal Enemies
 
-next should be (0, 0) -> (-0.5, 0.5)
+Soldier
+Corporal
+Sergeant
+Commander
+General
 
-but with your dumbass retarded approach you get
+> Bosses
 
-(-0.5, 1.5)
+Boss
+Major Boss
+Chief Boss
+
+--
+note -> these hp values are just for fun. Based on how OP they are we can adjust them later (for example, if 30k HP turns out to be nothing we can buff that, or if it turns out to be unkillable we can nerf that)
+
+
+
+- Soldiers
+People Needed to Beat: 1 (blindfolded and using feet)
+
+
+Types: Tank, Basic, Healer
+Tank -> 350 hp, it doens't do anything - all damage is from ram
+Basic -> 120 hp, it's basically just a moving basic tower
+Healer -> 180 hp, it rams but it also heals other enemies within range of them, which makes this super unique
+
+- Corporals
+People Needed to Beat: 1 (with eyes closed)
+
+
+Types: Fire, Water, earth
+
+Fire -> 300 hp, just a moving bomb tower
+Water -> 350 hp, just a moving streamer tower
+Earth -> 380 hp, just a moving splinter tower
+
+
+- Sergeants
+People Needed to Beat: 1 (very low skill)
+
+
+Types: Fire, Water, Earth
+
+Fire -> 600 hp. It shoots bombs towards players, then in a direction 180 degrees away from its movement, it shoots 3 bullets (in around a 30 degree angle from each other) in rapid succession every 3 seconds, while boosting forwards at high speed.
+
+Water -> 650 hp. It has a main streamer turret with 2 smaller turrets 180 degrees away from it which, every 5 seconds, shoot and turn into drown towers after 1 second
+
+Earth -> 700 hp. Shoots a splinter bullet as well as 2 basic bullets as its main attack. Every few seconds it will shield itself and be invulnerable to attacks for 1 second before reverting. During the time, ram damage is greatly increased
+
+
+- Commanders
+People Needed to Beat: 1 (medium skill)
+
+
+Uh I don't know how to describe them anymore. but, fire = 900 hp, water = 1010 hp, earth = 1130 hp
+
+- Generals
+People Needed to Beat: 1 (high skill)
+
+
+Ok at this point there's like 15 turrets per enemy in my plan so there is absolutely no way to describe it that makes sense...
+
+Fire -> 1700 hp, water -> 1900 hp, earth = 2200 hp
+
+- Boss
+People Needed to Beat: 1 (super high skill), or 2 (medium skill)
+
+
+Yeah each has 25 turrets and some are stacked, these will also spawn sergeants once in a while (and even commanders rarely)
+
+Fire -> 10000 hp, Water -> 11500 hp, Earth = 12000 hp
+
+- Major Boss
+People Needed to Beat: 2-3 (super high skill), or 5 (medium skill), or 15 noobs
+
+... each one has about ~40 turrets and the design takes up literally my entire paper, how do I describe smhhhhh
+
+Fire -> 30000 hp, Water -> 35000 hp, Earth - 40000 hp
+
+It spawns seargeants and sometimes commanders
+
+
+- Chief Boss
+People Needed to Beat: 7 (very very high skill), 15 (medium skill), or 30 noobs
+
+So basically this will be an impossible boss to defeat without constant coordination and strategy. It will only appear in the LAST wave of both boss fight and siege mode. 
+
+I haven't planned this yet, but I'm thinking only 1 type. It will combine fire water and earth turrets into one crazy op boss. Don't worry about server lag, remmeber when bots were there that was like 20 people spamming turrets and it never lagged. This will probably generate the same amount of bullets but in a smaller area (but cuz quadtree it will lag almost the same amount). It will probably have at least 70 turrets though... but some of them will fire very rarely (ie, a 100 size bullet that instakills everything with infinite pierce but reload is like 8s)
+
+It will spawn Generals and very rarely Bosses every once in a while
+
+The HP will be around 100,000.
+Yes, 100k.
+It's the last wave what do you expect.
+
+
 
 
 
@@ -82,6 +171,7 @@ Water Element -> #0b58a1
 Plasma Element -> #a82ca2
 Electricity Element -> #b2bd22
 Light Element -> #fffca6
+Poison Element -> #4ced37
 
 
 # UPGRADES
