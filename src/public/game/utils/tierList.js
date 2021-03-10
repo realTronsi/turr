@@ -130,7 +130,7 @@ export const ElementTiers = {
     upgrades: [],
     towers: ["farm", "basic", "heal", "splinter", "observatory", "toxicator"],
     speed: 9.6,
-    attack: 0.9,
+    attack: 1.1,
     maxHP: 125,
     maxEnergy: 100,
     fov: 1

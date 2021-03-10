@@ -1,3 +1,16 @@
+test server - https://a6a0083b-ff6a-4513-8993.herokuapp.com/
+
+also instead of closing websocket if cors is triggered, send a mg to their websocket saying pls turn off your vpn or proxy as the error message that way ppl odnt get triggered since vn and proxy can hide ur origin which could trigger cors. Otherwise we can also force a recaptcha as a double safety precaution
+
+btw I have baalcned change ideas that we need to add:
+
+- toxin should get more attack, if u look at the total stats (not just adding but weighting them, like defense / 100, fov squared, etc.) then toxin's total stats is pretty bad, it should be more like a slightly better water, so like 125 defense and 1.1 attack or smth like that since its speed is still pretty low at only 9.6
+
+- laser tower needs rework, it doesn't fit light's aggro playstyle since its just kinda slow and short ranged, and its not good on defnese either bc of its low hp. Instead we should make laser tower spin rlly fast but do less dmg, so it kinda forces ppl to run away from it , that way its a lot better for defense or even offense.
+
+- we odnt work on bots yet, we still need to rework the respawn screen os that it fades in such that ads can load. That way income will basically like double and also that way we can make respawn a button as well that way we can incoroporate rewarded video ads as well
+
+
 > Normal Enemies
 
 Soldier

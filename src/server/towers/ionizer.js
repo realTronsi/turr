@@ -38,7 +38,10 @@ function basicTower(arena, tower, delta) {
 			//Shoot Bullet
 			const bulletId = arena.createBulletId();
 			//id, parentId, x, y, dir, stats
-			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet, tower)
+			const bullet = new Bullet(bulletId, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet, tower);
+			bullet.x = tower.x + (Math.cos(tower.dir) * 70);
+			bullet.y = tower.y + (Math.sin(tower.dir) * 70);
+			arena.bullets[bulletId] = bullet;
 		}
 	}
 }

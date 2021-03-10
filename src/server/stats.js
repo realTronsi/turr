@@ -118,7 +118,7 @@ const ElementStats = {
 	},
   toxin: {
     speed: 9.6,
-    attack: 0.9,
+    attack: 1.1,
     defense: 125,
     friction: 0.5,
     fov: 1,
@@ -392,11 +392,11 @@ const TowerStats = {
 		decay: 2,
 		size: 40,
 		range: 500,
-		spinSpeed: 1.2/1000,
+		spinSpeed: 2/1000,
 		beam: null, // beam itself, only one bullet at a time
 		bullet: {
 			type: "beam",
-			damage: 3,
+			damage: 1,
 			size: 10, // width
 			start: {},
 			end: {}
@@ -416,7 +416,7 @@ const TowerStats = {
       speed: 800,
       damage: 0, 
       size: 18,
-      effect: 8,
+      effect: 7,
       duration: 3000
     }
   },
