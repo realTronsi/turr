@@ -422,7 +422,7 @@ const TowerStats = {
   },
 	blower: {
 		hp: 150,
-		energy: 25,
+		energy: 20,
 		decay: 7,
 		size: 60,
 		range: 700,
