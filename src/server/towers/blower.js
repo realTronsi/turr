@@ -16,20 +16,7 @@ function blowerTower(arena, tower, delta) {
 		}
 		tower.hasTarget = true;
 	} else {
-		// there is no player in range
-		let nearestTowerId = getNearestTower(arena, tower);
-		if (nearestTowerId != null) {
-			let nearestTower = arena.towers[nearestTowerId];
-			let lastDir = tower.dir;
-			tower.dir = Math.atan2(nearestTower.y - tower.y, nearestTower.x - tower.x);
-			if (lastDir != tower.dir) {
-				tower.changed["d"] = true;
-			}
-			tower.hasTarget = true;
-		}
-		else {
-			tower.hasTarget = false;
-		}
+		tower.hasTarget = false;
 	}
 
 	if (tower.reload < 0) {

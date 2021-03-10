@@ -15,6 +15,8 @@ function toxicatorTower(arena, tower, delta) {
 			tower.changed["d"] = true;
 		}
 		tower.hasTarget = true;
+	} else {
+		tower.hasTarget = false;
 	}
 
 	if (tower.reload < 0) {

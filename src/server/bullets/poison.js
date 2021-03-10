@@ -37,7 +37,11 @@ function poisonBullet(arena, bullet, delta, b) {
           arena.playerqt.remove(deleteQtPlayer[0]);
         }
       }
-    }
+    } else {
+			if (arena.towers[collider.id] != undefined) {
+				bullet.stats.hp = 0;
+			}
+		}
   }
 
   if (bullet.x < bullet.stats.size || bullet.x > arena.width - bullet.stats.size || bullet.y < bullet.stats.size || bullet.y > arena.height - bullet.stats.size) {

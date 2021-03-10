@@ -123,7 +123,7 @@ const BulletSprites = {
 		red: createImage("../../assets/bullets/poison_red.svg")
 	},
   air: {
-		yellow: createImage("../../assets/bullets/basic_yellow.svg"),
+		yellow: createImage("../../assets/bullets/air_yellow.svg"),
 		red: createImage("../../assets/bullets/basic_red.svg")
 	},
   
@@ -198,8 +198,8 @@ const TowerSprites = {
 		red: createImage("../../assets/towers/tower_toxicator_red.svg")
 	},
   blower: {
-		yellow: createImage("../../assets/towers/tower_basic_yellow.svg"),
-		red: createImage("../../assets/towers/tower_basic_red.svg")
+		yellow: createImage("../../assets/towers/tower_blower_yellow.svg"),
+		red: createImage("../../assets/towers/tower_blower_red.svg")
 	},
 
 }

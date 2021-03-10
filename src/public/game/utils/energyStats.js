@@ -57,6 +57,6 @@ export const TowerStats = {
   },
   blower: {
     energy: 20,
-    size: 50
+    size: 75
   }
 }

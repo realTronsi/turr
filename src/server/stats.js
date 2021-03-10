@@ -72,10 +72,10 @@ const ElementStats = {
 	},
   rock: {
     speed: 8.5,
-    attack: 0.9,
+    attack: 0.85,
     defense: 145,
     friction: 0.5,
-    fov: 0.9,
+    fov: 0.85,
     towers: ["farm", "basic", "heal", "splinter", "observatory", "slingshot"],
     maxEnergy: 100
   },
@@ -99,11 +99,11 @@ const ElementStats = {
     maxEnergy: 100
   },
   metal: {
-    speed: 8,
+    speed: 7.5,
     attack: 1,
     defense: 160,
     friction: 0.5,
-    fov: 0.9,
+    fov: 0.95,
     towers: ["farm", "basic", "heal", "splinter", "observatory", "cannon"],
     maxEnergy: 100
   },
@@ -117,9 +117,9 @@ const ElementStats = {
 		maxEnergy: 110
 	},
   toxin: {
-    speed: 9.6,
+    speed: 9.5,
     attack: 1.1,
-    defense: 125,
+    defense: 120,
     friction: 0.5,
     fov: 1,
     towers: ["farm", "basic", "heal", "splinter", "observatory", "toxicator"],
@@ -424,7 +424,7 @@ const TowerStats = {
 		hp: 100,
 		energy: 20,
 		decay: 7,
-		size: 50,
+		size: 75,
 		range: 700,
     reload: 1000,
 		bullet: {
