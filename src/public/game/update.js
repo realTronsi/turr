@@ -11,6 +11,9 @@ export function Update(gameData, delta, gameMessages, interpTime) {
 
 	for (let i of Object.keys(gameData.bullets)) {
 		const bullet = gameData.bullets[i];
+    if (bullet.type == "air"){
+      bullet.rotate += delta/1000;
+    }
 		if (bullet.die == true) {
 			if (bullet.type == "electricity") {
 				bullet.opacity -= 0.07;

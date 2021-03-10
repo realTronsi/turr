@@ -124,7 +124,7 @@ const BulletSprites = {
 	},
   air: {
 		yellow: createImage("../../assets/bullets/air_yellow.svg"),
-		red: createImage("../../assets/bullets/basic_red.svg")
+		red: createImage("../../assets/bullets/air_red.svg")
 	},
   
 }

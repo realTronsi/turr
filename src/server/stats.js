@@ -421,20 +421,20 @@ const TowerStats = {
     }
   },
 	blower: {
-		hp: 100,
-		energy: 20,
+		hp: 150,
+		energy: 25,
 		decay: 7,
-		size: 75,
+		size: 60,
 		range: 700,
     reload: 1000,
 		bullet: {
 			type: "air",
 			damage: 0,
-			size: 10,
+			size: 20,
 			speed: 650,
       hp: 1.5,
       decay: 1.2,
-      knockback: 4
+      knockback: 3
 		}
 	}
 }

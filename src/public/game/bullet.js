@@ -30,7 +30,7 @@ export class Bullet{
     this.baseSize = this.size;
 		this.die = false;
     this.team = gameData.tm;
-    if (this.type == "ice" || this.type == "rock"){
+    if (this.type == "ice" || this.type == "rock" || this.type == "air"){
       this.rotate = Math.random() * 6.28;
     }
     else{

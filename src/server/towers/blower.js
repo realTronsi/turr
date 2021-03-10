@@ -27,18 +27,10 @@ function blowerTower(arena, tower, delta) {
 			//id, parentId, x, y, dir, stats
 			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet, tower)
       bulletId = arena.createBulletId();
-      arena.bullets[bulletId] = new Bullet(bulletId, tower.x + Math.cos(tower.dir+Math.PI/2) * 25, tower.y + Math.sin(tower.dir + Math.PI/2) * 25, tower.dir, TowerStats[tower.type].bullet, tower)
+      arena.bullets[bulletId] = new Bullet(bulletId, tower.x + Math.cos(tower.dir + Math.PI/2) * 30, tower.y + Math.sin(tower.dir + Math.PI/2) * 30, tower.dir - 0.5236, TowerStats[tower.type].bullet, tower)
 
       bulletId = arena.createBulletId();
-      arena.bullets[bulletId] = new Bullet(bulletId, tower.x + Math.cos(tower.dir+Math.PI/2) * 50, tower.y + Math.sin(tower.dir + Math.PI/2) * 50, tower.dir, TowerStats[tower.type].bullet, tower)
-
-      bulletId = arena.createBulletId();
-      arena.bullets[bulletId] = new Bullet(bulletId, tower.x - Math.cos(tower.dir+Math.PI/2) * 25, tower.y - Math.sin(tower.dir + Math.PI/2) * 25, tower.dir, TowerStats[tower.type].bullet, tower)
-
-      bulletId = arena.createBulletId();
-      arena.bullets[bulletId] = new Bullet(bulletId, tower.x - Math.cos(tower.dir+Math.PI/2) * 50, tower.y - Math.sin(tower.dir + Math.PI/2) * 50, tower.dir, TowerStats[tower.type].bullet, tower)
-
-      
+      arena.bullets[bulletId] = new Bullet(bulletId, tower.x - Math.cos(tower.dir + Math.PI/2) * 30, tower.y - Math.sin(tower.dir + Math.PI/2) * 30, tower.dir + 0.5236, TowerStats[tower.type].bullet, tower)
 		}
 	}
 }
