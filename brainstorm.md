@@ -1,5 +1,15 @@
 test server - https://a6a0083b-ff6a-4513-8993.herokuapp.com/
 
+
+
+
+Ok nerd, after you make the art remmeber to link in render.js, nobody cares about firefox so just push it for now and I'll add width and height later
+
+Add enemy objects and stuff to bullet collide code and beam collide stuff, tell me how it works and I"ll do client when im up XD
+
+i only have 11:30 am to 12:45 pm tmr soo yeah (maybe some time in the night though!)
+
+
 also instead of closing websocket if cors is triggered, send a mg to their websocket saying pls turn off your vpn or proxy as the error message that way ppl odnt get triggered since vn and proxy can hide ur origin which could trigger cors. Otherwise we can also force a recaptcha as a double safety precaution
 
 btw I have baalcned change ideas that we need to add:

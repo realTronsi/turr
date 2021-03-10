@@ -52,7 +52,7 @@ function getBeamCollider(arena, bullet){
 		}, {
 			x: bullet.stats.end.x,
 			y: bullet.stats.end.y
-		}) < bullet.stats.width + element2.width/2 && bullet.parentId != element2.parentId)
+		}) < bullet.stats.size + element2.width/2 && bullet.parentId != element2.parentId)
 	});
 
 	collisions = collisions.concat(towerCollisions);

@@ -392,11 +392,11 @@ const TowerStats = {
 		decay: 2,
 		size: 40,
 		range: 500,
-		spinSpeed: 2/1000,
+		spinSpeed: 1.8/1000,
 		beam: null, // beam itself, only one bullet at a time
 		bullet: {
 			type: "beam",
-			damage: 1,
+			damage: 0.6,
 			size: 10, // width
 			start: {},
 			end: {}
