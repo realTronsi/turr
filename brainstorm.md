@@ -1,9 +1,20 @@
 test server - https://a6a0083b-ff6a-4513-8993.herokuapp.com/
 
+basic  electricity metal 
 
+FFA Tier List
 
+haha0201
+S - air, plasma
+A - magma, light, toxin, water, fire
+B - ice, earth, rock
+C - electricity, metal, basic
 
-
+Tronsi
+S - plasma
+A - air, toxin, fire, metal
+B - light, rock, water, magma, earth, basic
+C - ice, electricity
 
 
 also instead of closing websocket if cors is triggered, send a mg to their websocket saying pls turn off your vpn or proxy as the error message that way ppl odnt get triggered since vn and proxy can hide ur origin which could trigger cors. Otherwise we can also force a recaptcha as a double safety precaution

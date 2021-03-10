@@ -4,7 +4,6 @@ function lerp(start, end, time) {
 }
 function rotateInterp(start, end, time) {
   let shortest_angle=((((end - start) % (Math.PI*2)) + Math.PI*3) % (Math.PI * 2)) - Math.PI;
-  console.log(end, shortest_angle)
   return start + (shortest_angle * time) % (Math.PI * 2);
 }
 export function Update(gameData, delta, gameMessages, interpTime) {

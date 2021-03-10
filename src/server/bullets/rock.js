@@ -10,7 +10,7 @@ function rockBullet(arena, bullet, delta, b) {
 	bullet.stats.hp -= bullet.stats.decay * delta;
   bullet.xv += (0 - bullet.xv)/10 * delta/70;
   bullet.yv += (0 - bullet.yv)/10 * delta/70;
-  bullet.stats.damage += (-bullet.stats.damage)/10 * delta/70;
+  bullet.stats.damage += (-bullet.stats.damage)/15 * delta/70;
 
 	let collides = getBulletCollider(arena, bullet);
 	for (let collider of collides) {

@@ -416,8 +416,8 @@ const TowerStats = {
       speed: 800,
       damage: 0, 
       size: 18,
-      effect: 7,
-      duration: 3000
+      effect: 5,
+      duration: 5000
     }
   },
 	blower: {

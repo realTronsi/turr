@@ -7,8 +7,9 @@ function laserTower(arena, tower, delta) {
 	let nearestPlayerId = getNearestPlayer(arena, tower);
 	if (nearestPlayerId != null) {
 		let nearestPlayer = arena.players[nearestPlayerId];
-		let lastDir = (tower.dir * 180 / Math.PI) % 360;
-		let targetDir = (Math.atan2(nearestPlayer.y - tower.y, nearestPlayer.x - tower.x) * 180 / Math.PI) % 360;
+		let lastDir = (tower.dir * 180 / Math.PI + 360) % 360;
+		let targetDir = (Math.atan2(nearestPlayer.y - tower.y, nearestPlayer.x - tower.x) * 180 / Math.PI + 360) % 360; 
+
 
 		let mag = Math.min(Math.max((tower.range - dist(tower.x, tower.y, nearestPlayer.x, nearestPlayer.y))/tower.range, 0.4), 1);
 
@@ -87,6 +88,7 @@ function laserTower(arena, tower, delta) {
 			arena.bullets[bulletId] = bullet;
 		}
 	}
+
 }
 
 module.exports = laserTower
