@@ -59,6 +59,7 @@ export function initGame(data, client) {
   let leaderboard = [];
   let gameMessages = [];
   let deathScreenOpacity = 0;
+  let respawnTime = 0;
 
   //Create New Players from Data Sent
   for (let playerData of data.pd) {
@@ -79,6 +80,18 @@ export function initGame(data, client) {
   })
   canvas.addEventListener("mousedown", function(e) {
     if (mouseLock === false) {
+      if (gameData.you.dead == true){
+        if (mouse.x > 690 && mouse.x < 690 + 220 && mouse.y > 695 && mouse.y < 695 + 60 && respawnTime >= 5) {
+          //Respawn
+          sendPacket(client.ws, {
+            t: "res"
+          })
+        }
+        if (mouse.x > 690 && mouse.y > 765 && mouse.x < 690 + 220 && mouse.y < 765 + 40){
+          //Reward Ad
+					//show_reward_ad();
+        }
+      }
       //Place Tower  
       if (held != false && canPlace == true && !chatOpened) {
         const payLoad = {
@@ -175,14 +188,7 @@ export function initGame(data, client) {
           }
         }
       }
-      else {
-        if (e.key === " ") {
-          //Respawn
-          sendPacket(client.ws, {
-            t: "res"
-          })
-        }
-      }
+
 
       if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "w", "a", "s", "d"].includes(e.key) && gameData.you.dead != true && !chatOpened) {
         sendPacket(client.ws, {
@@ -220,7 +226,9 @@ export function initGame(data, client) {
         break;
       }
       case "res": {
-        document.getElementById("adc2").style.display = "none";
+        document.getElementById("turrad3").style.display = "none";
+        document.getElementById("turrad4").style.display = "none";
+        
         aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_3'); });
         aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_4'); });
 
@@ -228,6 +236,7 @@ export function initGame(data, client) {
         gameData.you.xp = data.s;
         gameData.you.element = "basic";
         deathScreenOpacity = 0;
+        respawnTime = 0;
         gameData.you.fov = 1;
         gameData.you.toFov = 1;
         gameData.you.hp = 100;
@@ -332,7 +341,9 @@ export function initGame(data, client) {
       }
       case "yd": {
         //You noob imagine dying
-        document.getElementById("adc2").style.display = "flex";
+        document.getElementById("turrad3").style.display = "block";
+        document.getElementById("turrad4").style.display = "block";
+        
         aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_3'); });
         aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_4'); });
         gameData.you.dead = true;
@@ -340,6 +351,7 @@ export function initGame(data, client) {
         gameData.you.finalScore = data.s;
         held = false;
         deathScreenOpacity = 0;
+        respawnTime = 0;
         chatHolder.style.display = "none";
         chatBox.blur();
         chatBox.value = "";
@@ -420,10 +432,11 @@ export function initGame(data, client) {
     gameData.you.fov += (gameData.you.toFov - gameData.you.fov) / 20;
     if (gameData.you.dead == true) {
       deathScreenOpacity += (0.5 - deathScreenOpacity) / 20;
+      respawnTime += delta/1000;
     }
     interpTime -= delta;
 
-    Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages, deathScreenOpacity);
+    Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages, deathScreenOpacity, respawnTime);
     Update(gameData, delta, gameMessages, interpTime)
     requestAnimationFrame(() => {
       mainLoop(gameData);

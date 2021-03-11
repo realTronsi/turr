@@ -44,8 +44,16 @@ export function init_connection(){
 			initMenu(client);
 		});
 	}
-	ws.onclose = () => {
-		error("Disconnected from Server");
+	ws.onclose = (event) => {
+    if(event.code == 1003){
+      error("The server could not establish a secure connection. Please disable vpn and proxies and try again.");
+    }
+    else if (event.code == 1008){
+      error("You have been disconnected due to too many packets sent")
+    }
+    else{
+		  error("Disconnected from Server");
+    }
 	}
 	ws.onerror = err => {
 		error(err);

@@ -116,10 +116,10 @@ wss.on('connection', (ws, req) => {
 
 	//console.log(req.headers.origin);
 
-	//if (req.headers.origin != "https://turrio.realtronsi.repl.co" && req.headers.origin != "https://4adfe54e-0dc8-4394-90b7-5a8558b05f14.id.repl.co" && req.headers.origin != "https://turr.io") {
-		// send CORS error message
-	//	ws.close();
-	//}
+	if (req.headers.origin != "https://turrio.realtronsi.repl.co" && req.headers.origin != "https://4adfe54e-0dc8-4394-90b7-5a8558b05f14.id.repl.co" && req.headers.origin != "https://turr.io") {
+    // send CORS error message
+		ws.close(1003);
+	}
 
 
 	rateLimit(ws);
@@ -130,7 +130,7 @@ wss.on('connection', (ws, req) => {
 	let clientArena;
 
 	ws.on('limited', msg => {
-		ws.close();
+		ws.close(1008);
 	});
 
 	ws.on('message', msg => {

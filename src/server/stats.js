@@ -299,23 +299,23 @@ const TowerStats = {
 
   },
   slingshot: {
-    hp: 180,
-    energy: 45,
+    hp: 260,
+    energy: 40,
 		decay: 7,
     size: 50,
-		reload: 1700,
+		reload: 1500,
 		range: 900,
     bullet: {
       type: "rock",
-			damage: 40,
+			damage: 55,
 			size: 30,
-			speed: 1150,
+			speed: 1200,
       hp: 15,
       decay: 12
     }
   },
   cannon: {
-    hp: 300,
+    hp: 320,
     energy: 55,
 		decay: 7,
     size: 45,
@@ -323,12 +323,12 @@ const TowerStats = {
 		range: 650,
     bullet: {
       type: "cannonball",
-			damage: 22,
+			damage: 23,
 			size: 20,
 			speed: 1050,
       hp: 15,
       decay: 12,
-      multiplier: 5,
+      multiplier: 4,
       knockback: 28
     }
   },
@@ -370,14 +370,14 @@ const TowerStats = {
 	},
 	"tesla coil": {
 		hp: 150,
-    energy: 45,
+    energy: 40,
 		decay: 7,
     size: 40,
 		reload: 1900,
 		range: 300,
     bullet: {
       type: "electricity",
-			damage: 20,
+			damage: 35,
 			size: 0,
 			nodes: [],
 			chainSpeed: 150,

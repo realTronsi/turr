@@ -212,7 +212,7 @@ const IconSprites = {
 
 
 
-export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages, deathScreenOpacity) {
+export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages, deathScreenOpacity, respawnTime) {
 	ctx.fillStyle = "rgb(180, 180, 180)"
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1041,7 +1041,53 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 		ctx.fillText("Final score: " + gameData.you.finalScore, 800, 620);
 		ctx.fillStyle = "rgb(240, 240, 240)"
 		ctx.font = "50px Arial";
-		ctx.fillText("[ Space to Respawn ]", 800, 740)
+    if (respawnTime >= 5){
+
+      if (mouse.x > 690 && mouse.x < 690 + 220 && mouse.y > 695 && mouse.y < 695 + 60){
+        ctx.fillStyle = "rgb(20, 20, 20)"
+        ctx.fillRect(690, 695, 220, 60);
+        ctx.fillStyle = "rgb(240, 240, 240)"
+		    ctx.fillText("Respawn", 800, 740)
+      }
+      else{
+        ctx.fillStyle = "rgb(50, 50, 50)"
+        ctx.fillRect(690, 695, 220, 60);
+        ctx.fillStyle = "rgb(250, 250, 250)"
+		    ctx.fillText("Respawn", 800, 740)
+      }
+      
+
+    }
+    else{
+      ctx.fillText("You may respawn in "+Math.ceil(5 - respawnTime)+" seconds", 800, 740)
+    }
+
+    ctx.font = "20px Arial";
+
+
+    if (mouse.x > 690 && mouse.x < 690 + 220 && mouse.y > 695 + 70 && mouse.y < 695 + 40 + 70){
+      ctx.fillStyle = "rgb(50, 130, 50)"
+      ctx.fillRect(690, 695 + 70, 220, 40);
+      ctx.fillStyle = "rgb(240, 240, 240)"
+		  ctx.fillText("Coming Soon!", 800, 715 + 70 + 5)
+      /*
+      ctx.font = "15px Arial"
+      ctx.fillText("to Respawn with More Score", 800, 730 + 70)
+      */
+      
+    }
+    else{
+      ctx.fillStyle = "rgb(50, 160, 50)"
+      ctx.fillRect(690, 695 + 70, 220, 40);
+      ctx.fillStyle = "rgb(240, 240, 240)"
+		  ctx.fillText("Coming Soon!", 800, 715 + 70 + 5)
+      /*
+      ctx.font = "15px Arial"
+      ctx.fillText("to Respawn with More Score", 800, 730 + 70)
+      */
+    }
+
+      
 		ctx.globalAlpha = 1;
 	}
 

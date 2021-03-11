@@ -113,6 +113,7 @@ export const ElementTiers = {
     attack: 1,
     maxHP: 160,
     maxEnergy: 100,
+    fov: 0.95
   },
   light: {
     tier: 3,

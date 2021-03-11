@@ -1,5 +1,9 @@
 test server - https://a6a0083b-ff6a-4513-8993.herokuapp.com/
 
+once super energy added rewarded vid ads can give like + 20 super energy when spawn
+
+for bosses disable infinite pierce
+
 basic  electricity metal 
 
 FFA Tier List
@@ -15,6 +19,8 @@ S - plasma
 A - air, toxin, fire, metal
 B - light, rock, water, magma, earth, basic
 C - ice, electricity
+
+
 
 
 also instead of closing websocket if cors is triggered, send a mg to their websocket saying pls turn off your vpn or proxy as the error message that way ppl odnt get triggered since vn and proxy can hide ur origin which could trigger cors. Otherwise we can also force a recaptcha as a double safety precaution
@@ -420,5 +426,3 @@ https://www.npmjs.com/package/spatial-hashmap
 https://github.com/asaarinen/qtree/
 
 https://www.npmjs.com/package/js-quadtree
-
-enoughdid

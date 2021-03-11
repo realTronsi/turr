@@ -5,6 +5,7 @@ const { ttToStr, strToTt } = require("./utils/ttcast");
 const { etToStr, strToEt } = require("./utils/etcast")
 const { ksCalc } = require("./utils/ksCalc.js");
 const { spawnPoint } = require("./utils/spawn.js");
+const uuid = require("uuid");
 
 function getRandomInt(min, max) {
 	min = Math.ceil(min);
@@ -344,10 +345,12 @@ class Client {
 			}
 		}
 		this.killedBy = killer; // player who killed you
+		this.adverify = uuid.v4().slice(0, 5); // rewarded vdieo ad verification code
 		payLoad = {
 			t: "yd", // you died
 			n: killer.name, //The pro who kiled u :)
-			s: Math.floor(this.xp)
+			s: Math.floor(this.xp),
+			a: this.adverify
 		}
 		this.ws.send(msgpack.encode(payLoad));
 		if (killer.id != null) {
