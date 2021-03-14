@@ -1,14 +1,5 @@
 const Tiers = [3000, 15000, 50000, 150000, Infinity];
 
-/*
-Everyone speed nerf
-Metal + 33% attack - 9% defense nerf
-Plasma Bullet life span 50%
-Basic Tower Reload time +30%
-everything damage and bullet speed nerfed
-decay decreased
-*/
-
 const ElementStats = {
   basic: {
     speed: 12.5,
@@ -112,7 +103,7 @@ const ElementStats = {
 		attack: 1.25,
 		defense: 90,
     friction: 0.5,
-		fov: 1.2,
+		fov: 1.1,
 		towers: ["farm", "basic", "heal", "bomb", "propel", "laser"],
 		maxEnergy: 110
 	},
@@ -218,7 +209,7 @@ const TowerStats = {
     energy: 25,
 		decay: 7,
     size: 40,
-		effect: 30,
+		effect: 50,
 		radius: 200
   },
   splinter: {
@@ -256,7 +247,7 @@ const TowerStats = {
   volcano: {
     hp: 300,
     decay: 100,
-    energy: 65,
+    energy: 50,
     size: 60,
 		explosionTimer: 200,
 		state: "normal",
@@ -337,11 +328,11 @@ const TowerStats = {
     energy: 45,
 		decay: 7,
     size: 40,
-		reload: 400,
+		reload: 350,
 		range: 550,
     bullet: {
       type: "ice",
-			damage: 7,
+			damage: 6,
 			size: 11,
 			speed: 650,
       hp: 15,
@@ -373,17 +364,17 @@ const TowerStats = {
     energy: 40,
 		decay: 7,
     size: 40,
-		reload: 1900,
+		reload: 2000,
 		range: 300,
     bullet: {
       type: "electricity",
-			damage: 35,
+			damage: 20,
 			size: 0,
 			nodes: [],
-			chainSpeed: 150,
+			chainSpeed: 180,
 			chainDistance: 300,
 			maxChain: 5,
-			timer: 150
+			timer: 180
     }
 	},
 	laser: {
@@ -416,7 +407,7 @@ const TowerStats = {
       speed: 800,
       damage: 0, 
       size: 18,
-      effect: 5,
+      effect: 4.5,
       duration: 5000
     }
   },
@@ -436,6 +427,24 @@ const TowerStats = {
       decay: 1.2,
       knockback: 3
 		}
-	}
+	},
+  base: {
+    hp: 20000,
+    energy: Infinity,
+    decay: -10,
+    size: 300,
+    effect: 12/1000,
+  }
 }
-module.exports = {TowerStats, ElementStats }
+
+const EnemyStats = {
+  normal: {
+    hp: 100,
+    damage: 100,
+    size: 30,
+    speed: 60/1000,
+    range: 500,
+    reward: 500
+  }
+}
+module.exports = {TowerStats, ElementStats, EnemyStats }

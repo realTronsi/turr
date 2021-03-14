@@ -37,6 +37,10 @@ function poisonBullet(arena, bullet, delta, b) {
           arena.playerqt.remove(deleteQtPlayer[0]);
         }
       }
+    } else if (collider.team == -1){
+      if (arena.enemies[collider.id] != undefined){
+        bullet.stats.hp = 0;
+      }
     } else {
 			if (arena.towers[collider.id] != undefined) {
 				bullet.stats.hp = 0;

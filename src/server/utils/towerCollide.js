@@ -16,11 +16,36 @@ function getNearestPlayer(arena, tower) {
 		}
 	}, function(element1, element2) {
 		if(arena.players[element2.gameId] == undefined) return false;
-		if((arena.gamemode == "team") && element2.team == tower.team) return false;
+		if((arena.gamemode == "team" || arena.gamemode == "defense") && element2.team == tower.team) return false;
 		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.range && element2.gameId != tower.parentId && arena.players[element2.gameId].spawnProt <= 0)
 	});
 	return collider;
 }
+
+function getNearestEnemy(arena, tower) {
+	let collider = null;
+	let collider_dist = tower.range + 1;
+	arena.enemyqt.onCollision({
+		x: tower.x - tower.range,
+		y: tower.y - tower.range,
+		width: tower.range * 2,
+		height: tower.range * 2
+	}, function(enemy) {
+		let distance = dist(tower.x, tower.y, enemy.x + enemy.width / 2, enemy.y + enemy.width / 2);
+		if (distance < collider_dist) {
+			collider_dist = distance;
+			collider = enemy.id;
+		}
+	}, function(element1, element2) {
+		if(arena.enemies[element2.id] == undefined) return false;
+		if(element2.team == tower.team) return false;
+
+		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.range)
+	});
+	return collider;
+}
+
+
 
 function getNearestTower(arena, tower) {
 	let collider = null;
@@ -39,7 +64,7 @@ function getNearestTower(arena, tower) {
 			collider = enemy.id;
 		}
 	}, function(element1, element2) {
-		if((arena.gamemode == "team") && element2.team == tower.team) return false;
+		if((arena.gamemode == "team" || arena.gamemode == "defense") && element2.team == tower.team) return false;
 		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.range && element1.parentId != element2.parentId)
 	});
 	return collider;
@@ -49,7 +74,7 @@ function getAuraPlayerCollider(arena, tower, target) {
 	/*
 		Target:
 		0 - Allies (Includes parent)
-		1 - Enemy Players
+		1 - All enemies
 	*/
 	if(target == 0){
 		let collisions = arena.playerqt.colliding({
@@ -59,7 +84,7 @@ function getAuraPlayerCollider(arena, tower, target) {
 			height: tower.radius * 2
 		}, function(element1, element2) 
 		{
-			if(arena.gamemode == "team"){
+			if(arena.gamemode == "team" || arena.gamemode == "defense"){
 				return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.radius && element2.team == tower.team)
 			} else {
 				return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.radius && element2.gameId == tower.parentId)
@@ -74,11 +99,24 @@ function getAuraPlayerCollider(arena, tower, target) {
 			height: tower.radius * 2
 		}, function(element1, element2) 
 		{
-			if((arena.gamemode == "team") && element2.team == tower.team) return false;
+			if((arena.gamemode == "team" || arena.gamemode == "defense") && element2.team == tower.team) return false;
 			return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.radius && arena.players[element2.gameId].spawnProt <= 0 && element2.gameId != tower.parentId)
-		})
+		});
+
+		let enemyCollisions = arena.enemyqt.colliding({
+			x: tower.x - tower.radius,
+			y: tower.y - tower.radius,
+			width: tower.radius * 2,
+			height: tower.radius * 2
+		}, function(element1, element2) 
+		{
+			return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < tower.radius)
+		});
+
+		collisions = collisions.concat(enemyCollisions);
+		
 		return collisions;
 	}
 }
 
-module.exports = { getNearestPlayer, getNearestTower, getAuraPlayerCollider }
+module.exports = { getNearestPlayer, getNearestEnemy, getNearestTower, getAuraPlayerCollider }

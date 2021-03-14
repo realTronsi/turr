@@ -1,7 +1,7 @@
 const { dist } = require(".././utils/dist");
 const { TowerStats, ElementStats } = require(".././stats");
 const { Bullet } = require(".././objects.js");
-const { getNearestPlayer, getNearestTower } = require(".././utils/towerCollide");
+const { getNearestPlayer, getNearestEnemy, getNearestTower } = require(".././utils/towerCollide");
 
 function randPolarity() {
 	if (Math.random() < 0.5) return 1;
@@ -22,18 +22,29 @@ function iceGunnerTower(arena, tower, delta) {
 		tower.hasTarget = true;
 	} else {
 		// there is no player in range
-		let nearestTowerId = getNearestTower(arena, tower);
-		if (nearestTowerId != null) {
-			let nearestTower = arena.towers[nearestTowerId];
+		let nearestEnemyId = getNearestEnemy(arena, tower);
+		if (nearestEnemyId != null) {
+			let nearestEnemy = arena.enemies[nearestEnemyId];
 			let lastDir = tower.dir;
-			tower.dir = Math.atan2(nearestTower.y - tower.y, nearestTower.x - tower.x);
+			tower.dir = Math.atan2(nearestEnemy.y - tower.y, nearestEnemy.x - tower.x);
 			if (lastDir != tower.dir) {
 				tower.changed["d"] = true;
 			}
 			tower.hasTarget = true;
-		}
-		else {
-			tower.hasTarget = false;
+		} else {
+			let nearestTowerId = getNearestTower(arena, tower);
+			if (nearestTowerId != null) {
+				let nearestTower = arena.towers[nearestTowerId];
+				let lastDir = tower.dir;
+				tower.dir = Math.atan2(nearestTower.y - tower.y, nearestTower.x - tower.x);
+				if (lastDir != tower.dir) {
+					tower.changed["d"] = true;
+				}
+				tower.hasTarget = true;
+			}
+			else {
+				tower.hasTarget = false;
+			}
 		}
 	}
 
@@ -43,7 +54,7 @@ function iceGunnerTower(arena, tower, delta) {
 			//Shoot Bullet
 			const bulletId = arena.createBulletId();
 			//id, parentId, x, y, dir, stats
-			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir + (Math.random()*0.25)*randPolarity(), TowerStats[tower.type].bullet, tower)
+			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir + (Math.random() * 0.25) * randPolarity(), TowerStats[tower.type].bullet, tower)
 		}
 	}
 }

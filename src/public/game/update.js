@@ -85,8 +85,8 @@ export function Update(gameData, delta, gameMessages, interpTime) {
 			const bullet = gameData.bullets[i];
 			bullet.x = lerp(bullet.x, bullet.midX, delta / 1000 * serverTick)
 			bullet.y = lerp(bullet.y, bullet.midY, delta / 1000 * serverTick)
-			bullet.midX = lerp(bullet.x, bullet.serverX, delta / 1000 * serverTick)
-			bullet.midY = lerp(bullet.y, bullet.serverY, delta / 1000 * serverTick)
+			bullet.midX = lerp(bullet.midX, bullet.serverX, delta / 1000 * serverTick)
+			bullet.midY = lerp(bullet.midY, bullet.serverY, delta / 1000 * serverTick)
       if (bullet.type == "beam"){
         bullet.laserAngle = rotateInterp(bullet.laserAngle, bullet.midAngle, delta / 1000 * serverTick)
         bullet.midAngle = rotateInterp(bullet.midAngle, bullet.svrAngle, delta / 1000 * serverTick)
@@ -97,5 +97,13 @@ export function Update(gameData, delta, gameMessages, interpTime) {
       }
 
 		}
+    for (let i of Object.keys(gameData.enemies)) {
+			const enemy = gameData.enemies[i];
+			enemy.x = lerp(enemy.x, enemy.midX, delta / 1000 * serverTick)
+			enemy.y = lerp(enemy.y, enemy.midY, delta / 1000 * serverTick)
+			enemy.midX = lerp(enemy.midX, enemy.svrX, delta / 1000 * serverTick)
+			enemy.midY = lerp(enemy.midY, enemy.svrY, delta / 1000 * serverTick)
+		}
+    
 	}
 }

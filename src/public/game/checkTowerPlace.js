@@ -35,6 +35,19 @@ export function checkTowerPlace(gameData, rawmouse, held){
       return false;
     }
 	}
+  for (let id of Object.keys(gameData.enemies)) {
+		const enemy = gameData.enemies[id];
+    //Check towers
+    if (Math.sqrt(
+      Math.pow(
+        mouse.x - enemy.x, 2) + 
+      Math.pow(
+        mouse.y - enemy.y, 2) 
+    ) < enemy.size + size){
+      return false;
+    }
+	}
+  
   //Check borders of Arena
   if (mouse.x < size){
     //Left

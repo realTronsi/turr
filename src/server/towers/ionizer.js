@@ -1,7 +1,7 @@
 const { dist } = require(".././utils/dist");
 const { TowerStats, ElementStats } = require(".././stats");
 const { Bullet } = require(".././objects.js");
-const { getNearestPlayer, getNearestTower } = require(".././utils/towerCollide");
+const { getNearestPlayer, getNearestEnemy, getNearestTower } = require(".././utils/towerCollide");
 
 function basicTower(arena, tower, delta) {
 	tower.reload -= delta;
@@ -17,18 +17,29 @@ function basicTower(arena, tower, delta) {
 		tower.hasTarget = true;
 	} else {
 		// there is no player in range
-		let nearestTowerId = getNearestTower(arena, tower);
-		if (nearestTowerId != null) {
-			let nearestTower = arena.towers[nearestTowerId];
+		let nearestEnemyId = getNearestEnemy(arena, tower);
+		if (nearestEnemyId != null) {
+			let nearestEnemy = arena.enemies[nearestEnemyId];
 			let lastDir = tower.dir;
-			tower.dir = Math.atan2(nearestTower.y - tower.y, nearestTower.x - tower.x);
+			tower.dir = Math.atan2(nearestEnemy.y - tower.y, nearestEnemy.x - tower.x);
 			if (lastDir != tower.dir) {
 				tower.changed["d"] = true;
 			}
 			tower.hasTarget = true;
-		}
-		else {
-			tower.hasTarget = false;
+		} else {
+			let nearestTowerId = getNearestTower(arena, tower);
+			if (nearestTowerId != null) {
+				let nearestTower = arena.towers[nearestTowerId];
+				let lastDir = tower.dir;
+				tower.dir = Math.atan2(nearestTower.y - tower.y, nearestTower.x - tower.x);
+				if (lastDir != tower.dir) {
+					tower.changed["d"] = true;
+				}
+				tower.hasTarget = true;
+			}
+			else {
+				tower.hasTarget = false;
+			}
 		}
 	}
 

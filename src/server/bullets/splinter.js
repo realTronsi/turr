@@ -26,6 +26,14 @@ function splinterBullet(arena, bullet, delta, b) {
           arena.playerqt.remove(deleteQtPlayer[0]);
         }
       }
+    } else if (collider.team == -1) {
+      if (arena.enemies[collider.id] != undefined) {
+        arena.enemies[collider.id].hp -= bullet.stats.damage * delta / 37;
+        arena.enemies[collider.id].changed["hp"] = true;
+        if (arena.enemies[collider.id].hp <= 0) {
+          arena.enemies[collider.id].die(arena, bullet.parentId);
+        }
+      }
     } else {
       bullet.stats.hp = 0; // hit non player
       if (arena.towers[collider.id] != undefined) {

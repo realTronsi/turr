@@ -23,7 +23,7 @@ function getBeamCollider(arena, bullet){
 		width: qtsearch * 2,
 		height: qtsearch * 2
 	}, function(element1, element2) {
-		if((arena.gamemode == "team") && element2.team == bullet.team) return false;
+		if((arena.gamemode == "team" || arena.gamemode == "defense") && element2.team == bullet.team) return false;
 		return (distToSegment({
 			x: element2.x + element2.width/2,
 			y: element2.y + element2.width/2
@@ -36,13 +36,32 @@ function getBeamCollider(arena, bullet){
 		}) < bullet.stats.size + element2.width/2 && bullet.parentId != element2.gameId && arena.players[element2.gameId].spawnProt <= 0)
 	});
 
+  let enemyCollisions = arena.enemyqt.colliding({
+		x: bullet.stats.start.x - qtsearch,
+		y: bullet.stats.start.y - qtsearch,
+		width: qtsearch * 2,
+		height: qtsearch * 2
+	}, function(element1, element2) {
+		if(element2.team == bullet.team) return false;
+		return (distToSegment({
+			x: element2.x + element2.width/2,
+			y: element2.y + element2.width/2
+		}, {
+			x: bullet.stats.start.x,
+			y: bullet.stats.start.y
+		}, {
+			x: bullet.stats.end.x,
+			y: bullet.stats.end.y
+		}) < bullet.stats.size + element2.width/2)
+	});
+
 	let towerCollisions = arena.towerqt.colliding({
 		x: bullet.stats.start.x - qtsearch,
 		y: bullet.stats.start.y - qtsearch,
 		width: qtsearch * 2,
 		height: qtsearch * 2
 	}, function(element1, element2) {
-		if((arena.gamemode == "team") && element2.team == bullet.team) return false;
+		if((arena.gamemode == "team" || arena.gamemode == "defense") && element2.team == bullet.team) return false;
 		return (distToSegment({
 			x: element2.x + element2.width/2,
 			y: element2.y + element2.width/2
@@ -56,6 +75,7 @@ function getBeamCollider(arena, bullet){
 	});
 
 	collisions = collisions.concat(towerCollisions);
+  collisions = collisions.concat(enemyCollisions);
 
 	return collisions;
 }

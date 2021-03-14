@@ -1,3 +1,45 @@
+basically enemies shouldn't be boring weak ones. Nobody wants an enemy who they can 1shot and wont reach bases. Plus this will blow electriciy and volcano way out of preportion in terms of power.
+Instead enemies will all be rather strong.
+Instead of makign super boring waves at the beginning, it should start medium-hard and go to super hard instead of starting super ez. Nobody likes easy waves, even the noobs find it boring. Like who wants a wave with a 100% pass rate? It just wastes your time
+I don't think elixir is a good idea. It's another mechanic to add, not only increase packet size but make the game even more complex and there's basically no way to tell how much elixir other people have. If you make people bigger that actually nerfs them, but making them smaller will make everything unreadable. Adding text will look bad too... and adding borders or changing colors will also look trash bc the outer ring shows element
+Just spawn more enemies based on more ppl. Don't spawn harder enemies, just more enemies. It makes a lot more sense, irl if u see u have a lot of enemies ur gonnna ask ur friend to help instead of just suddenly being stronger. Also makes the game more fun and more coordinated in terms of attacks.
+
+first waves needs to be easy, rn enemies insta u the moment u touch them which is op af, first waves enemies should be about 150 hp and do way less dmg, especially to players. Also base healing to max in between waves makes more sense since when you're fighting it doesn't rlly make sense that you're rebuilding your castle. But no it should NOT start off medium-hard that's idiot game design. First waves all need to be easy, especially ones that introduce new enemy types. If you make the first waves hard our user retention will be shit. This isn't the world's hardest game or your bullet hell impossible games. look at skap for example, it has rooms, which are insanely easy but you still need to pay attention. It helps you grasp the mechanics of skap while still being pretty fun to platform through. Thats what we need. Essentially wave 1 we have the basic enemies, wave 2 we can introduce a new enemy to keep ppl engaged, wave 3 we can introduce yet another enemy, wave 4 and wave 5 we mix those enemies, then etc. this way ppl will see there's new content and it'll be fun to fight against diff types but at the same time it'll be easy and get them used to the mechanics. Easy levels also gives them time to farm xp and devise strategies.
+
+I think you desync tronsi
+
+
+Ok so my friends played it at like 1 am
+Basically
+Toxin is a little bit on the powerful side. Slight nerf to damage, like 10% or so
+
+Rock and Metal are useless. As fuck.
+
+enemy names
+nymph, (very fast)
+cyborg, (just a powerful enemy overall)
+golem, (tanky)
+enforcer, (helps protect other enemies)
+blazer, (close range fire enemy)
+framethrower, (another close range fire enemy)
+freezer, (self explanatory)
+ember, (long range fire enemy)
+intoxicator, (poisoner)
+preserver (helps protect other enemies in a way that differs from the enforcer)
+marine (moves fast)
+mecha (powerful)
+mortar (large hp)
+catapult (large range)
+
+empyrean (the strongest boss to exist)
+
+
+Electricity is SUPER overpowered. There is literally no way to beat it now, it deals so much damage and the tower is rather spammable. It needs to take a huge nerf, it's like SS tier. Even I can't beat my friends when they use electricity and I use something that isn't electricity, and normally I wipe them off in 2 seconds
+
+
+They also want a tower that lasts like 1 minute and is very spammable but basically just blocks projectiles.
+
+
 test server - https://a6a0083b-ff6a-4513-8993.herokuapp.com/
 
 once super energy added rewarded vid ads can give like + 20 super energy when spawn
@@ -19,6 +61,9 @@ S - plasma
 A - air, toxin, fire, metal
 B - light, rock, water, magma, earth, basic
 C - ice, electricity
+
+
+
 
 
 

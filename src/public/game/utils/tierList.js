@@ -123,7 +123,7 @@ export const ElementTiers = {
 		attack: 1.25,
 		maxHP: 90,
     maxEnergy: 110,
-		fov: 1.2,
+		fov: 1.1,
   },
   toxin: {
     tier: 3,

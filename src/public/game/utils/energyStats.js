@@ -28,7 +28,7 @@ export const TowerStats = {
     size: 60
   },
   volcano: {
-    energy: 65,
+    energy: 50,
     size: 60
   },
   slingshot: {

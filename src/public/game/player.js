@@ -20,6 +20,7 @@ export class Player{
       this.serverY = Infinity;
       this.middleX = Infinity;
       this.middleY = Infinity;
+      this.cp = true;
       if (gameData.t != undefined && gameData.t != null){
         this.team = gameData.t;
         this.inteam = true;

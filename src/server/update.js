@@ -41,9 +41,79 @@ const beamBullet = require("./bullets/beam");
 const poisonBullet = require("./bullets/poison")
 const airBullet = require("./bullets/air")
 
+/* ENEMY REQUIRE */
+
+const normalEnemy = require("./enemies/normal")
+
 function update(arenas, delta) { // main game loop
   for (let a of Object.keys(arenas)) {
     const arena = arenas[a];
+
+    if (arena.gamemode == "defense" && arena.playerCount != 0) {
+      arena.spawnTime -= delta / 1000;
+      if (arena.wave == 0) {
+        if (arena.spawnTime < 50 && arena.messageState == 6) {
+          arena.announce("50 seconds until Wave 1 starts!")
+          arena.messageState = 5;
+        }
+        if (arena.spawnTime < 40 && arena.messageState == 5) {
+          arena.announce("40 seconds until Wave 1 starts!")
+          arena.messageState = 4;
+        }
+        if (arena.spawnTime < 30 && arena.messageState == 4) {
+          arena.announce("30 seconds until Wave 1 starts!")
+          arena.messageState = 3;
+        }
+        if (arena.spawnTime < 20 && arena.messageState == 3) {
+          arena.announce("20 seconds until Wave 1 starts!")
+          arena.messageState = 2;
+        }
+        if (arena.spawnTime < 10 && arena.messageState == 2) {
+          arena.announce("10 seconds until Wave 1 starts!")
+          arena.messageState = 1;
+        }
+        if (arena.spawnTime < 5 && arena.messageState == 1) {
+          arena.announce("5 seconds until Wave 1 starts!")
+          arena.messageState = 0;
+        }
+        if (arena.spawnTime < 4 && arena.messageState == 0) {
+          arena.announce("4 seconds until Wave 1 starts!")
+          arena.messageState = -1;
+        }
+        if (arena.spawnTime < 3 && arena.messageState == -1) {
+          arena.announce("3 seconds until Wave 1 starts!")
+          arena.messageState = -2;
+        }
+        if (arena.spawnTime < 2 && arena.messageState == -2) {
+          arena.announce("2 seconds until Wave 1 starts!")
+          arena.messageState = -3;
+        }
+        if (arena.spawnTime < 1 && arena.messageState == -3) {
+          arena.announce("1 seconds until Wave 1 starts!")
+          arena.messageState = Infinity;
+        }
+      }
+      if (arena.spawnTime < 0) {
+        arena.wave ++;
+        arena.announce("Wave "+arena.wave+" has started!")
+        arena.spawnTime = Infinity;
+      }
+      if (arena.spawnTime == Infinity && Object.keys(arena.enemies).length == 0){
+        arena.spawnTime = arena.betweenWaves;
+        arena.announce("You have passed wave "+arena.wave+"!")
+        arena.messageState = -4;
+      }
+      if (arena.spawnTime < arena.betweenWaves-1 && arena.messageState == -4){
+        arena.messageState = -5;
+        arena.announce("Wave "+(arena.wave+1)+" will start in "+arena.betweenWaves+" seconds!")
+      }
+      if (arena.spawnTime < (arena.betweenWaves-1)/2 && arena.messageState == -5){
+        arena.messageState = -6;
+        arena.announce("Wave "+(arena.wave+1)+" will start in "+Math.round(arena.betweenWaves/2)+" seconds!")
+      }
+      
+
+    }
     if (arena.joinQueue.length > 0) {
       for (let client of arena.joinQueue) {
         arena.addPlayer(client);
@@ -92,10 +162,12 @@ function update(arenas, delta) { // main game loop
       width: arena.width,
       height: arena.height,
       maxElements: 5
-    })
+    });
     for (let p of Object.keys(arena.players)) {
       const player = arena.players[p];
       player.isDamaged = false;
+      player.canPlaceLast = player.canPlace;
+      player.canPlace = true;
       let foundQtPlayer = arena.playerqt.find(function(element) {
         return element.gameId === player.gameId
       })
@@ -228,10 +300,10 @@ function update(arenas, delta) { // main game loop
 
             }
           }
-          if (player.effects.poison.duration <= 0){
+          if (player.effects.poison.duration <= 0) {
             player.effects.poison = null;
           }
-          
+
 					/*
 					poison.duration and poison.effect, dmg every 1 second
 					*/
@@ -274,7 +346,7 @@ function update(arenas, delta) { // main game loop
           let towerObject = arena.towers[tower.id];
           if (towerObject.collide != false) {
             if (towerObject.type == "observatory") {
-              if (arena.gamemode == "team") {
+              if (arena.gamemode == "team" || arena.gamemode == "defense") {
                 if (towerObject.team == player.team) {
                   if (inObservatory == true) {
                     player.changed["fov"] = false;
@@ -312,6 +384,19 @@ function update(arenas, delta) { // main game loop
                   player.changed["y"] = true;
                 }
               }
+            } else if (towerObject.type == "base") {
+              if (arena.gamemode == "defense") {
+                if (towerObject.team == player.team) {
+                  let angle = Math.atan2(towerObject.y - player.y, towerObject.x - player.x);
+                  let dist = Math.sqrt(Math.pow(towerObject.x - player.x, 2) + Math.pow(towerObject.y - player.y, 2));
+                  if (dist > 250) {
+                    player.xv += 32 * Math.cos(angle) * delta / 1000 * dist / 50;
+                    player.yv += 32 * Math.sin(angle) * delta / 1000 * dist / 50;
+                    player.spawnProt = 1;
+                  }
+                  player.canPlace = false;
+                }
+              }
             } else {
               let dx = player.x - towerObject.x;
               let dy = player.y - towerObject.y;
@@ -329,7 +414,7 @@ function update(arenas, delta) { // main game loop
           if (towerObject.type == "propel") {
             // boost code here :P
             if (player.xv != 0 || player.yv != 0) {
-              if (arena.gamemode == "team") {
+              if (arena.gamemode == "team" || arena.gamemode == "defense") {
                 if (towerObject.team === player.team) {
                   let angle = Math.atan2(player.yv, player.xv);
                   player.bxv = Math.cos(angle) * towerObject.effect;
@@ -387,6 +472,10 @@ function update(arenas, delta) { // main game loop
 
       tower.hp -= tower.decay * delta;
 
+      if (tower.hp > tower.maxHP) {
+        tower.hp = tower.maxHP;
+      }
+
       if (tower.type == "farm") {
         farmTower(arena, tower, delta);
       } else if (tower.type == "basic") {
@@ -415,9 +504,9 @@ function update(arenas, delta) { // main game loop
         cannonTower(arena, tower, delta);
       } else if (tower.type == "laser") {
         laserTower(arena, tower, delta);
-      } else if (tower.type == "toxicator"){
+      } else if (tower.type == "toxicator") {
         toxicatorTower(arena, tower, delta);
-      } else if (tower.type == "blower"){
+      } else if (tower.type == "blower") {
         blowerTower(arena, tower, delta)
       }
 
@@ -441,6 +530,102 @@ function update(arenas, delta) { // main game loop
         delete arena.towers[t];
       }
     }
+
+    tempqt = new Quadtree({
+      width: arena.width,
+      height: arena.height,
+      maxElements: 5
+    });
+
+    //ENEMIES UPDATE
+    for (let en of Object.keys(arena.enemies)) {
+      const enemy = arena.enemies[en];
+
+      enemy.effects.drowned
+
+      let foundQtEnemy = arena.enemyqt.find(function(element) {
+        return element.id === enemy.id
+      });
+      let qtEnemy;
+      if (foundQtEnemy.length > 0) {
+        qtEnemy = foundQtEnemy[0];
+      }
+
+      switch (enemy.type) {
+        case "normal": {
+          normalEnemy(arena, enemy, delta, en);
+        }
+      }
+
+      //Update Pos
+      enemy.x += enemy.xv * delta * enemy.effects.drowned / 100;
+      enemy.y += enemy.yv * delta * enemy.effects.drowned / 100;
+
+      enemy.changed["x"] = true;
+      enemy.changed["y"] = true;
+      //Collide With Towers
+      arena.towerqt.onCollision({
+        x: enemy.x - enemy.size,
+        y: enemy.y - enemy.size,
+        width: enemy.size * 2,
+        height: enemy.size * 2
+      }, function(tower) {
+        let towerObject = arena.towers[tower.id];
+        let dx = enemy.x - towerObject.x;
+        let dy = enemy.y - towerObject.y;
+        let l = Math.sqrt(dx * dx + dy * dy) || 1;
+        let xv = dx / l;
+        let yv = dy / l;
+        enemy.x = towerObject.x + (towerObject.size + 0.01 + enemy.size) * xv;
+        enemy.y = towerObject.y + (towerObject.size + 0.01 + enemy.size) * yv;
+
+        towerObject.hp -= enemy.damage * delta / 1000;
+
+      }, function(element1, element2) {
+        return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < element1.width / 2 + element2.width / 2)
+      });
+      arena.playerqt.onCollision({
+        x: enemy.x - enemy.size,
+        y: enemy.y - enemy.size,
+        width: enemy.size * 2,
+        height: enemy.size * 2
+      }, function(player) {
+        let playerObject = arena.players[player.gameId];
+        let dx = enemy.x - playerObject.x;
+        let dy = enemy.y - playerObject.y;
+        let l = Math.sqrt(dx * dx + dy * dy) || 1;
+        let xv = dx / l;
+        let yv = dy / l;
+        enemy.x = playerObject.x + (playerObject.size + 0.01 + enemy.size) * xv;
+        enemy.y = playerObject.y + (playerObject.size + 0.01 + enemy.size) * yv;
+
+        playerObject.hp -= enemy.damage * delta / 1000;
+        playerObject.changed["health"] = true;
+        if (playerObject.hp <= 0) {
+          // collider died
+          playerObject.die(arena, null, "Enemy");
+          let deleteQtPlayer = arena.playerqt.find(function(element) {
+            return element.gameId === playerObject.gameId
+          })
+          if (deleteQtPlayer.length > 0) {
+            arena.playerqt.remove(deleteQtPlayer[0]);
+          }
+        }
+
+      }, function(element1, element2) {
+        return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < element1.width / 2 + element2.width / 2)
+      });
+
+      enemy.effects.drowned = 100;
+
+      //Push to TempQuadtree
+      if (qtEnemy != undefined) {
+        qtEnemy.x = enemy.x - enemy.size;
+        qtEnemy.y = enemy.y - enemy.size;
+      }
+      tempqt.push(qtEnemy);
+    }
+    arena.enemyqt = tempqt;
 
     //BULLETS UPDATE
     for (let b of Object.keys(arena.bullets)) {
@@ -514,6 +699,7 @@ function sendToPlayers(arenas, delta) {
       const playerUpdatePacks = [];
       const towerUpdatePacks = [];
       const bulletUpdatePacks = [];
+      const enemyUpdatePacks = [];
 
       for (let k of Object.keys(arena.players)) {
         const candidate = arena.players[k];
@@ -628,6 +814,27 @@ function sendToPlayers(arenas, delta) {
           }
         }
       }
+      for (let en of Object.keys(arena.enemies)) {
+        const enemy = arena.enemies[en];
+
+        if (Math.abs(enemy.x - player.x) <= 1 / player.fov * 800 + enemy.size && Math.abs(enemy.y - player.y) <= 1 / player.fov * 450 + enemy.size) {
+          if (!enemy.seenBy.includes(player)) {
+            //Enemy is re-entering fov or entering it for the first time
+            enemyUpdatePacks.push(enemy.getInitPack());
+            enemy.seenBy.push(player);
+          } else {
+            //Enemy has been in fov
+            enemyUpdatePacks.push(enemy.getUpdatePack());
+          }
+        } else {
+          //Enemy is leaving fov
+          if (enemy.seenBy.includes(player)) {
+            enemy.seenBy.splice(enemy.seenBy.indexOf(player), 1);
+            enemyUpdatePacks.push(enemy.getRemovePack());
+          }
+        }
+      }
+
       let sendEnergy = player.changed["energy"];
       let sendHealth = player.changed["health"];
       let sendXP = player.changed["xp"];
@@ -637,7 +844,8 @@ function sendToPlayers(arenas, delta) {
         t: "u",
         p: playerUpdatePacks,
         tp: towerUpdatePacks,
-        bp: bulletUpdatePacks
+        bp: bulletUpdatePacks,
+        ep: enemyUpdatePacks
       };
       if (sendEnergy) {
         payLoad.e = Math.round(player.energy * 10) / 10;
@@ -647,6 +855,9 @@ function sendToPlayers(arenas, delta) {
       }
       if (sendXP) {
         payLoad.xp = Math.round(player.xp);
+      }
+      if (player.canPlace != player.canPlaceLast) {
+        payLoad.cp = Number(player.canPlace);
       }
       player.ws.send(msgpack.encode(payLoad));
     }

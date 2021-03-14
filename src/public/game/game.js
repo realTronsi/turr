@@ -1,5 +1,6 @@
 import { Player } from "./player.js";
 import { Tower } from "./tower.js";
+import { Enemy } from "./enemy.js";
 import { Bullet } from "./bullet.js";
 import { Render } from "./render.js";
 import { Update } from "./update.js";
@@ -50,7 +51,9 @@ export function initGame(data, client) {
     players: {},
     towers: {},
     bullets: {},
+    enemies: {},
     teamMinimap: [],
+    enemyMinimap: [],
     you: new Player(data.s) // yourself
   };
   let held = false;
@@ -80,16 +83,16 @@ export function initGame(data, client) {
   })
   canvas.addEventListener("mousedown", function(e) {
     if (mouseLock === false) {
-      if (gameData.you.dead == true){
+      if (gameData.you.dead == true) {
         if (mouse.x > 690 && mouse.x < 690 + 220 && mouse.y > 695 && mouse.y < 695 + 60 && respawnTime >= 5) {
           //Respawn
           sendPacket(client.ws, {
             t: "res"
           })
         }
-        if (mouse.x > 690 && mouse.y > 765 && mouse.x < 690 + 220 && mouse.y < 765 + 40){
+        if (mouse.x > 690 && mouse.y > 765 && mouse.x < 690 + 220 && mouse.y < 765 + 40) {
           //Reward Ad
-					//show_reward_ad();
+          //show_reward_ad();
         }
       }
       //Place Tower  
@@ -228,7 +231,7 @@ export function initGame(data, client) {
       case "res": {
         document.getElementById("turrad3").style.display = "none";
         document.getElementById("turrad4").style.display = "none";
-        
+
         aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_3'); });
         aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_4'); });
 
@@ -271,6 +274,7 @@ export function initGame(data, client) {
             gameData.you.updatePack(playerData)
           }
         }
+
         for (let towerData of data.tp) {
           if (towerData.pi != undefined) {
             gameData.towers[towerData.id] = new Tower(towerData);
@@ -292,6 +296,20 @@ export function initGame(data, client) {
             }
           }
         }
+        for (let enemyData of data.ep) {
+          if (enemyData.i != undefined) {
+            if (enemyData.init != undefined) {
+              gameData.enemies[enemyData.i] = new Enemy(enemyData)
+            }
+            else if (enemyData.rem != 1) {
+              gameData.enemies[enemyData.i].updatePack(enemyData);
+            }
+            else {
+              delete gameData.enemies[enemyData.i]
+            }
+          }
+        }
+
         if (data.e != undefined) {
           gameData.you.svrenergy = data.e;
         }
@@ -301,6 +319,14 @@ export function initGame(data, client) {
         if (data.xp != undefined) {
           gameData.you.xp = data.xp;
         }
+        if (data.cp != undefined) {
+          if (data.cp == 0) {
+            gameData.you.cp = false;
+          }
+          else {
+            gameData.you.cp = true;
+          }
+        }
         break;
       }
       case "pl": {
@@ -309,16 +335,26 @@ export function initGame(data, client) {
         break;
       }
       case "mm": {
-				let minimap = [];
-				for(let p = 0; p < data.d.length; p+=2){
-					if(p != data.s * 2){
-						minimap.push({
-							x: data.d[p],
-							y: data.d[p + 1]
-						});
-					}
-				}
+        let minimap = [];
+        for (let p = 0; p < data.d.length; p += 2) {
+          if (p != data.s * 2) {
+            minimap.push({
+              x: data.d[p],
+              y: data.d[p + 1]
+            });
+          }
+        }
         gameData.teamMinimap = minimap;
+        if (data.e != undefined) {
+          let minimap2 = [];
+          for (let p = 0; p < data.e.length; p += 2) {
+            minimap2.push({
+              x: data.e[p],
+              y: data.e[p + 1]
+            });
+          }
+          gameData.enemyMinimap = minimap2;
+        }
         break;
       }
       case "ntp": {
@@ -339,11 +375,16 @@ export function initGame(data, client) {
 
         break;
       }
+      case "re": {
+        delete gameData.enemies[data.i];
+
+        break;
+      }
       case "yd": {
         //You noob imagine dying
         document.getElementById("turrad3").style.display = "block";
         document.getElementById("turrad4").style.display = "block";
-        
+
         aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_3'); });
         aiptag.cmd.display.push(function() { aipDisplayTag.display('turr-io_160x600_4'); });
         gameData.you.dead = true;
@@ -367,8 +408,18 @@ export function initGame(data, client) {
         //You, a pro, killed a noob
         //n: name
 
-        gameMessages.push({ 
+        gameMessages.unshift({
           value: "You killed " + data.n,
+          timer: 4
+        })
+
+        break;
+      }
+      case "ann": {
+        //Announcement
+
+        gameMessages.unshift({
+          value: data.m,
           timer: 4
         })
 
@@ -425,6 +476,9 @@ export function initGame(data, client) {
     if (held != false) {
       canPlace = checkTowerPlace(gameData, mouse, held);
     }
+    if (gameData.you.cp == false) {
+      canPlace = false;
+    }
     gameMessages = gameMessages.filter((e) => e.timer > 0);
     for (let i of gameMessages) {
       i.timer -= delta / 1000;
@@ -432,7 +486,7 @@ export function initGame(data, client) {
     gameData.you.fov += (gameData.you.toFov - gameData.you.fov) / 20;
     if (gameData.you.dead == true) {
       deathScreenOpacity += (0.5 - deathScreenOpacity) / 20;
-      respawnTime += delta/1000;
+      respawnTime += delta / 1000;
     }
     interpTime -= delta;
 

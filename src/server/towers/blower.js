@@ -1,7 +1,7 @@
 const { dist } = require(".././utils/dist");
 const { TowerStats, ElementStats } = require(".././stats");
 const { Bullet } = require(".././objects.js");
-const { getNearestPlayer, getNearestTower } = require(".././utils/towerCollide");
+const { getNearestPlayer, getNearestEnemy, getNearestTower } = require(".././utils/towerCollide");
 
 function blowerTower(arena, tower, delta) {
 	tower.reload -= delta;
@@ -16,7 +16,18 @@ function blowerTower(arena, tower, delta) {
 		}
 		tower.hasTarget = true;
 	} else {
-		tower.hasTarget = false;
+		let nearestEnemyId = getNearestEnemy(arena, tower);
+		if(nearestEnemyId != null){
+			let nearestEnemy = arena.enemies[nearestEnemyId];
+      let lastDir = tower.dir;
+      tower.dir = Math.atan2(nearestEnemy.y - tower.y, nearestEnemy.x - tower.x);
+      if (lastDir != tower.dir){
+        tower.changed["d"] = true;
+      }
+      tower.hasTarget = true;
+		} else {
+			tower.hasTarget = false;
+		}
 	}
 
 	if (tower.reload < 0) {

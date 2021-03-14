@@ -6,12 +6,15 @@ const uuid = require("uuid");
 const rateLimit = require("ws-rate-limit")("1s", 60)
 const app = express();
 
+
 /* 
 future security patches: limit incoming packet sizes
 
 */
 
 /* FOR TURR.IO Remember to rename client app.js and append version number to enforce cache clearing such as app?v1.js
+
+dont forget to update tutorial svg path + favicon + js
 
 also remember to renable cors prevention
 
@@ -104,6 +107,8 @@ const { TowerStats, ElementStats } = require("./stats");
 	arenas[arenaId] = new Arena(arenaId, "Sandbox", 2500, 2500, 15, "sandbox");
 	arenaId = uuid.v4();
 	arenas[arenaId] = new Arena(arenaId, "Two Teams", 4000, 4000, 15, "team_2");
+  arenaId = uuid.v4();
+	arenas[arenaId] = new Arena(arenaId, "Defense", 5000, 5000, 20, "defense");
 	arenaId = uuid.v4();
 	arenas[arenaId] = new Arena(arenaId, "FFA Normal", 4000, 4000, 20, "normal");
 
@@ -189,6 +194,7 @@ wss.on('connection', (ws, req) => {
 
 					// Convert .tt to string
 					if (client.state != "game") break;
+					if (client.canPlaceLast == false) break;
 
 					let towerName = ttToStr[data.tt];
 
@@ -233,6 +239,21 @@ wss.on('connection', (ws, req) => {
 						// if colliding with another client
 						break;
 					}
+
+          colliding = clientArena.enemyqt.colliding({
+						x: towerX - towerSize,
+						y: towerY - towerSize,
+						width: towerSize * 2,
+						height: towerSize * 2
+					}, function(element1, element2) {
+						return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < element1.width / 2 + element2.width / 2)
+					});
+					if (colliding.length > 0) {
+						// if colliding with an enemy
+						break;
+					}
+
+          
 					const energyNeeded = TowerStats[towerName].energy;
 					if (client.energy < energyNeeded) {
 						//Not enough energy
@@ -301,6 +322,12 @@ wss.on('connection', (ws, req) => {
 					let spawn = spawnPoint(arenas[client.arenaId]);
 					client.x = spawn.x;
 					client.y = spawn.y;
+
+          if (arenas[client.arenaId].gamemode == "defense"){
+            client.x = arenas[client.arenaId].width/2;
+            client.y = arenas[client.arenaId].height/2;
+          }
+
 					client.xv = 0;
 					client.yv = 0;
 					client.bxv = 0;
@@ -312,7 +339,7 @@ wss.on('connection', (ws, req) => {
 					client.element = "basic";
 					client.changed["element"] = true;
 
-					if (arenas[client.arenaId].gamemode == "team") {
+					if (arenas[client.arenaId].gamemode == "team" || arenas[client.arenaId].gamemode == "defense") {
 						arenas[client.arenaId].playerqt.push({
 							x: client.x - client.size,
 							y: client.y - client.size,
@@ -433,8 +460,10 @@ setInterval(() => {
 			for(let team of arena.teams){
 				let data = [];
 				for(let p in team){
-					data.push(Math.round(team[p].x));
-					data.push(Math.round(team[p].y));
+					if(team[p].state != "dead"){
+						data.push(Math.round(team[p].x));
+						data.push(Math.round(team[p].y));
+					}
 				}
 				for(let p in team){
 					const payLoad = {
@@ -445,6 +474,31 @@ setInterval(() => {
 					team[p].ws.send(msgpack.encode(payLoad));
 				}
 			}
+    }
+    if (arena.gamemode == "defense"){
+      let data = [];
+      for(let p of Object.keys(arena.players)){
+        const player = arena.players[p];
+				data.push(Math.round(player.x));
+				data.push(Math.round(player.y));
+      }
+			let edata = [];
+			for(let e of Object.keys(arena.enemies)){
+        const enemy = arena.enemies[e];
+				edata.push(Math.round(enemy.x));
+				edata.push(Math.round(enemy.y));
+      }
+      for(let p of Object.keys(arena.players)){
+        const player = arena.players[p];
+        const payLoad = {
+          t: "mm",
+          d: data,
+					e: edata,
+          s: p
+        }
+        player.ws.send(msgpack.encode(payLoad));
+      }
+      
     }
 	}
 }, 1000 / 0.5)
