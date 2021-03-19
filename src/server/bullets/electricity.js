@@ -31,7 +31,7 @@ function electricityBullet(arena, bullet, delta, b) {
             player.isDamaged = true;
             if (player.hp <= 0) {
               // collider died
-              player.die(arena, arena.players[bullet.parentId]);
+              arena.players[collider.gameId].die(arena, bullet.parentId);
               let deleteQtPlayer = arena.playerqt.find(function(element) {
                 return element.gameId === player.gameId
               })
@@ -43,11 +43,12 @@ function electricityBullet(arena, bullet, delta, b) {
             bullet.changed["nodes"] = 1;
           } else if (closest.team == -1) {
             if (arena.enemies[closest.id] != undefined) {
-              arena.enemies[closest.id].hp -= bullet.stats.damage * delta / 37;
-              bullet.stats.nodes.push(arena.enemies[closest.id]);
-              arena.enemies[closest.id].changed["hp"] = true;
-              if (arena.enemies[closest.id].hp <= 0){
-                arena.enemies[closest.id].die(arena, bullet.parentId);
+              const enemy = arena.enemies[closest.id];
+              enemy.hp -= bullet.stats.damage * delta / 37;
+              bullet.stats.nodes.push(enemy);
+              enemy.changed["hp"] = true;
+              if (enemy.hp <= 0){
+                enemy.die(arena, bullet.parentId);
               }
               bullet.changed["nodes"] = 1;
             }

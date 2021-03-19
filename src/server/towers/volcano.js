@@ -1,4 +1,3 @@
-const { TowerStats, ElementStats } = require(".././stats");
 const { Bullet } = require(".././objects.js");
 
 function randPolarity() {
@@ -18,23 +17,23 @@ function volcanoTower(arena, tower, delta) {
 	}
 	if(tower.hp <= 0){
 		let bulletId = arena.createBulletId();
-		arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, 0, TowerStats[tower.type].bullet, tower);
+		arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, 0, tower.bullets.bullet1, tower);
 		let dir = 2.094;
 		for(let i=0; i<3; i++){
 			bulletId = arena.createBulletId();
-			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, dir + (Math.random()/2*randPolarity()), TowerStats[tower.type].bullet2, tower);
+			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, dir + (Math.random()/2*randPolarity()), tower.bullets.bullet2, tower);
 			dir+=2.0944;
 		}
 		dir = 0.4485;
 		for(let i=0; i<7; i++){
 			bulletId = arena.createBulletId();
-			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, dir + (Math.random()/4*randPolarity()), TowerStats[tower.type].bullet3, tower);
+			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, dir + (Math.random()/4*randPolarity()), tower.bullets.bullet3, tower);
 			dir+=0.897;
 		}
     dir = 0;
 		for(let i=0; i<7; i++){
 			bulletId = arena.createBulletId();
-			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, dir + (Math.random()/4*randPolarity()), TowerStats[tower.type].bullet4, tower);
+			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, dir + (Math.random()/4*randPolarity()), tower.bullets.bullet4, tower);
 			dir+=0.897;
 		}
     

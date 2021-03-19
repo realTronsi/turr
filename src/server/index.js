@@ -7,9 +7,12 @@ const rateLimit = require("ws-rate-limit")("1s", 60)
 const app = express();
 
 
+//do not edit this or comment out until we move the removing client script into .die()
+
 /* 
 future security patches: limit incoming packet sizes
 
+also fix bullet where we're calling arena.towers[collider.id] tons of times instead of assigning it into a variable and same for bullet
 */
 
 /* FOR TURR.IO Remember to rename client app.js and append version number to enforce cache clearing such as app?v1.js
@@ -108,7 +111,7 @@ const { TowerStats, ElementStats } = require("./stats");
 	arenaId = uuid.v4();
 	arenas[arenaId] = new Arena(arenaId, "Two Teams", 4000, 4000, 15, "team_2");
   arenaId = uuid.v4();
-	arenas[arenaId] = new Arena(arenaId, "Defense", 5000, 5000, 20, "defense");
+	arenas[arenaId] = new Arena(arenaId, "Defense", 7000, 7000, 20, "defense");
 	arenaId = uuid.v4();
 	arenas[arenaId] = new Arena(arenaId, "FFA Normal", 4000, 4000, 20, "normal");
 
@@ -208,6 +211,10 @@ wss.on('connection', (ws, req) => {
 					let towerSize = TowerStats[towerName].size;
 
 					if (dist(client.x, client.y, towerX, towerY) > 400) { // check if over range
+						break;
+					}
+
+					if(clientArena.zone != -1 && dist(clientArena.width / 2, clientArena.height / 2, towerX, towerY) > clientArena.zone){
 						break;
 					}
 
@@ -479,8 +486,10 @@ setInterval(() => {
       let data = [];
       for(let p of Object.keys(arena.players)){
         const player = arena.players[p];
-				data.push(Math.round(player.x));
-				data.push(Math.round(player.y));
+        if (player.state != "dead"){
+				  data.push(Math.round(player.x));
+				  data.push(Math.round(player.y));
+        }
       }
 			let edata = [];
 			for(let e of Object.keys(arena.enemies)){
@@ -490,11 +499,20 @@ setInterval(() => {
       }
       for(let p of Object.keys(arena.players)){
         const player = arena.players[p];
+				let index = 0;
+				for(let i = 0; i < data.length; i+=2){
+					if(data[i] == Math.round(player.x)){
+						if(data[i + 1] == Math.round(player.y)){
+							index = i;
+							break;
+						}
+					}
+				}
         const payLoad = {
           t: "mm",
           d: data,
 					e: edata,
-          s: p
+          s: index
         }
         player.ws.send(msgpack.encode(payLoad));
       }

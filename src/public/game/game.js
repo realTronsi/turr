@@ -44,18 +44,35 @@ export function initGame(data, client) {
   serverSelection.style.display = "none";
   gameDiv.style.display = "";
 
+  /*
+  data.wv
+  data.tm
+  */
   //Define game data
   const gameData = {
     arenaWidth: data.aW,
     arenaHeight: data.aH,
     players: {},
     towers: {},
+    ztowers: {},
     bullets: {},
     enemies: {},
+    zone: data.z,
+    displayTime: false,
     teamMinimap: [],
     enemyMinimap: [],
+    timeFlash: 0,
     you: new Player(data.s) // yourself
   };
+  gameData.you.cp = true;
+
+  if (data.wv != undefined){
+    gameData.wave = Number(data.wv);
+  }
+  if (data.tim != undefined){
+    gameData.time = Number(data.tim);
+    gameData.displayTime = true;
+  }
   let held = false;
   let mouseLock = false;
   let canPlace = true;
@@ -247,6 +264,7 @@ export function initGame(data, client) {
         gameData.you.maxEnergy = 100;
         gameData.you.energy = 100;
         gameData.you.slots = ElementTiers["basic"].towers;
+        gameData.you.cp = true;
 
         for (let i of Object.keys(gameData.players)) {
           const player = gameData.players[i];
@@ -278,9 +296,15 @@ export function initGame(data, client) {
         for (let towerData of data.tp) {
           if (towerData.pi != undefined) {
             gameData.towers[towerData.id] = new Tower(towerData);
+            if (towerData.tt == "a"){
+              gameData.ztowers[towerData.id] = new Tower(towerData);
+            }
           }
           else {
             gameData.towers[towerData.id].updatePack(towerData);
+            if (gameData.towers[towerData.id].type == "base"){
+              gameData.ztowers[towerData.id].updatePack(towerData);
+            }
           }
         }
         for (let bulletData of data.bp) {
@@ -337,7 +361,7 @@ export function initGame(data, client) {
       case "mm": {
         let minimap = [];
         for (let p = 0; p < data.d.length; p += 2) {
-          if (p != data.s * 2) {
+          if (p != data.s) {
             minimap.push({
               x: data.d[p],
               y: data.d[p + 1]
@@ -363,6 +387,9 @@ export function initGame(data, client) {
         break;
       }
       case "rt": {
+        if (gameData.towers[data.id].type == "base"){
+          delete gameData.ztowers[data.id];
+        }
         delete gameData.towers[data.id];
         break;
       }
@@ -430,6 +457,34 @@ export function initGame(data, client) {
 
         break;
       }
+      case "sw": {
+        gameData.wave = data.w;
+        gameData.displayTime = false;
+
+        break;
+      }
+      case "pw": {
+        gameData.time = data.tim;
+        gameData.displayTime = true;
+
+        break;
+      }
+      case "tm": {
+        gameData.time = data.c;
+        gameData.displayTime = true;
+        if (gameData.wave == 0){
+          if ([29, 19, 9, 4, 3, 2, 1, 0].includes(data.c)){
+            gameData.timeFlash = 1;
+          }
+        }
+        else{
+          if ([4, 3, 2, 1, 0].includes(data.c)){
+            gameData.timeFlash = 1;
+          }
+        }
+
+        break;
+      }
       case "dch": {
         if (gameData.players[data.i] != undefined) {
           gameData.players[data.i].chatDeletion = true;
@@ -478,6 +533,7 @@ export function initGame(data, client) {
     }
     if (gameData.you.cp == false) {
       canPlace = false;
+      console.log("You cannot place a tower.")
     }
     gameMessages = gameMessages.filter((e) => e.timer > 0);
     for (let i of gameMessages) {
@@ -488,7 +544,14 @@ export function initGame(data, client) {
       deathScreenOpacity += (0.5 - deathScreenOpacity) / 20;
       respawnTime += delta / 1000;
     }
+    if (gameData.timeFlash > 0){
+      gameData.timeFlash += (-0.1 - gameData.timeFlash) / 20;
+    }
     interpTime -= delta;
+
+    if (gameData.time != undefined){
+      gameData.time -= delta/1000;
+    }
 
     Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard, gameMessages, deathScreenOpacity, respawnTime);
     Update(gameData, delta, gameMessages, interpTime)

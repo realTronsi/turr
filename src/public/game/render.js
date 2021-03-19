@@ -133,7 +133,14 @@ const BulletSprites = {
 }
 
 const EnemySprites = {
-  normal: createImage("../../assets/bullets/basic_yellow.svg"),
+  soldier: createImage("../../assets/bullets/basic_yellow.svg"),
+  ninja: createImage("../../assets/bullets/basic_yellow.svg"),
+  strong: createImage("../../assets/bullets/basic_yellow.svg"),
+  tank: createImage("../../assets/bullets/splinter_red.svg"),
+  tadpole: createImage("../../assets/bullets/cannonball_red.svg"),
+  frog: createImage("../../assets/bullets/cannonball_red.svg"),
+  "machine gunner": createImage("../../assets/bullets/splinter_green.svg"),
+
 }
 
 const TowerSprites = {
@@ -210,8 +217,8 @@ const TowerSprites = {
     red: createImage("../../assets/towers/tower_blower_red.svg")
   },
   base: {
-    yellow: createImage("../../assets/towers/tower_observatory_yellow.svg"),
-    red: createImage("../../assets/towers/tower_observatory_red.svg")
+    yellow: createImage("../../assets/towers/tower_base.svg"),
+    red: createImage("../../assets/towers/tower_base.svg")
   },
 
 }
@@ -244,6 +251,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
   ctx.fillStyle = "rgb(0, 0, 0)"
   ctx.fillRect(-10, -10, gameData.arenaWidth + 20, gameData.arenaHeight + 20);
   //Draw Arena
+
   ctx.fillStyle = "rgb(200, 200, 200)"
   ctx.fillRect(0, 0, gameData.arenaWidth, gameData.arenaHeight);
 
@@ -263,6 +271,17 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     ctx.lineTo(gridWidth * gridH, gameData.arenaHeight);
     ctx.stroke();
   }
+
+
+	if (gameData.zone != -1){
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = "#ff0000"
+		ctx.rect(0, 0, gameData.arenaWidth, gameData.arenaHeight);
+    ctx.arc(gameData.arenaWidth/2, gameData.arenaHeight/2, gameData.zone, 0, Math.PI * 2, true);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
 
   for (let id of Object.keys(gameData.towers)) {
     //Draw tower aura
@@ -363,6 +382,144 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     }
   }
 
+  //Draw Base or other towers displayed below bullets
+  for (let id of Object.keys(gameData.ztowers)) {
+    const tower = gameData.ztowers[id];
+    if (tower.type == "base") {
+      let yourTower = false;
+      if (gameData.you.inteam) {
+        if (gameData.you.team == tower.team) {
+          yourTower = true;
+        }
+        else {
+          yourTower = false;
+        }
+      }
+      else {
+        if (gameData.you.id == tower.parentId) {
+          yourTower = true;
+        }
+        else {
+          yourTower = false;
+        }
+      }
+      if (tower.x != null && tower.y != null) {
+        if (tower.x > gameData.you.x - canvas.width / 2 * 1 / gameData.you.fov - 100 - tower.auraRadius - tower.size / 2 && tower.x < gameData.you.x + canvas.width / 2 * 1 / gameData.you.fov + 100 + tower.auraRadius + tower.size / 2 && tower.y > gameData.you.y - canvas.height / 2 * 1 / gameData.you.fov - 120 - tower.auraRadius - tower.size / 2 && tower.y < gameData.you.y + canvas.height / 2 * 1 / gameData.you.fov + 120 + tower.auraRadius + tower.size / 2) {
+          //Draw Team Ring
+          if (gameData.you.inteam && gameData.you.team != 5) {
+            ctx.globalAlpha = 1;
+            ctx.beginPath();
+            ctx.strokeStyle = TeamColors[tower.team];
+            ctx.lineWidth = tower.size / 15;
+            ctx.arc(tower.x, tower.y, tower.size / 2 + tower.size / 30, 0, Math.PI * 2);
+            ctx.stroke();
+
+
+            ctx.globalAlpha = 1;
+          }
+
+
+          //Check if tower is owned by you or not
+          if (!yourTower) {
+            //Draw Tower (not urs)
+
+            ctx.translate(tower.x, tower.y)
+            ctx.rotate(tower.dir)
+            //Draw Tower itself
+            ctx.drawImage(TowerSprites[tower.type].red, - tower.size, - tower.size, tower.size * 2, tower.size * 2);
+
+            ctx.rotate(-tower.dir);
+            ctx.translate(-tower.x, -tower.y)
+            //Hp Bar
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = "#000000";
+            ctx.beginPath();
+            ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.lineTo(tower.x + tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.stroke();
+            ctx.lineWidth = 8;
+            if (!gameData.you.inteam || gameData.you.team == 5) {
+              ctx.strokeStyle = "#a65033";
+            }
+            else {
+              ctx.strokeStyle = TeamColors[tower.team];
+            }
+            ctx.beginPath();
+            ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.lineTo(tower.x - tower.size / 2 + (tower.size * tower.hp / tower.maxHP), tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.stroke();
+          }
+          else {
+            //Draw Tower (urs)
+
+
+            ctx.translate(tower.x, tower.y)
+            ctx.rotate(tower.dir)
+            ctx.drawImage(TowerSprites[tower.type].yellow, - tower.size, - tower.size, tower.size * 2, tower.size * 2);
+            ctx.rotate(-tower.dir);
+            ctx.translate(-tower.x, -tower.y)
+            //Hp Bar
+            if (tower.type != "base") {
+              ctx.lineWidth = 10;
+            }
+            else {
+              ctx.lineWidth = 20;
+            }
+            ctx.strokeStyle = "#000000";
+            ctx.beginPath();
+            ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.lineTo(tower.x + tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.stroke();
+            if (tower.type != "base") {
+              ctx.lineWidth = 8;
+            }
+            else {
+              ctx.lineWidth = 16;
+            }
+            if (!gameData.you.inteam || gameData.you.team == 5) {
+              ctx.strokeStyle = "#45a633";
+            }
+            else {
+              ctx.strokeStyle = TeamColors[tower.team];
+            }
+            ctx.beginPath();
+            ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.lineTo(tower.x - tower.size / 2 + (tower.size * tower.hp / tower.maxHP), tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.stroke();
+          }
+
+          if (tower.type == "volcano") {
+            ctx.globalAlpha = tower.animation / 30;
+            ctx.beginPath();
+            ctx.fillStyle = "rgb(255, 0, 0)"
+            ctx.arc(tower.x, tower.y, tower.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          } else if (tower.type == "tesla coil" && tower.animation == 1) {
+            if (!gameData.you.inteam || gameData.you.team == 5) {
+              ctx.globalAlpha = 0.7;
+              ctx.beginPath();
+              ctx.strokeStyle = "#d2b0ff"
+              ctx.lineWidth = tower.size / 12;
+              ctx.arc(tower.x, tower.y, tower.size / 2 - tower.size / 24, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.globalAlpha = 1;
+            }
+            else {
+              ctx.globalAlpha = 0.8;
+              ctx.beginPath();
+              ctx.strokeStyle = "#d2b0ff"
+              ctx.lineWidth = tower.size / 12;
+              ctx.arc(tower.x, tower.y, tower.size / 2 + tower.size / 24, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.globalAlpha = 1;
+            }
+          }
+        }
+      }
+    }
+  }
+
   let ZBULLETS = []; // bullets that need to be drawn above players and towers
 
   for (let id of Object.keys(gameData.bullets)) {
@@ -415,133 +572,135 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
   for (let id of Object.keys(gameData.towers)) {
     //Draw tower itself
     const tower = gameData.towers[id];
-    let yourTower = false;
-    if (gameData.you.inteam) {
-      if (gameData.you.team == tower.team) {
-        yourTower = true;
-      }
-      else {
-        yourTower = false;
-      }
-    }
-    else {
-      if (gameData.you.id == tower.parentId) {
-        yourTower = true;
-      }
-      else {
-        yourTower = false;
-      }
-    }
-    if (tower.x != null && tower.y != null) {
-      if (tower.x > gameData.you.x - canvas.width / 2 * 1 / gameData.you.fov - 100 - tower.auraRadius - tower.size / 2 && tower.x < gameData.you.x + canvas.width / 2 * 1 / gameData.you.fov + 100 + tower.auraRadius + tower.size / 2 && tower.y > gameData.you.y - canvas.height / 2 * 1 / gameData.you.fov - 120 - tower.auraRadius - tower.size / 2 && tower.y < gameData.you.y + canvas.height / 2 * 1 / gameData.you.fov + 120 + tower.auraRadius + tower.size / 2) {
-        //Draw Team Ring
-        if (gameData.you.inteam && gameData.you.team != 5) {
-          ctx.globalAlpha = 1;
-          ctx.beginPath();
-          ctx.strokeStyle = TeamColors[tower.team];
-          ctx.lineWidth = tower.size / 15;
-          ctx.arc(tower.x, tower.y, tower.size / 2 + tower.size / 30, 0, Math.PI * 2);
-          ctx.stroke();
-
-
-          ctx.globalAlpha = 1;
-        }
-
-
-        //Check if tower is owned by you or not
-        if (!yourTower) {
-          //Draw Tower (not urs)
-
-          ctx.translate(tower.x, tower.y)
-          ctx.rotate(tower.dir)
-          //Draw Tower itself
-          ctx.drawImage(TowerSprites[tower.type].red, - tower.size, - tower.size, tower.size * 2, tower.size * 2);
-
-          ctx.rotate(-tower.dir);
-          ctx.translate(-tower.x, -tower.y)
-          //Hp Bar
-          ctx.lineWidth = 10;
-          ctx.strokeStyle = "#000000";
-          ctx.beginPath();
-          ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
-          ctx.lineTo(tower.x + tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
-          ctx.stroke();
-          ctx.lineWidth = 8;
-          if (!gameData.you.inteam || gameData.you.team == 5) {
-            ctx.strokeStyle = "#a65033";
-          }
-          else {
-            ctx.strokeStyle = TeamColors[tower.team];
-          }
-          ctx.beginPath();
-          ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
-          ctx.lineTo(tower.x - tower.size / 2 + (tower.size * tower.hp / tower.maxHP), tower.y + tower.size / 2 + 10 + tower.size / 40);
-          ctx.stroke();
+    if (tower.type != "base") {
+      let yourTower = false;
+      if (gameData.you.inteam) {
+        if (gameData.you.team == tower.team) {
+          yourTower = true;
         }
         else {
-          //Draw Tower (urs)
-
-
-          ctx.translate(tower.x, tower.y)
-          ctx.rotate(tower.dir)
-          ctx.drawImage(TowerSprites[tower.type].yellow, - tower.size, - tower.size, tower.size * 2, tower.size * 2);
-          ctx.rotate(-tower.dir);
-          ctx.translate(-tower.x, -tower.y)
-          //Hp Bar
-          if (tower.type != "base") {
-            ctx.lineWidth = 10;
-          }
-          else {
-            ctx.lineWidth = 20;
-          }
-          ctx.strokeStyle = "#000000";
-          ctx.beginPath();
-          ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
-          ctx.lineTo(tower.x + tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
-          ctx.stroke();
-          if (tower.type != "base") {
-            ctx.lineWidth = 8;
-          }
-          else {
-            ctx.lineWidth = 16;
-          }
-          if (!gameData.you.inteam || gameData.you.team == 5) {
-            ctx.strokeStyle = "#45a633";
-          }
-          else {
-            ctx.strokeStyle = TeamColors[tower.team];
-          }
-          ctx.beginPath();
-          ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
-          ctx.lineTo(tower.x - tower.size / 2 + (tower.size * tower.hp / tower.maxHP), tower.y + tower.size / 2 + 10 + tower.size / 40);
-          ctx.stroke();
+          yourTower = false;
         }
-
-        if (tower.type == "volcano") {
-          ctx.globalAlpha = tower.animation / 30;
-          ctx.beginPath();
-          ctx.fillStyle = "rgb(255, 0, 0)"
-          ctx.arc(tower.x, tower.y, tower.size / 2, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.globalAlpha = 1;
-        } else if (tower.type == "tesla coil" && tower.animation == 1) {
-          if (!gameData.you.inteam || gameData.you.team == 5) {
-            ctx.globalAlpha = 0.7;
+      }
+      else {
+        if (gameData.you.id == tower.parentId) {
+          yourTower = true;
+        }
+        else {
+          yourTower = false;
+        }
+      }
+      if (tower.x != null && tower.y != null) {
+        if (tower.x > gameData.you.x - canvas.width / 2 * 1 / gameData.you.fov - 100 - tower.auraRadius - tower.size / 2 && tower.x < gameData.you.x + canvas.width / 2 * 1 / gameData.you.fov + 100 + tower.auraRadius + tower.size / 2 && tower.y > gameData.you.y - canvas.height / 2 * 1 / gameData.you.fov - 120 - tower.auraRadius - tower.size / 2 && tower.y < gameData.you.y + canvas.height / 2 * 1 / gameData.you.fov + 120 + tower.auraRadius + tower.size / 2) {
+          //Draw Team Ring
+          if (gameData.you.inteam && gameData.you.team != 5) {
+            ctx.globalAlpha = 1;
             ctx.beginPath();
-            ctx.strokeStyle = "#d2b0ff"
-            ctx.lineWidth = tower.size / 12;
-            ctx.arc(tower.x, tower.y, tower.size / 2 - tower.size / 24, 0, Math.PI * 2);
+            ctx.strokeStyle = TeamColors[tower.team];
+            ctx.lineWidth = tower.size / 15;
+            ctx.arc(tower.x, tower.y, tower.size / 2 + tower.size / 30, 0, Math.PI * 2);
             ctx.stroke();
+
+
             ctx.globalAlpha = 1;
           }
-          else {
-            ctx.globalAlpha = 0.8;
+
+
+          //Check if tower is owned by you or not
+          if (!yourTower) {
+            //Draw Tower (not urs)
+
+            ctx.translate(tower.x, tower.y)
+            ctx.rotate(tower.dir)
+            //Draw Tower itself
+            ctx.drawImage(TowerSprites[tower.type].red, - tower.size, - tower.size, tower.size * 2, tower.size * 2);
+
+            ctx.rotate(-tower.dir);
+            ctx.translate(-tower.x, -tower.y)
+            //Hp Bar
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = "#000000";
             ctx.beginPath();
-            ctx.strokeStyle = "#d2b0ff"
-            ctx.lineWidth = tower.size / 12;
-            ctx.arc(tower.x, tower.y, tower.size / 2 + tower.size / 24, 0, Math.PI * 2);
+            ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.lineTo(tower.x + tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
             ctx.stroke();
+            ctx.lineWidth = 8;
+            if (!gameData.you.inteam || gameData.you.team == 5) {
+              ctx.strokeStyle = "#a65033";
+            }
+            else {
+              ctx.strokeStyle = TeamColors[tower.team];
+            }
+            ctx.beginPath();
+            ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.lineTo(tower.x - tower.size / 2 + (tower.size * tower.hp / tower.maxHP), tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.stroke();
+          }
+          else {
+            //Draw Tower (urs)
+
+
+            ctx.translate(tower.x, tower.y)
+            ctx.rotate(tower.dir)
+            ctx.drawImage(TowerSprites[tower.type].yellow, - tower.size, - tower.size, tower.size * 2, tower.size * 2);
+            ctx.rotate(-tower.dir);
+            ctx.translate(-tower.x, -tower.y)
+            //Hp Bar
+            if (tower.type != "base") {
+              ctx.lineWidth = 10;
+            }
+            else {
+              ctx.lineWidth = 20;
+            }
+            ctx.strokeStyle = "#000000";
+            ctx.beginPath();
+            ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.lineTo(tower.x + tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.stroke();
+            if (tower.type != "base") {
+              ctx.lineWidth = 8;
+            }
+            else {
+              ctx.lineWidth = 16;
+            }
+            if (!gameData.you.inteam || gameData.you.team == 5) {
+              ctx.strokeStyle = "#45a633";
+            }
+            else {
+              ctx.strokeStyle = TeamColors[tower.team];
+            }
+            ctx.beginPath();
+            ctx.moveTo(tower.x - tower.size / 2, tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.lineTo(tower.x - tower.size / 2 + (tower.size * tower.hp / tower.maxHP), tower.y + tower.size / 2 + 10 + tower.size / 40);
+            ctx.stroke();
+          }
+
+          if (tower.type == "volcano") {
+            ctx.globalAlpha = tower.animation / 30;
+            ctx.beginPath();
+            ctx.fillStyle = "rgb(255, 0, 0)"
+            ctx.arc(tower.x, tower.y, tower.size / 2, 0, Math.PI * 2);
+            ctx.fill();
             ctx.globalAlpha = 1;
+          } else if (tower.type == "tesla coil" && tower.animation == 1) {
+            if (!gameData.you.inteam || gameData.you.team == 5) {
+              ctx.globalAlpha = 0.7;
+              ctx.beginPath();
+              ctx.strokeStyle = "#d2b0ff"
+              ctx.lineWidth = tower.size / 12;
+              ctx.arc(tower.x, tower.y, tower.size / 2 - tower.size / 24, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.globalAlpha = 1;
+            }
+            else {
+              ctx.globalAlpha = 0.8;
+              ctx.beginPath();
+              ctx.strokeStyle = "#d2b0ff"
+              ctx.lineWidth = tower.size / 12;
+              ctx.arc(tower.x, tower.y, tower.size / 2 + tower.size / 24, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.globalAlpha = 1;
+            }
           }
         }
       }
@@ -759,8 +918,13 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
 
     //Draw leaderboard
 
+    let addedY = 0;
+    if (gameData.wave != undefined) {
+      addedY = 30;
+    }
+
     ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-    ctx.fillRect(30, 30, 320, (leaderboard.length + 1) * 40 + 13);
+    ctx.fillRect(30, 30, 320, (leaderboard.length + 1) * 40 + 13 + addedY);
     ctx.textAlign = "left";
     ctx.font = "28px Arial";
     ctx.fillStyle = "rgb(255, 255, 255)"
@@ -769,6 +933,16 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
       45,
       64
     );
+
+    if (gameData.wave != undefined) {
+      ctx.fillText(
+        "Wave " + gameData.wave,
+        45,
+        99
+      );
+    }
+
+
     ctx.font = "25px Arial";
     for (let i of leaderboard) {
       //Draw LB
@@ -802,21 +976,44 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
         ctx.fillText(
           i.place + ". " + i.name + ": " + i.xp,
           44,
-          104 + (leaderboard.indexOf(i)) * 40
+          104 + (leaderboard.indexOf(i)) * 40 + addedY
         );
       }
       else {
         ctx.fillText(
           i.place + ". " + i.name + ": " + i.xp,
           56,
-          104 + (leaderboard.indexOf(i)) * 40
+          104 + (leaderboard.indexOf(i)) * 40 + addedY
         );
         ctx.fillStyle = "rgb(255, 255, 255)"
-        ctx.fillText(">", 38, 104 + (leaderboard.indexOf(i)) * 40)
+        ctx.fillText(">", 38, 104 + (leaderboard.indexOf(i)) * 40 + addedY)
       }
 
     }
     ctx.textAlign = "center";
+
+    if (gameData.displayTime) {
+      ctx.font = "33px Arial";
+      ctx.fillStyle = "rgb(0, 0, 0)"
+      if (gameData.wave != 0) {
+        ctx.fillText("Next wave starts in " + Math.ceil(gameData.time + 1) + "s", 800, 702);
+      }
+      else {
+        ctx.fillText("Game starts in " + Math.ceil(gameData.time + 1) + "s", 800, 702);
+      }
+
+      if (gameData.timeFlash > 0) {
+        ctx.font = `${43 - gameData.timeFlash * 10}px Arial`
+        ctx.fillStyle = "rgb(255, 0, 0)"
+        ctx.globalAlpha = gameData.timeFlash;
+        if (gameData.wave != 0) {
+          ctx.fillText("Next wave starts in " + Math.ceil(gameData.time + 1) + "s", 800, 702 + gameData.timeFlash * 3);
+        }
+        else {
+          ctx.fillText("Game starts in " + Math.ceil(gameData.time + 1) + "s", 800, 702 + gameData.timeFlash * 3);
+        }
+      }
+    }
 
     //Draw slots on bottom
 
@@ -904,7 +1101,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
       ctx.arc(20 + 200 * pos.x / gameData.arenaWidth, 680 + 200 * pos.y / gameData.arenaHeight, 4, 0, Math.PI * 2);
       ctx.fill();
     }
-    
+
 
     ctx.globalAlpha = 1;
 
@@ -968,7 +1165,7 @@ export function Render(gameData, ctx, canvas, held, mouse, canPlace, leaderboard
     if (xpTier >= ElementTiers[gameData.you.element].tier) {
       ctx.font = "bold 40px Arial";
       ctx.fillStyle = "rgb(0, 0, 0)"
-      ctx.fillText("Choose Your Element", 800, 65)
+      ctx.fillText("Choose Your Element", 800, 80)
       //Draw Element Upgrades
       let upgrades = ElementTiers[gameData.you.element].upgrades;
       let upgradesAmount = upgrades.length;

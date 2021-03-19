@@ -24,16 +24,16 @@ function getNearestPlayer(arena, enemy) {
 function getNearestTower(arena, enemy) {
 	let collider = null;
 	let collider_dist = enemy.range + 1;
-	arena.enemyqt.onCollision({
+	arena.towerqt.onCollision({
 		x: enemy.x - enemy.range,
 		y: enemy.y - enemy.range,
 		width: enemy.range * 2,
 		height: enemy.range * 2
-	}, function(enemy) {
-		let distance = dist(enemy.x, enemy.y, enemy.x + enemy.width / 2, enemy.y + enemy.width / 2);
+	}, function(tower) {
+		let distance = dist(enemy.x, enemy.y, tower.x + tower.width / 2, tower.y + tower.width / 2);
 		if (distance < collider_dist) {
 			collider_dist = distance;
-			collider = enemy.id;
+			collider = tower.id;
 		}
 	}, function(element1, element2) {
 		return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < enemy.range)

@@ -1,5 +1,4 @@
 const { dist } = require(".././utils/dist");
-const { TowerStats, ElementStats } = require(".././stats");
 const { Bullet } = require(".././objects.js");
 const { getNearestPlayer, getNearestEnemy, getNearestTower } = require(".././utils/towerCollide");
 
@@ -104,7 +103,7 @@ function laserTower(arena, tower, delta) {
 			// no beam yet
 			const bulletId = arena.createBulletId();
 			//id, parentId, x, y, dir, stats
-			bullet = new Bullet(bulletId, tower.x, tower.y, 0, TowerStats[tower.type].bullet, tower);
+			bullet = new Bullet(bulletId, tower.x, tower.y, 0, tower.bullets.bullet1, tower);
 			bullet.stats.start = {
 				x: tower.x,
 				y: tower.y

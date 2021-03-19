@@ -7,6 +7,7 @@ function rotateInterp(start, end, time) {
   return start + (shortest_angle * time) % (Math.PI * 2);
 }
 export function Update(gameData, delta, gameMessages, interpTime) {
+  
 
 	for (let i of Object.keys(gameData.bullets)) {
 		const bullet = gameData.bullets[i];

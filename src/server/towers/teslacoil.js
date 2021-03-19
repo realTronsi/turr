@@ -1,5 +1,4 @@
 const { dist } = require(".././utils/dist");
-const { TowerStats, ElementStats } = require(".././stats");
 const { Bullet } = require(".././objects.js");
 const { getNearestPlayer, getNearestEnemy, getNearestTower } = require(".././utils/towerCollide");
 
@@ -33,7 +32,7 @@ function teslaCoilTower(arena, tower, delta) {
       tower.reload = tower.maxReload;
 			const bulletId = arena.createBulletId();
 			//id, parentId, x, y, dir, stats
-			let bullet = new Bullet(bulletId, tower.x, tower.y, 0, TowerStats[tower.type].bullet, tower);
+			let bullet = new Bullet(bulletId, tower.x, tower.y, 0, tower.bullets.bullet1, tower);
 			bullet.stats.nodes.push({
 				x: tower.x,
 				y: tower.y

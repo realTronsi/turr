@@ -16,7 +16,7 @@ function basicBullet(arena, bullet, delta, b) {
 			arena.players[collider.gameId].isDamaged = true;
 			if (arena.players[collider.gameId].hp <= 0) {
 				// collider died
-				arena.players[collider.gameId].die(arena, arena.players[bullet.parentId]);
+				arena.players[collider.gameId].die(arena, bullet.parentId);
 				let deleteQtPlayer = arena.playerqt.find(function(element) {
 					return element.gameId === collider.gameId
 				})
@@ -26,10 +26,11 @@ function basicBullet(arena, bullet, delta, b) {
 			}
 		} else if (collider.team == -1){
       if (arena.enemies[collider.id] != undefined){
-        arena.enemies[collider.id].hp -= bullet.stats.damage * delta / 37;
-        arena.enemies[collider.id].changed["hp"] = true;
-        if (arena.enemies[collider.id].hp <= 0){
-          arena.enemies[collider.id].die(arena, bullet.parentId);
+        const enemy = arena.enemies[collider.id]
+        enemy.hp -= bullet.stats.damage * delta / 37;
+        enemy.changed["hp"] = true;
+        if (enemy.hp <= 0){
+          enemy.die(arena, bullet.parentId);
         }
       }
     } else {

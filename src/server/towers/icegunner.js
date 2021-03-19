@@ -1,5 +1,4 @@
 const { dist } = require(".././utils/dist");
-const { TowerStats, ElementStats } = require(".././stats");
 const { Bullet } = require(".././objects.js");
 const { getNearestPlayer, getNearestEnemy, getNearestTower } = require(".././utils/towerCollide");
 
@@ -54,7 +53,7 @@ function iceGunnerTower(arena, tower, delta) {
 			//Shoot Bullet
 			const bulletId = arena.createBulletId();
 			//id, parentId, x, y, dir, stats
-			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir + (Math.random() * 0.25) * randPolarity(), TowerStats[tower.type].bullet, tower)
+			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir + (Math.random() * 0.25) * randPolarity(), tower.bullets.bullet1, tower)
 		}
 	}
 }

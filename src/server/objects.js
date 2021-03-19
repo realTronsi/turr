@@ -1,6 +1,7 @@
 const msgpack = require("msgpack-lite");
 const Quadtree = require("quadtree-lib");
 const { TowerStats, ElementStats, EnemyStats } = require("./stats");
+const { DefenseTowerStats } = require("./defensestats");
 const { ttToStr, strToTt } = require("./utils/ttcast");
 const { etToStr, strToEt } = require("./utils/etcast")
 const { strToEn } = require("./utils/encast");
@@ -14,12 +15,21 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
+fix ranged enemy targetting first b4 antyhing, rn its just targetting a player if its in range which is nono
+
 class Enemy {
   constructor(id, x, y, type) {
     this.id = id;
     this.x = x;
     this.y = y;
+
+		this.xv = 0;
+		this.yv = 0;
+		this.bxv = 0;
+		this.byv = 0;
+		
     this.team = -1;
+    this.parentId = -1;
     this.type = type;
     this.dir = 0;
     this.hp = EnemyStats[this.type].hp;
@@ -29,10 +39,34 @@ class Enemy {
     this.speed = EnemyStats[this.type].speed;
     this.range = EnemyStats[this.type].range;
     this.reward = EnemyStats[this.type].reward;
+
+		this.bfric = 0.88 * Math.max(Math.min(30 / this.size, 1), 0.81);
+
+    this.boostxv = 0;
+    this.boostyv = 0;
+    this.boostfric = 0.88;
+
+    this.stats = EnemyStats[this.type];
+    if (this.stats.reload){
+      this.maxReload = this.stats.reload;
+      this.reload = 0;
+    }
+    if (this.stats.reload2){
+      this.maxReload2 = this.stats.reload2;
+      this.reload2 = this.stats.reloadoffset2 || 0;
+    }
+    if (this.stats.reload3){
+      this.maxReload3 = this.stats.reload3;
+      this.reload3 = 0;
+    }
+
     this.seenBy = [];
-		this.effects = {
-      drowned: 100
+    this.effects = {
+      drowned: 100,
+			frozen: 0,
+      poison: null
     };
+
     this.changed = {};
   }
   getInitPack() {
@@ -50,21 +84,21 @@ class Enemy {
   }
   getUpdatePack() {
     let pack = {};
-    for(let i of Object.keys(this.changed)){
-      if (i == "x"){
+    for (let i of Object.keys(this.changed)) {
+      if (i == "x") {
         pack.x = Math.round(this.x);
       }
-      if (i == "y"){
+      if (i == "y") {
         pack.y = Math.round(this.y);
       }
-      if (i == "hp"){
+      if (i == "hp") {
         pack.hp = Math.round(this.hp);
       }
-      if (i == "dir"){
+      if (i == "dir") {
         pack.d = Math.round(this.dir * 100) / 100
       }
     }
-    if (Object.keys(pack).length > 0){
+    if (Object.keys(pack).length > 0) {
       pack.i = this.id;
     }
     return pack;
@@ -75,9 +109,9 @@ class Enemy {
       i: this.id
     };
   }
-  die(arena, id){
+  die(arena, id) {
     const player = arena.players[id];
-    if (player != undefined){
+    if (player != undefined) {
       player.xp += this.reward;
       player.changed["xp"] = true;
     }
@@ -92,7 +126,7 @@ class Enemy {
       t: "re",
       i: thisid
     }
-    for(let seenPlayer of this.seenBy){
+    for (let seenPlayer of this.seenBy) {
       seenPlayer.ws.send(msgpack.encode(payLoad))
     }
     delete arena.enemies[this.id];
@@ -131,8 +165,12 @@ class Bullet {
       this.team = tower.team;
     }
 
-
-    this.stats.damage = stats.damage * this.parentStats.attack;
+    if (this.parentStats != null){
+      this.stats.damage = stats.damage * this.parentStats.attack;
+    }
+    else{
+      this.stats.damage = stats.damage;
+    }
 
     this.basestats = this.stats;
   }
@@ -236,41 +274,42 @@ class Tower {
     this.x = x;
     this.y = y;
     this.type = type;
-    this.size = (TowerStats[this.type].size || 80);
+    this.size = (DefenseTowerStats[this.type].size || TowerStats[this.type].size);
     this.dir = 0;
     this.id = id;
     this.parentStats = JSON.parse(JSON.stringify(parent.stats));
     this.parentId = parent.gameId;
-    this.hp = TowerStats[this.type].hp || 200;
-    this.range = TowerStats[this.type].range || 0;
-    this.maxReload = TowerStats[this.type].reload;
+    this.hp = DefenseTowerStats[this.type].hp || TowerStats[this.type].hp || 200;
+    this.range = DefenseTowerStats[this.type].range || TowerStats[this.type].range || 0;
+    this.maxReload = DefenseTowerStats[this.type].reload || TowerStats[this.type].reload;
     this.reload = this.maxReload * 1 / 3;
     this.maxHP = this.hp;
-    this.decay = (TowerStats[this.type].decay) / 1000;
-    this.collide = TowerStats[this.type].collide;
+    this.decay = (DefenseTowerStats[this.type].decay || TowerStats[this.type].decay) / 1000;
+    this.collide = DefenseTowerStats[this.type].collide || TowerStats[this.type].collide;
+		this.bullets = DefenseTowerStats[this.type].bullets || TowerStats[this.type].bullets;
     if (parent.team != undefined) {
       this.team = parent.team;
     }
 
     if (["heal", "drown"].includes(this.type)) {
-      this.radius = TowerStats[this.type].radius;
-      this.effect = TowerStats[this.type].effect;
+      this.radius = DefenseTowerStats[this.type].radius || TowerStats[this.type].radius;
+      this.effect = DefenseTowerStats[this.type].effect || TowerStats[this.type].effect;
     }
 
     if (["farm", "propel", "drown", "observatory"].includes(this.type)) {
-      this.effect = TowerStats[this.type].effect;
+      this.effect = DefenseTowerStats[this.type].effect || TowerStats[this.type].effect;
     }
 
     if (["volcano"].includes(this.type)) {
-      this.state = TowerStats[this.type].state;
+      this.state = DefenseTowerStats[this.type].state || TowerStats[this.type].state;
     }
 
     if (this.type == "laser") {
-      this.spinSpeed = TowerStats[this.type].spinSpeed;
+      this.spinSpeed = DefenseTowerStats[this.type].spinSpeed || TowerStats[this.type].spinSpeed;
     }
 
     if (this.type == "volcano") {
-      this.explosionTimer = TowerStats[this.type].explosionTimer;
+      this.explosionTimer = DefenseTowerStats[this.type].explosionTimer || TowerStats[this.type].explosionTimer;
     }
 
     if (["volcano", "tesla coil"].includes(this.type)) {
@@ -410,20 +449,39 @@ class Client {
     }
     return pack;
   }
-  die(arena, killer, name) {
+  die(arena, killerId, name) {
     this.state = "dead";
+
+    let killer = arena.players[killerId];
+
+    let playerid = this.gameId;
+    let deleteQtPlayer = arena.playerqt.find(function(element) {
+      return element.gameId === playerid
+    })
+    if (deleteQtPlayer.length > 0) {
+      arena.playerqt.remove(deleteQtPlayer[0]);
+    }
+
+
     if (killer == undefined) {
       killer = {
         name: "???",
         id: null
       }
     }
-    if (name != undefined){
+    if (name != undefined) {
       killer = {
         name: name,
         id: null
       }
     }
+    if (killerId == -1){
+      killer = {
+        name: "Enemy",
+        id: null
+      }
+    }
+    
     let payLoad = {
       t: "pd", // player died
       i: this.gameId
@@ -482,6 +540,8 @@ class Client {
     this.energy = 100;
     this.lastEnergy = 100;
     this.hp = 100;
+
+
   }
 }
 
@@ -510,6 +570,8 @@ class Arena {
     this.width = parseInt(width) || 2000;
     this.height = parseInt(height) || 2000;
 
+		this.zone = -1;
+
     this.closequeue = [];
 
     this.playerqt = new Quadtree({
@@ -537,13 +599,13 @@ class Arena {
           attack: 1,
           defense: 100
         },
-        gameId: -1,
+        gameId: Infinity,
         team: 5
       }, this.width / 2, this.height / 2, "base");
 
       this.towers[towerid] = tower;
 
-      let towerSize = 300;
+      let towerSize = 400;
 
       this.towerqt.push({
         x: this.width / 2 - towerSize,
@@ -551,15 +613,20 @@ class Arena {
         width: towerSize * 2,
         height: towerSize * 2,
         id: towerid,
-        parentId: -1,
+        parentId: Infinity,
         team: 5
       });
 
-      this.spawnTime = 10;
-      this.messageState = 6;
+      this.timer = 10;
+      this.lastTimer = 60;
       this.betweenWaves = 20;
       this.wave = 0;
-      
+
+      this.spawnAngle = 2.3999632297;
+
+      this.zone = this.width/2 - 1000;
+
+
 
       /*
       this.spawnEnemy(this.width / 2 - 3000, this.height / 2, "normal");
@@ -570,9 +637,43 @@ class Arena {
       this.spawnEnemy(this.width / 2 - 2000, this.height / 2 + 3000, "normal");
       this.spawnEnemy(this.width / 2 - 1000, this.height / 2 - 2000, "normal");
       */
-      
+
     }
 
+  }
+  spawnWaveEnemy(type, number, setX, setY) {
+    for (let i = 0; i < Math.floor(number * Math.pow(this.playerCount, 0.85)); i++) {
+      let x;
+      let y;
+      let enemySize = EnemyStats[type].size;
+
+      if (setX == undefined) {
+        this.spawnAngle += 2.3999632297;
+        x = Math.cos(this.spawnAngle) * (this.zone + enemySize * 5/2) + this.width/2; 
+        y = Math.sin(this.spawnAngle) * (this.zone + enemySize * 5/2) + this.height/2;
+      }
+      else{
+        x = setX;
+        y = setY;
+      }
+
+
+      let enemyid = this.createEnemyId();
+
+      let enemy = new Enemy(enemyid, x, y, type);
+
+      this.enemies[enemyid] = enemy;
+
+
+      this.enemyqt.push({
+        x: x - enemySize,
+        y: y - enemySize,
+        width: enemySize * 2,
+        height: enemySize * 2,
+        id: enemyid,
+        team: enemy.team
+      })
+    }
   }
   spawnEnemy(x, y, type) {
     let enemyid = this.createEnemyId();
@@ -598,7 +699,7 @@ class Arena {
       "title": (this.name + ` (${this.playerCount}/${this.maxPlayers})`)
     }
   }
-  announce(msg){
+  announce(msg) {
     for (let i of Object.keys(this.players)) {
       const player = this.players[i];
       const payLoad = {
@@ -757,8 +858,17 @@ class Arena {
       pd: initPacks, // player data
       s: self_data, //Self
       aW: this.width,
-      aH: this.height
+      aH: this.height,
     };
+    if (this.gamemode == "defense") {
+      payLoad2.wv = this.wave;
+      if (this.timer != Infinity) {
+        payLoad2.tim = Math.round(this.timer * 100) / 100
+      }
+    }
+		if(this.zone != -1){
+			payLoad2.z = this.zone;
+		}
     client.ws.send(msgpack.encode(payLoad2));
 
     //Add new player

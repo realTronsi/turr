@@ -1,5 +1,4 @@
 const { dist } = require(".././utils/dist");
-const { TowerStats, ElementStats } = require(".././stats");
 const { Bullet } = require(".././objects.js");
 const { getNearestPlayer, getNearestEnemy, getNearestTower } = require(".././utils/towerCollide");
 
@@ -36,12 +35,12 @@ function blowerTower(arena, tower, delta) {
 			//Shoot Bullet
 			let bulletId = arena.createBulletId();
 			//id, parentId, x, y, dir, stats
-			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir, TowerStats[tower.type].bullet, tower)
+			arena.bullets[bulletId] = new Bullet(bulletId, tower.x, tower.y, tower.dir, tower.bullets.bullet1, tower)
       bulletId = arena.createBulletId();
-      arena.bullets[bulletId] = new Bullet(bulletId, tower.x + Math.cos(tower.dir + Math.PI/2) * 30, tower.y + Math.sin(tower.dir + Math.PI/2) * 30, tower.dir - 0.5236, TowerStats[tower.type].bullet, tower)
+      arena.bullets[bulletId] = new Bullet(bulletId, tower.x + Math.cos(tower.dir + Math.PI/2) * 30, tower.y + Math.sin(tower.dir + Math.PI/2) * 30, tower.dir - 0.5236, tower.bullets.bullet1, tower)
 
       bulletId = arena.createBulletId();
-      arena.bullets[bulletId] = new Bullet(bulletId, tower.x - Math.cos(tower.dir + Math.PI/2) * 30, tower.y - Math.sin(tower.dir + Math.PI/2) * 30, tower.dir + 0.5236, TowerStats[tower.type].bullet, tower)
+      arena.bullets[bulletId] = new Bullet(bulletId, tower.x - Math.cos(tower.dir + Math.PI/2) * 30, tower.y - Math.sin(tower.dir + Math.PI/2) * 30, tower.dir + 0.5236, tower.bullets.bullet1, tower)
 		}
 	}
 }
