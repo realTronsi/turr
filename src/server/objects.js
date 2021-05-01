@@ -15,7 +15,6 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
-fix ranged enemy targetting first b4 antyhing, rn its just targetting a player if its in range which is nono
 
 class Enemy {
   constructor(id, x, y, type) {
@@ -32,6 +31,7 @@ class Enemy {
     this.parentId = -1;
     this.type = type;
     this.dir = 0;
+    /*
     this.hp = EnemyStats[this.type].hp;
     this.maxHP = EnemyStats[this.type].hp;
     this.size = EnemyStats[this.type].size;
@@ -39,26 +39,23 @@ class Enemy {
     this.speed = EnemyStats[this.type].speed;
     this.range = EnemyStats[this.type].range;
     this.reward = EnemyStats[this.type].reward;
+    */
 
-		this.bfric = 0.88 * Math.max(Math.min(30 / this.size, 1), 0.81);
 
     this.boostxv = 0;
     this.boostyv = 0;
     this.boostfric = 0.88;
 
-    this.stats = EnemyStats[this.type];
-    if (this.stats.reload){
-      this.maxReload = this.stats.reload;
+    this.stats = JSON.parse(JSON.stringify(EnemyStats[this.type]));
+    this.stats.maxHP = this.stats.hp;
+    this.hp = this.stats.maxHP;
+
+    this.bfric = 0.88 * Math.max(Math.min(30 / this.stats.size, 1), 0.81);
+    
+    if (this.stats.maxReload){
       this.reload = 0;
     }
-    if (this.stats.reload2){
-      this.maxReload2 = this.stats.reload2;
-      this.reload2 = this.stats.reloadoffset2 || 0;
-    }
-    if (this.stats.reload3){
-      this.maxReload3 = this.stats.reload3;
-      this.reload3 = 0;
-    }
+
 
     this.seenBy = [];
     this.effects = {
@@ -66,6 +63,7 @@ class Enemy {
 			frozen: 0,
       poison: null
     };
+
 
     this.changed = {};
   }
@@ -75,9 +73,9 @@ class Enemy {
       x: Math.round(this.x),
       y: Math.round(this.y),
       et: strToEn[this.type],
-      s: this.size,
+      s: this.stats.size,
       hp: Math.round(this.hp),
-      maxHP: this.maxHP,
+      maxHP: this.stats.maxHP,
       init: 1
     }
     return pack;
@@ -112,7 +110,7 @@ class Enemy {
   die(arena, id) {
     const player = arena.players[id];
     if (player != undefined) {
-      player.xp += this.reward;
+      player.xp += this.stats.reward;
       player.changed["xp"] = true;
     }
     let thisid = this.id;
@@ -604,6 +602,8 @@ class Arena {
       }, this.width / 2, this.height / 2, "base");
 
       this.towers[towerid] = tower;
+
+			this.base = tower;
 
       let towerSize = 400;
 

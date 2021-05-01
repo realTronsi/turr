@@ -2,7 +2,7 @@ const strToEn = {
 	"soldier": 0,
   "ninja": 1,
   "strong": 2,
-  "tank": 3,
+  "archer": 3,
   "tadpole": 4,
   "frog": 5,
   "machine gunner": 6

@@ -1,4 +1,10 @@
-bruh ill be ba
+bruh ill be back rather late today, have to take midterms
+
+
+not all eneies should do melee dmg, we neeed to add "melee dmg" or smth 
+
+I reworked tank cod, pls go look at it cuz I left a comment
+
 
 ENEMY IDEAS:
 

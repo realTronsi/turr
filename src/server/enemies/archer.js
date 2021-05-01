@@ -3,12 +3,7 @@ const { dist } = require(".././utils/dist");
 const getAngleDiff = require(".././utils/angleDiff");
 const { Bullet } = require("../objects.js")
 
-function randPolarity() {
-	if (Math.random() < 0.5) return 1;
-	return -1;
-}
-
-function machinegunnerEnemy(arena, enemy, delta) {
+function archerEnemy(arena, enemy, delta) {
 	let target = {
 		x: arena.width / 2,
 		y: arena.height / 2
@@ -70,9 +65,9 @@ function machinegunnerEnemy(arena, enemy, delta) {
 		//Shoot Bullet
 		const bulletId = arena.createBulletId();
 		//id, parentId, x, y, dir, stats
-		arena.bullets[bulletId] = new Bullet(bulletId, enemy.x, enemy.y, enemy.dir + 0.26 * randPolarity(), enemy.stats.bullet, enemy)
+		arena.bullets[bulletId] = new Bullet(bulletId, enemy.x, enemy.y, enemy.dir, enemy.stats.bullet, enemy)
     }
 	}
 }
 
-module.exports = machinegunnerEnemy;
+module.exports = archerEnemy;

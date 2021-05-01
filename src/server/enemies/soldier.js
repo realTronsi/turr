@@ -17,7 +17,7 @@ function soldierEnemy(arena, enemy, delta) {
 		let playerPriority = getAngleDiff(angleToBase * 180 / Math.PI, angleToPlayer * 180 / Math.PI);
 		if(playerPriority < 90){
 			playerPriority = Math.sqrt(90 / (playerPriority || 1));
-			playerPriority *= Math.sqrt(enemy.range / (dist(enemy.x, enemy.y, nearestPlayer.x, nearestPlayer.y) || 1));
+			playerPriority *= Math.sqrt(enemy.stats.range / (dist(enemy.x, enemy.y, nearestPlayer.x, nearestPlayer.y) || 1));
 		} else {
 			playerPriority = 0;
 		}
@@ -29,13 +29,20 @@ function soldierEnemy(arena, enemy, delta) {
 	}
 
 	let dir = Math.atan2(target.y - enemy.y, target.x - enemy.x);
-	let xv = Math.cos(dir);
-	let yv = Math.sin(dir);
+	if(enemy.dir != dir){
+		enemy.changed["dir"] = true;
+		enemy.dir = dir;
+	}
+
+	let xv = Math.cos(enemy.dir);
+	let yv = Math.sin(enemy.dir);
 	let m = Math.sqrt(xv * xv + yv * yv);
 	xv /= m;
 	yv /= m;
-	xv *= enemy.speed;
-	yv *= enemy.speed;
+	xv *= enemy.stats.speed;
+	yv *= enemy.stats.speed;
+
+
 
 	enemy.xv = xv;
 	enemy.yv = yv;

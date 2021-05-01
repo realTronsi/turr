@@ -133,14 +133,9 @@ const BulletSprites = {
 }
 
 const EnemySprites = {
-  soldier: createImage("../../assets/bullets/basic_yellow.svg"),
-  ninja: createImage("../../assets/bullets/basic_yellow.svg"),
-  strong: createImage("../../assets/bullets/basic_yellow.svg"),
-  tank: createImage("../../assets/bullets/splinter_red.svg"),
-  tadpole: createImage("../../assets/bullets/cannonball_red.svg"),
-  frog: createImage("../../assets/bullets/cannonball_red.svg"),
-  "machine gunner": createImage("../../assets/bullets/splinter_green.svg"),
-
+  soldier: createImage("../../assets/enemies/enemy_soldier.svg"),
+  ninja: createImage("../../assets/enemies/enemy_ninja.svg"),
+  archer: createImage("../../assets/enemies/enemy_archer.svg")
 }
 
 const TowerSprites = {

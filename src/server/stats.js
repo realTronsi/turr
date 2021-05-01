@@ -476,8 +476,12 @@ const EnemyStats = {
     damage: 30,
     size: 25,
     speed: 140 / 1000,
-    range: 500,
-    reward: 600
+    range: 700,
+    reward: 600,
+    dashTimer: 2000,
+		dashRange: 700,
+    timer: 1000,
+    dash: 350
   },
   strong: {
     hp: 160,
@@ -487,15 +491,15 @@ const EnemyStats = {
     range: 500,
     reward: 700
   },
-  tank: {
+  archer: {
     hp: 120,
-    damage: 10,
+    damage: 0,
     size: 40,
     speed: 40 / 1000,
     range: 500,
     shootRange: 800,
     reward: 1000,
-    reload: 800,
+    maxReload: 800,
     bullet: {
       type: "basic",
       damage: 24,
@@ -513,7 +517,7 @@ const EnemyStats = {
     range: 500,
     shootRange: 800,
     reward: 1000,
-    reload: 300,
+    maxReload: 300,
     bullet: {
       type: "cannonball",
       damage: 5,
@@ -525,6 +529,7 @@ const EnemyStats = {
       knockback: 2
     }
 	},
+  /*
   tadpole: {
     hp: 130,
     damage: 40,
@@ -595,6 +600,7 @@ const EnemyStats = {
       duration: 5000
     }
   },
+  */
   
 
 }

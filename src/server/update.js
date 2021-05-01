@@ -45,9 +45,9 @@ const airBullet = require("./bullets/air")
 /* ENEMY REQUIRE */
 
 const soldierEnemy = require("./enemies/soldier")
+const archerEnemy = require("./enemies/archer")
 const ninjaEnemy = require("./enemies/ninja")
 const strongEnemy = require("./enemies/strong")
-const tankEnemy = require("./enemies/tank")
 const machinegunnerEnemy = require("./enemies/machinegunner");
 const tadpoleEnemy = require("./enemies/tadpole");
 const frogEnemy = require("./enemies/frog");
@@ -545,8 +545,6 @@ function update(arenas, delta) { // main game loop
     for (let en of Object.keys(arena.enemies)) {
       const enemy = arena.enemies[en];
 
-      enemy.effects.drowned
-
       let foundQtEnemy = arena.enemyqt.find(function(element) {
         return element.id === enemy.id
       });
@@ -572,8 +570,8 @@ function update(arenas, delta) { // main game loop
 					machinegunnerEnemy(arena, enemy, delta);
 					break;
 				}
-        case "tank": {
-          tankEnemy(arena, enemy, delta);
+        case "archer": {
+          archerEnemy(arena, enemy, delta);
           break;
         }
         case "tadpole": {
@@ -590,6 +588,7 @@ function update(arenas, delta) { // main game loop
       enemy.byv *= Math.pow(enemy.bfric, delta / 25);
       enemy.boostxv *= Math.pow(enemy.boostfric, delta / 25);
       enemy.boostyv *= Math.pow(enemy.boostfric, delta / 25);
+
 
       if (Math.abs(enemy.bxv) < 0.06) {
         enemy.bxv = 0;
@@ -653,10 +652,10 @@ function update(arenas, delta) { // main game loop
 
       //Collide With Towers
       arena.towerqt.onCollision({
-        x: enemy.x - enemy.size,
-        y: enemy.y - enemy.size,
-        width: enemy.size * 2,
-        height: enemy.size * 2
+        x: enemy.x - enemy.stats.size,
+        y: enemy.y - enemy.stats.size,
+        width: enemy.stats.size * 2,
+        height: enemy.stats.size * 2
       }, function(tower) {
         let towerObject = arena.towers[tower.id];
         let dx = enemy.x - towerObject.x;
@@ -664,41 +663,41 @@ function update(arenas, delta) { // main game loop
         let l = Math.sqrt(dx * dx + dy * dy) || 1;
         let xv = dx / l;
         let yv = dy / l;
-        enemy.x = towerObject.x + (towerObject.size + 0.01 + enemy.size) * xv;
-        enemy.y = towerObject.y + (towerObject.size + 0.01 + enemy.size) * yv;
+        enemy.x = towerObject.x + (towerObject.size + 0.01 + enemy.stats.size) * xv;
+        enemy.y = towerObject.y + (towerObject.size + 0.01 + enemy.stats.size) * yv;
 
-        towerObject.hp -= enemy.damage * delta / 1000;
+        towerObject.hp -= enemy.stats.damage * delta / 1000;
 
       }, function(element1, element2) {
         return (dist(element1.x + element1.width / 2, element1.y + element1.width / 2, element2.x + element2.width / 2, element2.y + element2.width / 2) < element1.width / 2 + element2.width / 2)
       });
       //Collide With Enemies
       arena.enemyqt.onCollision({
-        x: enemy.x - enemy.size,
-        y: enemy.y - enemy.size,
-        width: enemy.size * 2,
-        height: enemy.size * 2
+        x: enemy.x - enemy.stats.size,
+        y: enemy.y - enemy.stats.size,
+        width: enemy.stats.size * 2,
+        height: enemy.stats.size * 2
       }, function(enemy2) {
         let enemyObject = arena.enemies[enemy2.id];
-        if (enemy.size < enemyObject.size) {
+        if (enemy.stats.size < enemyObject.stats.size) {
           let dx = enemy.x - enemyObject.x;
           let dy = enemy.y - enemyObject.y;
           let l = Math.sqrt(dx * dx + dy * dy) || 1;
           let xv = dx / l;
           let yv = dy / l;
-          enemy.x = enemyObject.x + (enemyObject.size + 0.01 + enemy.size) * xv;
-          enemy.y = enemyObject.y + (enemyObject.size + 0.01 + enemy.size) * yv;
+          enemy.x = enemyObject.x + (enemyObject.stats.size + 0.01 + enemy.stats.size) * xv;
+          enemy.y = enemyObject.y + (enemyObject.stats.size + 0.01 + enemy.stats.size) * yv;
         }
-        if (enemy.size == enemyObject.size) {
+        if (enemy.stats.size == enemyObject.stats.size) {
           let dx = enemy.x - enemyObject.x;
           let dy = enemy.y - enemyObject.y;
           let l = Math.sqrt(dx * dx + dy * dy) || 1;
           let xv = dx / l;
           let yv = dy / l;
-          enemy.x = enemyObject.x + ((enemyObject.size + 0.01 + enemy.size) * xv);
-          enemy.y = enemyObject.y + ((enemyObject.size + 0.01 + enemy.size) * yv);
-          enemyObject.x = enemy.x - ((enemy.size + 0.01 + enemyObject.size) * xv);
-          enemyObject.y = enemy.y - ((enemy.size + 0.01 + enemyObject.size) * yv);
+          enemy.x = enemyObject.x + ((enemyObject.stats.size + 0.01 + enemy.stats.size) * xv);
+          enemy.y = enemyObject.y + ((enemyObject.stats.size + 0.01 + enemy.stats.size) * yv);
+          enemyObject.x = enemy.x - ((enemy.stats.size + 0.01 + enemyObject.stats.size) * xv);
+          enemyObject.y = enemy.y - ((enemy.stats.size + 0.01 + enemyObject.stats.size) * yv);
 
         }
 
@@ -707,10 +706,10 @@ function update(arenas, delta) { // main game loop
       });
 
       arena.playerqt.onCollision({
-        x: enemy.x - enemy.size,
-        y: enemy.y - enemy.size,
-        width: enemy.size * 2,
-        height: enemy.size * 2
+        x: enemy.x - enemy.stats.size,
+        y: enemy.y - enemy.stats.size,
+        width: enemy.stats.size * 2,
+        height: enemy.stats.size * 2
       }, function(player) {
         let playerObject = arena.players[player.gameId];
         if (playerObject.spawnProt <= 0) {
@@ -719,12 +718,14 @@ function update(arenas, delta) { // main game loop
           let l = Math.sqrt(dx * dx + dy * dy) || 1;
           let xv = dx / l;
           let yv = dy / l;
-          enemy.x = playerObject.x + (playerObject.size + 0.01 + enemy.size) * xv;
-          enemy.y = playerObject.y + (playerObject.size + 0.01 + enemy.size) * yv;
+          enemy.x = playerObject.x + (playerObject.size + 0.01 + enemy.stats.size) * xv;
+          enemy.y = playerObject.y + (playerObject.size + 0.01 + enemy.stats.size) * yv;
 
-          playerObject.hp -= enemy.damage * delta / 1000;
-          playerObject.isDamaged = true;
-          playerObject.changed["health"] = true;
+          playerObject.hp -= enemy.stats.damage * delta / 1000;
+          if (enemy.stats.damage > 0){
+            playerObject.isDamaged = true;
+            playerObject.changed["health"] = true;
+          }
           if (playerObject.hp <= 0) {
             // collider died
             playerObject.die(arena, null, "Enemy");
@@ -741,8 +742,8 @@ function update(arenas, delta) { // main game loop
 
 			let lastX = enemy.x;
       let lastY = enemy.y;
-      enemy.x = Math.min(Math.max(enemy.x, enemy.size), arena.width - enemy.size)
-      enemy.y = Math.min(Math.max(enemy.y, enemy.size), arena.height - enemy.size)
+      enemy.x = Math.min(Math.max(enemy.x, enemy.stats.size), arena.width - enemy.stats.size)
+      enemy.y = Math.min(Math.max(enemy.y, enemy.stats.size), arena.height - enemy.stats.size)
       if (lastX != enemy.x) {
         enemy.changed["x"] = true;
       }
@@ -753,8 +754,8 @@ function update(arenas, delta) { // main game loop
 
       //Push to TempQuadtree
       if (qtEnemy != undefined) {
-        qtEnemy.x = enemy.x - enemy.size;
-        qtEnemy.y = enemy.y - enemy.size;
+        qtEnemy.x = enemy.x - enemy.stats.size;
+        qtEnemy.y = enemy.y - enemy.stats.size;
       }
       tempqt.push(qtEnemy);
     }
@@ -950,7 +951,7 @@ function sendToPlayers(arenas, delta) {
       for (let en of Object.keys(arena.enemies)) {
         const enemy = arena.enemies[en];
 
-        if (Math.abs(enemy.x - player.x) <= 1 / player.fov * 800 + enemy.size && Math.abs(enemy.y - player.y) <= 1 / player.fov * 450 + enemy.size) {
+        if (Math.abs(enemy.x - player.x) <= 1 / player.fov * 800 + enemy.stats.size && Math.abs(enemy.y - player.y) <= 1 / player.fov * 450 + enemy.stats.size) {
           if (!enemy.seenBy.includes(player)) {
             //Enemy is re-entering fov or entering it for the first time
             enemyUpdatePacks.push(enemy.getInitPack());
